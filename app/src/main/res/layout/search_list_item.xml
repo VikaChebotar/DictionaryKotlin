@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="utf-8"?>
+<TextView xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/text1"
+    android:layout_width="match_parent"
+    android:layout_height="?attr/actionBarSize"
+    android:layout_marginLeft="0dp"
+    android:background="@drawable/search_list_item_white_selector"
+    android:drawableLeft="@drawable/ic_search_black_24dp"
+    android:drawablePadding="@dimen/search_drawable_padding"
+    android:ellipsize="end"
+    android:gravity="center_vertical"
+    android:padding="@dimen/activity_horizontal_margin"
+    android:singleLine="true"
+    android:textColor="@color/textSecondary"
+    android:textSize="@dimen/medium_text_size" />

@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="utf-8"?>
+<TextView
+    android:background="?android:attr/selectableItemBackground"
+    android:id="@+id/relatedWord"
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="wrap_content"
+    android:layout_height="wrap_content"
+    android:padding="@dimen/very_small_margin"
+    android:textAllCaps="false"
+    android:clickable="true"
+    android:textStyle="normal"
+    android:gravity="left|center_vertical"
+    android:textColor="@color/textSecondary"
+    android:textSize="@dimen/medium_text_size"/>

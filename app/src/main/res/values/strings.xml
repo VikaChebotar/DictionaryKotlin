@@ -1,0 +1,25 @@
+<resources>
+    <string name="app_name">MyDictionaryApp</string>
+    <string name="search_the_word">Search the word...</string>
+    <string name="your_words">Your words</string>
+    <string name="settings">Settings</string>
+    <string name="endpoint">https://wordsapiv1.p.mashape.com/</string>
+    <string name="networkError">Please check your Internet connection!</string>
+   <string name="prononcuation">[%1$s]</string>
+    <string name="action_settings">Settings</string>
+    <string name="search_title">search</string>
+    <string name="pronounce_title">pronounce</string>
+    <string name="examples">Examples</string>
+    <string name="see_all">See all</string>
+    <string name="api_key_name">X-Mashape-Key</string>
+    <string name="definitions">Definitions</string>
+    <string name="synonyms">Synonyms</string>
+    <string name="antonyms">Antonyms</string>
+    <string name="collapse">Collapse</string>
+    <string name="phrases">Phrases</string>
+    <string name="derivations">Derivation</string>
+    <string name="word_of_the_day">Word of the Day</string>
+    <string name="no_word">Sorry, no word info found</string>
+    <string name="more_from_recent_history">More from recent history</string>
+    <string name="speak_now">Speak Now</string>
+</resources>
