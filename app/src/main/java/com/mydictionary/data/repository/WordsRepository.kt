@@ -1,7 +1,6 @@
 package com.mydictionary.data.repository
 
 import com.mydictionary.data.entity.WordInfo
-import com.mydictionary.data.repository.WordsStorage.WordSourceListener
 import java.util.*
 
 /**
@@ -9,5 +8,12 @@ import java.util.*
  */
 
 interface WordsRepository {
+
+    interface WordSourceListener<T>{
+        fun onSuccess(t:T?)
+
+        fun onError(error: String?)
+    }
+
     fun getTodayWord(date: Date, listener: WordSourceListener<WordInfo>);
 }

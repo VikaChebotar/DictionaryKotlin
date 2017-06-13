@@ -14,10 +14,10 @@ import retrofit2.Response
  * Created by Viktoria_Chebotar on 6/7/2017.
  */
 
-class CloudStorage(val context: Context) : WordsStorage {
-    val restApi = WordApiRetrofit.getInstance(context).wordsApi;
+class CloudStorage(val context: Context) {
+    private val restApi = WordApiRetrofit.getInstance(context).wordsApi;
 
-    override fun getRandomWord(listener: WordsStorage.WordSourceListener<WordInfo>) {
+    fun getRandomWord(listener: WordsRepository.WordSourceListener<WordInfo>) {
         val call = restApi.getRandomWord();
         call.enqueue(object : Callback<WordInfo> {
             override fun onResponse(call: Call<WordInfo>?, response: Response<WordInfo>?) {
@@ -42,5 +42,28 @@ class CloudStorage(val context: Context) : WordsStorage {
         })
     }
 
+//todo refactor duplicated code
+    fun getWordInfo(word: String, listener: WordsRepository.WordSourceListener<WordInfo>) {
+        val call = restApi.getWordInfo(word);
+        call.enqueue(object : Callback<WordInfo> {
+            override fun onResponse(call: Call<WordInfo>?, response: Response<WordInfo>?) {
+                if (response?.isSuccessful ?: false) {
+                    listener.onSuccess(response?.body())
+                } else {
+                    listener.onError(response?.errorBody().toString())
+                }
+            }
 
+            override fun onFailure(call: Call<WordInfo>?, t: Throwable?) {
+                val errorMes: String?
+                if (t is NoConnectivityException) {
+                    errorMes = context.getString(R.string.networkError)
+                } else {
+                    errorMes = t?.message
+                }
+                listener.onError(errorMes)
+                Log.e(CloudStorage::class.java.simpleName, "getWordInfo: "+errorMes)
+            }
+        })
+    }
 }
