@@ -28,19 +28,21 @@ class WordResponseDeserializer : JsonDeserializer<WordInfo> {
         if (results != null) {
             val resultList: List<WordInfoResult> = gson.fromJson(results, listType)
             resultList.forEach {
-                wordInfo.synonyms.addAll(it.synonyms);
-                wordInfo.antonyms.addAll(it.antonyms)
-                wordInfo.also.addAll(it.also)
-                wordInfo.derivation.addAll(it.derivation)
-                wordInfo.entails.addAll(it.entails)
-                wordInfo.examples.addAll(it.examples)
-                wordInfo.hasTypes.addAll(it.hasTypes)
-                wordInfo.inRegion.addAll(it.inRegion)
-                wordInfo.similarTo.addAll(it.similarTo)
-                wordInfo.typeOf.addAll(it.typeOf)
-                wordInfo.verbGroup.addAll(it.verbGroup)
-                if (it.definition != null && it.partOfSpeech != null) {
-                    wordInfo.definitions.add(Definition(it.definition, it.partOfSpeech))
+                wordInfo.apply {
+                    synonyms.addAll(it.synonyms);
+                    antonyms.addAll(it.antonyms)
+                    also.addAll(it.also)
+                    derivation.addAll(it.derivation)
+                    entails.addAll(it.entails)
+                    examples.addAll(it.examples)
+                    hasTypes.addAll(it.hasTypes)
+                    inRegion.addAll(it.inRegion)
+                    similarTo.addAll(it.similarTo)
+                    typeOf.addAll(it.typeOf)
+                    verbGroup.addAll(it.verbGroup)
+                    if (it.definition != null && it.partOfSpeech != null) {
+                        definitions.add(Definition(it.definition, it.partOfSpeech))
+                    }
                 }
             }
         }

@@ -10,9 +10,9 @@ import java.util.*
 interface WordsRepository {
 
     interface WordSourceListener<T>{
-        fun onSuccess(t:T?)
+        fun onSuccess(t:T)
 
-        fun onError(error: String?)
+        fun onError(error: String)
     }
 
     fun getTodayWord(date: Date, listener: WordSourceListener<WordInfo>);

@@ -1,4 +1,4 @@
-package com.mydictionary.presentation
+package com.mydictionary.ui
 
 import android.app.Application
 import android.content.Context

@@ -16,12 +16,12 @@ class WordsRepositoryImpl(val factory: WordsStorageFactory) : WordsRepository {
             factory.cloudStorage.getWordInfo(wordOfTheDay.word!!, listener)
         } else {
             factory.cloudStorage.getRandomWord(object : WordsRepository.WordSourceListener<WordInfo> {
-                override fun onSuccess(t: WordInfo?) {
+                override fun onSuccess(t: WordInfo) {
                     listener.onSuccess(t)
-                    t?.let { factory.localStorage.storeWordOfTheDay(t.word, Calendar.getInstance().time) }
+                    t.let { factory.localStorage.storeWordOfTheDay(t.word, Calendar.getInstance().time) }
                 }
 
-                override fun onError(error: String?) {
+                override fun onError(error: String) {
                     listener.onError(error)
                 }
             })

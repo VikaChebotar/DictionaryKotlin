@@ -4,8 +4,7 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:focusable="true"
-    android:focusableInTouchMode="true"
-    android:orientation="vertical">
+    android:focusableInTouchMode="true">
 
     <android.support.design.widget.AppBarLayout
         android:id="@+id/appBarLayout"
@@ -23,7 +22,7 @@
             app:popupTheme="@style/AppTheme.PopupOverlay"
             app:theme="@style/ThemeOverlay.AppCompat.Dark.ActionBar" />
 
-        <com.mydictionaryapp.view.home.SearchEditText
+        <EditText
             android:id="@+id/searchField"
             android:layout_width="match_parent"
             android:layout_height="@dimen/toolbar_subtitle_height"
@@ -49,12 +48,14 @@
 
         <LinearLayout
             android:id="@+id/homeLayout"
-            android:orientation="vertical"
             android:layout_width="match_parent"
-            android:layout_height="match_parent">
+            android:layout_height="match_parent"
+            android:orientation="vertical">
 
-            <include layout="@layout/random_word_card" />
-
+            <com.mydictionary.ui.views.home.WordOfTheDayCard
+                android:id="@+id/wordOfTheDayCard"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content" />
         </LinearLayout>
 
     </android.support.v4.widget.NestedScrollView>

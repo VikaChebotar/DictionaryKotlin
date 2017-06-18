@@ -21,48 +21,48 @@ class CloudStorage(val context: Context) {
         val call = restApi.getRandomWord();
         call.enqueue(object : Callback<WordInfo> {
             override fun onResponse(call: Call<WordInfo>?, response: Response<WordInfo>?) {
-                if (response?.isSuccessful ?: false) {
-                    listener.onSuccess(response?.body())
+                if (response?.isSuccessful ?: false && response?.body() != null) {
+                    listener.onSuccess(response.body())
                 } else {
                     listener.onError(response?.errorBody().toString())
                 }
             }
 
             override fun onFailure(call: Call<WordInfo>?, t: Throwable?) {
-                val errorMes: String?
+                val errorMes: String
                 if (t is NoConnectivityException) {
                     errorMes = context.getString(R.string.networkError)
                 } else {
-                    errorMes = t?.message
+                    errorMes = t?.message ?: context.getString(R.string.default_error)
                 }
                 listener.onError(errorMes)
-                Log.e(CloudStorage::class.java.simpleName, "getRandomWord: "+errorMes)
+                Log.e(CloudStorage::class.java.simpleName, "getRandomWord: " + errorMes)
             }
 
         })
     }
 
-//todo refactor duplicated code
+    //todo refactor duplicated code
     fun getWordInfo(word: String, listener: WordsRepository.WordSourceListener<WordInfo>) {
         val call = restApi.getWordInfo(word);
         call.enqueue(object : Callback<WordInfo> {
             override fun onResponse(call: Call<WordInfo>?, response: Response<WordInfo>?) {
-                if (response?.isSuccessful ?: false) {
-                    listener.onSuccess(response?.body())
+                if (response?.isSuccessful ?: false && response?.body() != null) {
+                    listener.onSuccess(response.body())
                 } else {
                     listener.onError(response?.errorBody().toString())
                 }
             }
 
             override fun onFailure(call: Call<WordInfo>?, t: Throwable?) {
-                val errorMes: String?
+                val errorMes: String
                 if (t is NoConnectivityException) {
                     errorMes = context.getString(R.string.networkError)
                 } else {
-                    errorMes = t?.message
+                    errorMes = t?.message ?: context.getString(R.string.default_error)
                 }
                 listener.onError(errorMes)
-                Log.e(CloudStorage::class.java.simpleName, "getWordInfo: "+errorMes)
+                Log.e(CloudStorage::class.java.simpleName, "getWordInfo: " + errorMes)
             }
         })
     }
