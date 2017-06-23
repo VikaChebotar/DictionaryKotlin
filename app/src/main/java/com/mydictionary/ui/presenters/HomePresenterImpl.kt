@@ -10,19 +10,28 @@ import java.util.*
 
 class HomePresenterImpl(val repository: WordsRepository) : HomePresenter {
     var homeView: HomeView? = null
+    var todayWord: WordInfo? = null
 
     override fun onStart(view: HomeView) {
         this.homeView = view
-        repository.getTodayWord(Calendar.getInstance().time,
-                object : WordsRepository.WordSourceListener<WordInfo> {
-                    override fun onSuccess(wordInfo: WordInfo) {
-                        homeView?.showWordOfTheDay(wordInfo)
-                    }
+        if(todayWord == null) {
+            homeView?.showProgress(true)
+            repository.getTodayWord(Calendar.getInstance().time,
+                    object : WordsRepository.WordSourceListener<WordInfo> {
+                        override fun onSuccess(wordInfo: WordInfo) {
+                            todayWord = wordInfo;
+                            homeView?.showWordOfTheDay(wordInfo)
+                            homeView?.showProgress(false)
+                        }
 
-                    override fun onError(error: String) {
-                        homeView?.showError(error)
-                    }
-                })
+                        override fun onError(error: String) {
+                            homeView?.showProgress(false)
+                            homeView?.showError(error)
+                        }
+                    })
+        } else{
+            homeView?.showWordOfTheDay(todayWord as WordInfo)
+        }
     }
 
     override fun onStop() {

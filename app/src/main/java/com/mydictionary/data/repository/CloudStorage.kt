@@ -3,7 +3,7 @@ package com.mydictionary.data.repository
 import android.content.Context
 import android.util.Log
 import com.mydictionary.R
-import com.mydictionary.data.commons.NoConnectivityException
+import com.mydictionary.commons.NoConnectivityException
 import com.mydictionary.data.entity.WordInfo
 import com.mydictionary.data.net.WordApiRetrofit
 import retrofit2.Call

@@ -1,4 +1,4 @@
-package com.mydictionary.data.commons
+package com.mydictionary.commons
 
 /**
  * Created by Viktoria_Chebotar on 6/7/2017.

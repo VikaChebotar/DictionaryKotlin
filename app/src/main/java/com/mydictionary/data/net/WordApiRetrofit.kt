@@ -5,9 +5,9 @@ import android.net.ConnectivityManager
 import com.google.gson.GsonBuilder
 import com.google.gson.reflect.TypeToken
 import com.mydictionary.R
-import com.mydictionary.data.commons.Constants
-import com.mydictionary.data.commons.NoConnectivityException
-import com.mydictionary.data.commons.isOnline
+import com.mydictionary.commons.Constants
+import com.mydictionary.commons.NoConnectivityException
+import com.mydictionary.commons.isOnline
 import com.mydictionary.data.entity.SearchResult
 import com.mydictionary.data.entity.WordInfo
 import okhttp3.Interceptor
@@ -62,7 +62,7 @@ class WordApiRetrofit private constructor(context: Context) {
             val request = chain!!.request().
                     newBuilder().
                     addHeader(context.getString(R.string.api_key_name),
-                            context.getString(R.string.words_api_key)).
+                            context.getString(R.string.wordnik_api_key)).
                     build()
             return chain.proceed(request)
         }

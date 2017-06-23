@@ -1,6 +1,6 @@
 package com.mydictionary.data.repository
 
-import com.mydictionary.data.commons.isSameDay
+import com.mydictionary.commons.isSameDay
 import com.mydictionary.data.entity.WordInfo
 import java.util.*
 

@@ -28,7 +28,7 @@ class WordResponseDeserializer : JsonDeserializer<WordInfo> {
         if (results != null) {
             val resultList: List<WordInfoResult> = gson.fromJson(results, listType)
             resultList.forEach {
-                wordInfo.apply {
+                with(wordInfo) {
                     synonyms.addAll(it.synonyms);
                     antonyms.addAll(it.antonyms)
                     also.addAll(it.also)
