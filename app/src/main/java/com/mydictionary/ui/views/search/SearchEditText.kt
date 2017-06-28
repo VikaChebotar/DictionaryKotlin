@@ -18,9 +18,12 @@ import android.widget.TextView
 import com.mydictionary.R
 import com.mydictionary.commons.Constants.Companion.AUTOCOMPLETE_DELAY
 import com.mydictionary.commons.Constants.Companion.MESSAGE_TEXT_CHANGED
+import com.mydictionary.commons.Constants.CompoundDrawables.LEFT
+import com.mydictionary.commons.Constants.CompoundDrawables.RIGHT
 import com.mydictionary.commons.hideKeyboard
 import com.mydictionary.commons.isIntentAvailable
 import java.lang.ref.WeakReference
+
 
 
 /**
@@ -28,12 +31,15 @@ import java.lang.ref.WeakReference
  */
 
 class SearchEditText : AppCompatEditText {
-    private val isVoiceRecognitionSupported: Boolean
+    private val isVoiceRecognitionSupported by lazy {
+        context.isIntentAvailable(Intent(RecognizerIntent.ACTION_RECOGNIZE_SPEECH))
+    }
     private val handler = MyHandler(this)
     private var mIsSearchActive = false
     private var isMiscActive = true
 
     var contentChangedListener: ContentChangedListener? = null
+    var voiceRecognitionListener: VoiceButtonListener? = null
 
     private val textWatcher = object : TextWatcher {
         override fun beforeTextChanged(s: CharSequence, start: Int, count: Int, after: Int) {
@@ -56,12 +62,10 @@ class SearchEditText : AppCompatEditText {
     }
 
     private val touchListener = View.OnTouchListener { _, event ->
-        val DRAWABLE_LEFT = 0
-        val DRAWABLE_RIGHT = 2
         if (event?.action == MotionEvent.ACTION_UP) {
-            val leftBound = compoundDrawables[DRAWABLE_LEFT].bounds.width() +
+            val leftBound = compoundDrawables[LEFT.ordinal].bounds.width() +
                     compoundDrawablePadding + paddingLeft
-            val rightBound = right - compoundDrawables[DRAWABLE_RIGHT].bounds.width() -
+            val rightBound = right - compoundDrawables[RIGHT.ordinal].bounds.width() -
                     compoundDrawablePadding - paddingRight
             if (mIsSearchActive && event.rawX <= leftBound) {
                 closeSearch()
@@ -70,7 +74,8 @@ class SearchEditText : AppCompatEditText {
                 clearSearch()
                 return@OnTouchListener true
             } else if (isMiscActive && event.rawX >= rightBound) {
-                startVoiceRecognition()
+                if (isVoiceRecognitionSupported) voiceRecognitionListener?.startVoiceRecognition()
+                return@OnTouchListener true
             }
         }
         false
@@ -84,15 +89,13 @@ class SearchEditText : AppCompatEditText {
             super(context, attrs, defStyleAttr)
 
     init {
-        isVoiceRecognitionSupported = context.isIntentAvailable(Intent(
-                RecognizerIntent.ACTION_RECOGNIZE_SPEECH))
         addTextChangedListener(textWatcher)
         setOnFocusChangeListener { _, hasFocus -> onFocusChanged(hasFocus) }
         setOnTouchListener(touchListener)
         setOnEditorActionListener({ _: TextView?, p1: Int, _: KeyEvent? ->
             if (p1 == EditorInfo.IME_ACTION_SEARCH) {
                 handler.removeMessages(MESSAGE_TEXT_CHANGED)
-                handler.sendMessage(handler.obtainMessage(MESSAGE_TEXT_CHANGED, text))
+                handler.sendMessage(handler.obtainMessage(MESSAGE_TEXT_CHANGED, text.toString()))
                 true
             } else false
         })
@@ -130,23 +133,21 @@ class SearchEditText : AppCompatEditText {
     }
 
     private fun showSearchDrawables() {
-        val drawableLeft = if (mIsSearchActive) R.drawable.ic_arrow_back_black_24dp else R.drawable.ic_search_black_24dp
-        val drawableRight = if (isMiscActive) R.drawable.ic_mic_black_24dp else R.drawable.ic_close_black_24dp
+        val drawableLeft = if (mIsSearchActive) R.drawable.ic_arrow_back_black_24dp
+        else R.drawable.ic_search_black_24dp
+        val drawableRight = if (isMiscActive) R.drawable.ic_mic_black_24dp
+        else R.drawable.ic_close_black_24dp
         setCompoundDrawablesWithIntrinsicBounds(drawableLeft, 0, drawableRight, 0)
     }
 
-    //TODO refactor
-    fun startVoiceRecognition() {
-//        if (isVoiceRecognitionSupported && fragment != null) {
-//            val intent = Intent(RecognizerIntent.ACTION_RECOGNIZE_SPEECH)
-//            intent.putExtra(RecognizerIntent.EXTRA_LANGUAGE_MODEL,
-//                    RecognizerIntent.LANGUAGE_MODEL_FREE_FORM)
-//            intent.putExtra(RecognizerIntent.EXTRA_PROMPT,
-//                    context.getString(R.string.speak_now))
-//            (fragment as Fragment).startActivityForResult(intent, VOICE_RECOGNITION_CODE)
-//        }
+    override fun onKeyPreIme(keyCode: Int, event: KeyEvent): Boolean {
+        if (event.keyCode == KeyEvent.KEYCODE_BACK) {
+            dispatchKeyEvent(event)
+            closeSearch()
+            return false
+        }
+        return super.onKeyPreIme(keyCode, event)
     }
-
 
     internal class MyHandler(editText: SearchEditText) : Handler() {
         private val editTextWeakRef = WeakReference<SearchEditText>(editText)
@@ -163,6 +164,10 @@ class SearchEditText : AppCompatEditText {
         fun onSearchCleared()
 
         fun onSearchClosed()
+    }
+
+    interface VoiceButtonListener {
+        fun startVoiceRecognition()
     }
 
 }

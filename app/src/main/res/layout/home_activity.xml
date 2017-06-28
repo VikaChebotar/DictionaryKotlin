@@ -1,10 +1,10 @@
 <?xml version="1.0" encoding="utf-8"?>
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
-                xmlns:app="http://schemas.android.com/apk/res-auto"
-                android:layout_width="match_parent"
-                android:layout_height="match_parent"
-                android:focusable="true"
-                android:focusableInTouchMode="true">
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:focusable="true"
+    android:focusableInTouchMode="true">
 
     <android.support.design.widget.AppBarLayout
         android:id="@+id/appBarLayout"
@@ -21,28 +21,15 @@
             android:descendantFocusability="beforeDescendants"
             android:focusableInTouchMode="true"
             app:popupTheme="@style/AppTheme.PopupOverlay"
-            app:theme="@style/ThemeOverlay.AppCompat.Dark.ActionBar"/>
+            app:theme="@style/ThemeOverlay.AppCompat.Dark.ActionBar" />
 
         <EditText
             android:id="@+id/searchField"
-            android:layout_width="match_parent"
-            android:layout_height="@dimen/toolbar_subtitle_height"
-            android:layout_margin="@dimen/activity_horizontal_margin"
-            android:background="@drawable/search_edittext_backgr"
+            style="@style/SearchEditTextStyle"
             android:cursorVisible="false"
-            android:drawableLeft="@drawable/ic_search_black_24dp"
-            android:drawablePadding="@dimen/search_drawable_padding"
-            android:drawableRight="@drawable/ic_mic_black_24dp"
             android:focusable="false"
             android:focusableInTouchMode="false"
-            android:hint="@string/search_the_word"
-            android:imeOptions="flagNoExtractUi|actionSearch"
-            android:maxLines="1"
-            android:paddingLeft="@dimen/activity_horizontal_margin"
-            android:paddingRight="@dimen/activity_horizontal_margin"
-            android:textColor="@color/textSecondary"
-            android:transitionName="search_field_transition_name"
-           />
+            android:transitionName="search_field_transition_name" />
     </android.support.design.widget.AppBarLayout>
 
     <android.support.v4.widget.NestedScrollView
@@ -61,7 +48,7 @@
             <com.mydictionary.ui.views.home.WordOfTheDayCard
                 android:id="@+id/wordOfTheDayCard"
                 android:layout_width="match_parent"
-                android:layout_height="wrap_content"/>
+                android:layout_height="wrap_content" />
         </LinearLayout>
 
     </android.support.v4.widget.NestedScrollView>
@@ -71,5 +58,5 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_centerInParent="true"
-        android:visibility="gone"/>
+        android:visibility="gone" />
 </RelativeLayout>

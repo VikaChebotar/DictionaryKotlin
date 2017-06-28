@@ -16,19 +16,7 @@
 
         <com.mydictionary.ui.views.search.SearchEditText
             android:id="@+id/searchField"
-            android:layout_width="match_parent"
-            android:layout_height="@dimen/toolbar_subtitle_height"
-            android:layout_margin="@dimen/activity_horizontal_margin"
-            android:background="@drawable/search_edittext_backgr"
-            android:drawableLeft="@drawable/ic_search_black_24dp"
-            android:drawablePadding="@dimen/search_drawable_padding"
-            android:drawableRight="@drawable/ic_mic_black_24dp"
-            android:hint="@string/search_the_word"
-            android:imeOptions="flagNoExtractUi|actionSearch"
-            android:paddingLeft="@dimen/activity_horizontal_margin"
-            android:paddingRight="@dimen/activity_horizontal_margin"
-            android:singleLine="true"
-            android:textColor="@color/textSecondary"
+            style="@style/SearchEditTextStyle"
             android:transitionName="search_field_transition_name" />
     </android.support.design.widget.AppBarLayout>
 
@@ -53,8 +41,8 @@
                 <LinearLayout
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:orientation="vertical"
                     android:divider="@drawable/divider_with_padding"
+                    android:orientation="vertical"
                     android:showDividers="middle">
 
                     <android.support.v7.widget.RecyclerView

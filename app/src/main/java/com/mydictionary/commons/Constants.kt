@@ -23,5 +23,11 @@ class Constants {
         val WORD_OF_THE_DAY_DATE = "word_of_the_day_date"
         val RESPONSE_CODE_NOT_FOUND = 404
         val SPEECH_RATE = 0.9f
+        val VOICE_SEARCH_EXTRA = "voice_search_extra"
+        val VOICE_SEARCH_PAUSE_MILLIS = 500;
+    }
+
+    enum class CompoundDrawables {
+        LEFT, TOP, RIGHT, BOTTOM
     }
 }
