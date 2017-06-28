@@ -2,8 +2,6 @@ package com.mydictionary.ui.presenters.home
 
 import com.mydictionary.data.entity.WordInfo
 import com.mydictionary.data.repository.WordsRepository
-import com.mydictionary.ui.presenters.home.HomePresenter
-import com.mydictionary.ui.presenters.home.HomeView
 import java.util.*
 
 /**
@@ -16,7 +14,7 @@ class HomePresenterImpl(val repository: WordsRepository) : HomePresenter {
 
     override fun onStart(view: HomeView) {
         this.homeView = view
-        if(todayWord == null) {
+        if (todayWord == null) {
             homeView?.showProgress(true)
             repository.getTodayWord(Calendar.getInstance().time,
                     object : WordsRepository.WordSourceListener<WordInfo> {
@@ -31,12 +29,18 @@ class HomePresenterImpl(val repository: WordsRepository) : HomePresenter {
                             homeView?.showError(error)
                         }
                     })
-        } else{
+        } else {
             homeView?.showWordOfTheDay(todayWord as WordInfo)
         }
     }
 
     override fun onStop() {
         homeView = null
+    }
+
+    override fun onWordOfTheDayClicked() {
+        if (todayWord != null) {
+            homeView?.startWordInfoActivity(todayWord!!)
+        }
     }
 }

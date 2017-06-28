@@ -41,8 +41,8 @@ class WordOfTheDayCard : FrameLayout {
         example.text = wordInfo.examples.getOrNull(0) ?: ""
         example.visibility = if (example.text.isEmpty()) View.GONE else View.VISIBLE
 
-        speakWord.setOnClickListener { TODO("not implemented")}
-        likeWord.setOnClickListener { TODO("not implemented") }
+//        speakWord.setOnClickListener { TODO("not implemented")}
+//        likeWord.setOnClickListener { TODO("not implemented") }
     }
 
 }

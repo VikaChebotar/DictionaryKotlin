@@ -14,6 +14,7 @@ import com.mydictionary.ui.DictionaryApp
 import com.mydictionary.ui.presenters.home.HomePresenterImpl
 import com.mydictionary.ui.presenters.home.HomeView
 import com.mydictionary.ui.views.search.SearchActivity
+import com.mydictionary.ui.views.word.WordInfoActivity
 import kotlinx.android.synthetic.main.home_activity.*
 
 class HomeActivity : AppCompatActivity(), HomeView {
@@ -24,6 +25,7 @@ class HomeActivity : AppCompatActivity(), HomeView {
         setContentView(R.layout.home_activity);
         presenter.onStart(this)
         searchField.setOnTouchListener(searchTouchListener)
+        wordOfTheDayCard.setOnClickListener { presenter.onWordOfTheDayClicked() }
     }
 
     override fun onDestroy() {
@@ -43,6 +45,12 @@ class HomeActivity : AppCompatActivity(), HomeView {
     override fun showError(message: String) {
         Snackbar.make(homeScrollContent!!, message, Snackbar.LENGTH_LONG).show()
         homeLayout.visibility = View.GONE
+    }
+
+    override fun startWordInfoActivity(word: WordInfo) {
+        val intent = Intent(this@HomeActivity, WordInfoActivity::class.java);
+        intent.putExtra(Constants.SELCTED_WORD_INFO_EXTRA, word)
+        startActivity(intent)
     }
 
     fun startSearchActivity(isVoiceSearchClicked: Boolean = false) {

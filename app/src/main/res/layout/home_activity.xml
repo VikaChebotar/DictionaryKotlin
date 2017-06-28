@@ -48,7 +48,8 @@
             <com.mydictionary.ui.views.home.WordOfTheDayCard
                 android:id="@+id/wordOfTheDayCard"
                 android:layout_width="match_parent"
-                android:layout_height="wrap_content" />
+                android:layout_height="wrap_content"
+                android:clickable="true"/>
         </LinearLayout>
 
     </android.support.v4.widget.NestedScrollView>

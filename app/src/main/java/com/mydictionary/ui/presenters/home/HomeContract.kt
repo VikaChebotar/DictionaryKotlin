@@ -8,11 +8,12 @@ import com.mydictionary.ui.presenters.BaseView
  * Created by Viktoria Chebotar on 18.06.17.
  */
 
-interface HomePresenter:BasePresenter<HomeView> {
-
+interface HomePresenter : BasePresenter<HomeView> {
+    fun onWordOfTheDayClicked()
 }
 
-interface HomeView:BaseView{
+interface HomeView : BaseView {
     fun showWordOfTheDay(word: WordInfo)
+    fun startWordInfoActivity(word: WordInfo)
 }
 
