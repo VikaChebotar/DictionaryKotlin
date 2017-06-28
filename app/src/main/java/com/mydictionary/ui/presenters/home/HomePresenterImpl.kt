@@ -1,7 +1,9 @@
-package com.mydictionary.ui.presenters
+package com.mydictionary.ui.presenters.home
 
 import com.mydictionary.data.entity.WordInfo
 import com.mydictionary.data.repository.WordsRepository
+import com.mydictionary.ui.presenters.home.HomePresenter
+import com.mydictionary.ui.presenters.home.HomeView
 import java.util.*
 
 /**

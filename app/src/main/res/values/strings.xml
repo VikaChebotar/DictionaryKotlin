@@ -1,5 +1,5 @@
 <resources>
-    <string name="app_name">MyDictionaryApp</string>
+    <string name="app_name">KotlinDictionary</string>
     <string name="search_the_word">Search the word...</string>
     <string name="your_words">Your words</string>
     <string name="settings">Settings</string>

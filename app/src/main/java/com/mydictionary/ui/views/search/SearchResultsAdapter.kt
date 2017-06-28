@@ -20,10 +20,12 @@ class SearchResultsAdapter (val listener: (String) -> Unit) : RecyclerView.Adapt
         this.dataset.clear()
         this.dataset.addAll(dataset)
         this.isHistoryList = isHistoryList
+        notifyDataSetChanged()
     }
 
     fun clearList() {
         this.dataset.clear()
+        notifyDataSetChanged()
     }
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int) =

@@ -23,4 +23,8 @@ class LocalStorage {
             }
         }
     }
+
+    fun getHistoryWords(): List<String> {
+        return listOf("1", "22", "333")
+    }
 }

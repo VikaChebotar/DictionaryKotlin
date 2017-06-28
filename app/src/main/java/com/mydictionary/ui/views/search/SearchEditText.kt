@@ -10,8 +10,11 @@ import android.support.v7.widget.AppCompatEditText
 import android.text.Editable
 import android.text.TextWatcher
 import android.util.AttributeSet
+import android.view.KeyEvent
 import android.view.MotionEvent
 import android.view.View
+import android.view.inputmethod.EditorInfo
+import android.widget.TextView
 import com.mydictionary.R
 import com.mydictionary.commons.Constants.Companion.AUTOCOMPLETE_DELAY
 import com.mydictionary.commons.Constants.Companion.MESSAGE_TEXT_CHANGED
@@ -30,7 +33,6 @@ class SearchEditText : AppCompatEditText {
     private var mIsSearchActive = false
     private var isMiscActive = true
 
-    var openCloseListener: OpenCloseListener? = null
     var contentChangedListener: ContentChangedListener? = null
 
     private val textWatcher = object : TextWatcher {
@@ -44,7 +46,8 @@ class SearchEditText : AppCompatEditText {
 
         override fun afterTextChanged(string: Editable) {
             handler.removeMessages(MESSAGE_TEXT_CHANGED)
-            handler.sendMessageDelayed(handler.obtainMessage(MESSAGE_TEXT_CHANGED, string.toString()), AUTOCOMPLETE_DELAY)
+            handler.sendMessageDelayed(handler.obtainMessage(MESSAGE_TEXT_CHANGED, string.toString()),
+                    AUTOCOMPLETE_DELAY)
             if ((string.isNotEmpty() && isMiscActive) || (string.isEmpty() && !isMiscActive)) {
                 isMiscActive = !isMiscActive
                 showSearchDrawables()
@@ -52,38 +55,52 @@ class SearchEditText : AppCompatEditText {
         }
     }
 
+    private val touchListener = View.OnTouchListener { _, event ->
+        val DRAWABLE_LEFT = 0
+        val DRAWABLE_RIGHT = 2
+        if (event?.action == MotionEvent.ACTION_UP) {
+            val leftBound = compoundDrawables[DRAWABLE_LEFT].bounds.width() +
+                    compoundDrawablePadding + paddingLeft
+            val rightBound = right - compoundDrawables[DRAWABLE_RIGHT].bounds.width() -
+                    compoundDrawablePadding - paddingRight
+            if (mIsSearchActive && event.rawX <= leftBound) {
+                closeSearch()
+                return@OnTouchListener true
+            } else if (!isMiscActive && event.rawX >= rightBound) {
+                clearSearch()
+                return@OnTouchListener true
+            } else if (isMiscActive && event.rawX >= rightBound) {
+                startVoiceRecognition()
+            }
+        }
+        false
+    }
+
     constructor(context: Context) : super(context)
 
     constructor(context: Context, attrs: AttributeSet) : super(context, attrs)
 
-    constructor(context: Context, attrs: AttributeSet, defStyleAttr: Int) : super(context, attrs, defStyleAttr)
+    constructor(context: Context, attrs: AttributeSet, defStyleAttr: Int) :
+            super(context, attrs, defStyleAttr)
 
     init {
-        isVoiceRecognitionSupported = context.isIntentAvailable(Intent(RecognizerIntent.ACTION_RECOGNIZE_SPEECH))
+        isVoiceRecognitionSupported = context.isIntentAvailable(Intent(
+                RecognizerIntent.ACTION_RECOGNIZE_SPEECH))
         addTextChangedListener(textWatcher)
-        setOnFocusChangeListener { v, hasFocus ->
-            mIsSearchActive = hasFocus
-            showSearchDrawables()
-            if (hasFocus) openCloseListener?.onSearchOpened();
-        }
-        setOnTouchListener(View.OnTouchListener { v, event ->
-            val DRAWABLE_LEFT = 0
-            val DRAWABLE_RIGHT = 2
-            if (event?.action == MotionEvent.ACTION_UP) {
-                val leftBound = compoundDrawables[DRAWABLE_LEFT].bounds.width()+ compoundDrawablePadding + paddingLeft
-                val rightBound = right - compoundDrawables[DRAWABLE_RIGHT].bounds.width() - compoundDrawablePadding - paddingRight
-                if (mIsSearchActive && event.rawX <= leftBound) {
-                    closeSearch()
-                    return@OnTouchListener true
-                } else if (!isMiscActive && event.rawX >= rightBound) {
-                    clearSearch()
-                    return@OnTouchListener true
-                } else if (isMiscActive && event.rawX >= rightBound) {
-                    startVoiceRecognition()
-                }
-            }
-            false
+        setOnFocusChangeListener { _, hasFocus -> onFocusChanged(hasFocus) }
+        setOnTouchListener(touchListener)
+        setOnEditorActionListener({ _: TextView?, p1: Int, _: KeyEvent? ->
+            if (p1 == EditorInfo.IME_ACTION_SEARCH) {
+                handler.removeMessages(MESSAGE_TEXT_CHANGED)
+                handler.sendMessage(handler.obtainMessage(MESSAGE_TEXT_CHANGED, text))
+                true
+            } else false
         })
+    }
+
+    private fun onFocusChanged(hasFocus: Boolean) {
+        mIsSearchActive = hasFocus
+        showSearchDrawables()
     }
 
     override fun onRestoreInstanceState(state: Parcelable) {
@@ -103,7 +120,7 @@ class SearchEditText : AppCompatEditText {
         clearFocus()
         isSelected = false
         context.hideKeyboard(windowToken)
-        openCloseListener?.onSearchClosed()
+        contentChangedListener?.onSearchClosed()
     }
 
     fun clearSearch() {
@@ -140,15 +157,12 @@ class SearchEditText : AppCompatEditText {
         }
     }
 
-    interface OpenCloseListener {
-        fun onSearchOpened()
-
-        fun onSearchClosed()
-    }
-
     interface ContentChangedListener {
         fun onSearchLetterEntered(msg: String)
 
         fun onSearchCleared()
+
+        fun onSearchClosed()
     }
+
 }

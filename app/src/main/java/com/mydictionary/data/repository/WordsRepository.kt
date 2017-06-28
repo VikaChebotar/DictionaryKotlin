@@ -15,5 +15,9 @@ interface WordsRepository {
         fun onError(error: String)
     }
 
-    fun getTodayWord(date: Date, listener: WordSourceListener<WordInfo>);
+    fun getTodayWord(date: Date, listener: WordSourceListener<WordInfo>)
+
+    fun getHistoryWords(listener: WordSourceListener<List<String>>)
+
+    fun searchWord(searchPhrase: String, listener: WordSourceListener<List<String>>)
 }

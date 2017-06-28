@@ -8,8 +8,8 @@ import android.view.View
 import com.mydictionary.R
 import com.mydictionary.data.entity.WordInfo
 import com.mydictionary.ui.DictionaryApp
-import com.mydictionary.ui.presenters.HomePresenterImpl
-import com.mydictionary.ui.presenters.HomeView
+import com.mydictionary.ui.presenters.home.HomePresenterImpl
+import com.mydictionary.ui.presenters.home.HomeView
 import com.mydictionary.ui.views.search.SearchActivity
 import kotlinx.android.synthetic.main.home_activity.*
 
@@ -23,15 +23,11 @@ class HomeActivity : AppCompatActivity(), HomeView {
             val intent = Intent(this, SearchActivity::class.java);
             startActivity(intent)
         }
-    }
-
-    override fun onStart() {
-        super.onStart()
         presenter.onStart(this)
     }
 
-    override fun onStop() {
-        super.onStop()
+    override fun onDestroy() {
+        super.onDestroy()
         presenter.onStop()
     }
 

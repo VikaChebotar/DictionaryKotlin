@@ -62,7 +62,7 @@ class WordApiRetrofit private constructor(context: Context) {
             val request = chain!!.request().
                     newBuilder().
                     addHeader(context.getString(R.string.api_key_name),
-                            context.getString(R.string.wordnik_api_key)).
+                            context.getString(R.string.words_api_key)).
                     build()
             return chain.proceed(request)
         }

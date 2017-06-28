@@ -1,6 +1,7 @@
 package com.mydictionary.data.repository
 
 import com.mydictionary.commons.isSameDay
+import com.mydictionary.data.entity.SearchResult
 import com.mydictionary.data.entity.WordInfo
 import java.util.*
 
@@ -28,4 +29,21 @@ class WordsRepositoryImpl(val factory: WordsStorageFactory) : WordsRepository {
         }
     }
 
+    override fun getHistoryWords(listener: WordsRepository.WordSourceListener<List<String>>) {
+        val result = factory.localStorage.getHistoryWords();
+        listener.onSuccess(result)
+        //todo implement properly
+    }
+
+    override fun searchWord(searchPhrase: String, listener: WordsRepository.WordSourceListener<List<String>>) {
+        factory.cloudStorage.searchTheWord(searchPhrase, object : WordsRepository.WordSourceListener<SearchResult> {
+            override fun onSuccess(t: SearchResult) {
+                listener.onSuccess(t.searchResults)
+            }
+
+            override fun onError(error: String) {
+                listener.onError(error)
+            }
+        })
+    }
 }

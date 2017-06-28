@@ -10,9 +10,9 @@ class Constants {
         val HOME_SEARCH_FRAGMENT_TAG = "home_search_fragment_tag"
         val AUTOCOMPLETE_DELAY = 500L
         val MESSAGE_TEXT_CHANGED = 100
-        val SEARCH_LIMIT = 8
+        val SEARCH_LIMIT = 10
         val HISTORY_SEARCH_LIMIT = 3
-        val MIN_WORD_LENGTH_TO_SEARCH = 1
+        val MIN_WORD_LENGTH_TO_SEARCH = 2
         val SELECTED_WORD_NAME_EXTRA = "selected_word_extra"
         val SELCTED_WORD_INFO_EXTRA = "selected_word_info_extra"
         val TOP_DEFINITIONS_LENGTH = 3
