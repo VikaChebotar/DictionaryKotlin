@@ -1,30 +1,53 @@
 package com.mydictionary.ui.views.word
 
 import android.os.Bundle
+import android.support.design.widget.Snackbar
 import android.support.v7.app.AppCompatActivity
-import android.widget.Toast
 import com.mydictionary.R
-import com.mydictionary.commons.Constants
 import com.mydictionary.data.entity.WordInfo
+import com.mydictionary.ui.DictionaryApp
+import com.mydictionary.ui.presenters.word.WordInfoPresenterImpl
+import com.mydictionary.ui.presenters.word.WordInfoView
 import kotlinx.android.synthetic.main.word_info_activity.*
 
 /**
  * Created by Viktoria Chebotar on 28.06.17.
  */
 
-class WordInfoActivity : AppCompatActivity() {
+class WordInfoActivity : AppCompatActivity(), WordInfoView {
+    val presenter by lazy { WordInfoPresenterImpl(DictionaryApp.getInstance(this).repository) }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.word_info_activity);
-        val wordInfo = intent.extras.getParcelable<WordInfo>(Constants.SELCTED_WORD_INFO_EXTRA)
-        Toast.makeText(this, wordInfo.word, Toast.LENGTH_SHORT).show()
+        presenter.onStart(this)
     }
 
-    private fun initToolbar(word: String) {
+    override fun onDestroy() {
+        super.onDestroy()
+        presenter.onStop()
+    }
+
+    override fun initToolbar(word: String) {
         setSupportActionBar(toolbar)
         toolbarLayout.title = word
         supportActionBar?.setDisplayShowHomeEnabled(true)
         supportActionBar?.setDisplayHomeAsUpEnabled(true)
+    }
+
+    override fun bindWordInfo(wordInfo: WordInfo) {
+        pronunciation.text = getString(R.string.prononcuation, wordInfo.pronunciation)
+    }
+
+    override fun showProgress(progress: Boolean) {
+
+    }
+
+    override fun showError(message: String) {
+        Snackbar.make(findViewById(android.R.id.content), message, Snackbar.LENGTH_LONG).show()
+    }
+
+    override fun getExtras(): Bundle {
+        return intent.extras
     }
 }
