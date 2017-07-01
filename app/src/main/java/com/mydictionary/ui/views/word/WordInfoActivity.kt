@@ -3,11 +3,16 @@ package com.mydictionary.ui.views.word
 import android.os.Bundle
 import android.support.design.widget.Snackbar
 import android.support.v7.app.AppCompatActivity
+import android.support.v7.widget.LinearLayoutManager
+import android.support.v7.widget.RecyclerView
+import android.view.View
 import com.mydictionary.R
-import com.mydictionary.data.entity.WordInfo
+import com.mydictionary.data.entity.Definition
 import com.mydictionary.ui.DictionaryApp
 import com.mydictionary.ui.presenters.word.WordInfoPresenterImpl
 import com.mydictionary.ui.presenters.word.WordInfoView
+import kotlinx.android.synthetic.main.definition_card.*
+import kotlinx.android.synthetic.main.example_card.*
 import kotlinx.android.synthetic.main.word_info_activity.*
 
 /**
@@ -16,11 +21,31 @@ import kotlinx.android.synthetic.main.word_info_activity.*
 
 class WordInfoActivity : AppCompatActivity(), WordInfoView {
     val presenter by lazy { WordInfoPresenterImpl(DictionaryApp.getInstance(this).repository) }
+    val definitionsAdapter = DefinitionsAdapter()
+    var examplesAdapter = ExamplesAdapter()
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.word_info_activity);
+
+        initList(definitionsRecyclerView, definitionsAdapter)
+        initList(examplesRecyclerView, examplesAdapter)
+
         presenter.onStart(this)
+
+        seeAllDefinitionsBtn.setOnClickListener {
+            presenter.onSeeAllDefinitionsBtnClicked(definitionsAdapter.itemCount)
+        }
+        seeAllExamplesBtn.setOnClickListener {
+            presenter.onSeeAllExamplesBtnClicked(examplesAdapter.itemCount)
+        }
+    }
+
+    private fun initList(recyclerView: RecyclerView, adapter: RecyclerView.Adapter<out RecyclerView.ViewHolder>) {
+        val linearLayoutManager = LinearLayoutManager(this)
+        linearLayoutManager.isAutoMeasureEnabled = true
+        recyclerView.layoutManager = linearLayoutManager
+        recyclerView.adapter = adapter
     }
 
     override fun onDestroy() {
@@ -35,8 +60,30 @@ class WordInfoActivity : AppCompatActivity(), WordInfoView {
         supportActionBar?.setDisplayHomeAsUpEnabled(true)
     }
 
-    override fun bindWordInfo(wordInfo: WordInfo) {
-        pronunciation.text = getString(R.string.prononcuation, wordInfo.pronunciation)
+    override fun showPronunciation(value: String) {
+        pronunciation.text = getString(R.string.prononcuation, value)
+    }
+
+    override fun showDefinitions(value: List<Definition>, showSeeAllBtn: Boolean) {
+        definitionsAdapter.dataset = value
+        definitionsAdapter.notifyDataSetChanged()
+        if (value.isEmpty()) definitionCard.visibility = View.GONE
+        seeAllDefinitionsBtn.visibility = if (showSeeAllBtn) View.VISIBLE else View.GONE
+    }
+
+    override fun setSeeAllDefinitionsBtnText(textRes: Int) {
+        seeAllDefinitionsBtn.setText(textRes)
+    }
+
+    override fun showExamples(value: List<String>, showSeeAllBtn: Boolean) {
+        examplesAdapter.dataset = value
+        examplesAdapter.notifyDataSetChanged()
+        if (value.isEmpty()) exampleCard.visibility = View.GONE
+        seeAllExamplesBtn.visibility = if (showSeeAllBtn) View.VISIBLE else View.GONE
+    }
+
+    override fun setSeeAllExamplesBtnText(textRes: Int) {
+        seeAllExamplesBtn.setText(textRes)
     }
 
     override fun showProgress(progress: Boolean) {

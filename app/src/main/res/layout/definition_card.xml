@@ -5,7 +5,6 @@
                                     android:layout_width="match_parent"
                                     android:layout_height="wrap_content"
                                     android:layout_margin="@dimen/activity_horizontal_margin"
-                                    android:visibility="gone"
                                     app:cardBackgroundColor="@android:color/white"
                                     app:cardCornerRadius="3dp">
 
@@ -48,6 +47,7 @@
             android:layout_height="wrap_content"
             android:layout_below="@+id/definitionsLbl"
             android:clipToPadding="false"
+            android:nestedScrollingEnabled="false"
             app:layout_behavior="@string/appbar_scrolling_view_behavior"/>
 
     </RelativeLayout>

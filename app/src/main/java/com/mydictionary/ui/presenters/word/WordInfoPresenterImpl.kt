@@ -1,5 +1,6 @@
 package com.mydictionary.ui.presenters.word
 
+import com.mydictionary.R
 import com.mydictionary.commons.Constants
 import com.mydictionary.commons.Constants.Companion.SELECTED_WORD_NAME_EXTRA
 import com.mydictionary.data.entity.WordInfo
@@ -30,7 +31,15 @@ class WordInfoPresenterImpl(val repository: WordsRepository) : WordInfoPresenter
     }
 
     private fun showWord(wordInfo: WordInfo) {
-        wordInfoView?.bindWordInfo(wordInfo)
+        wordInfoView?.showPronunciation(wordInfo.pronunciation ?: "")
+        wordInfo.definitions.let {
+            val definitionsList = it.subList(0, minOf(it.size, Constants.TOP_DEFINITIONS_LENGTH))
+            wordInfoView?.showDefinitions(definitionsList, it.size > Constants.TOP_DEFINITIONS_LENGTH)
+        }
+        wordInfo.examples.let {
+            val examplesList = it.subList(0, minOf(it.size, Constants.TOP_EXAMPLES_LENGTH))
+            wordInfoView?.showExamples(examplesList, it.size > Constants.TOP_EXAMPLES_LENGTH)
+        }
     }
 
     private fun loadWordInfo(wordName: String) {
@@ -48,6 +57,32 @@ class WordInfoPresenterImpl(val repository: WordsRepository) : WordInfoPresenter
                         wordInfoView?.showError(error)
                     }
                 })
+    }
+
+    override fun onSeeAllDefinitionsBtnClicked(definitionsCount: Int) {
+        if (wordInfo == null || wordInfoView == null) return
+        collapseOrExpandList(wordInfo!!.definitions, definitionsCount, Constants.TOP_DEFINITIONS_LENGTH,
+                { a, b -> wordInfoView!!.showDefinitions(a, b) },
+                { a -> wordInfoView!!.setSeeAllDefinitionsBtnText(a) })
+    }
+
+    override fun onSeeAllExamplesBtnClicked(examplesCount: Int) {
+        if (wordInfo == null || wordInfoView == null) return
+        collapseOrExpandList(wordInfo!!.examples, examplesCount, Constants.TOP_EXAMPLES_LENGTH,
+                { a, b -> wordInfoView!!.showExamples(a, b) },
+                { a -> wordInfoView!!.setSeeAllExamplesBtnText(a) })
+    }
+
+    private fun <T> collapseOrExpandList(list: List<T>, visibleCount: Int, minCount: Int,
+                                         showList: (list: List<T>, showBtn: Boolean) -> Unit,
+                                         setBtnText: (textRes: Int) -> Unit) {
+        if (visibleCount < list.size) {
+            showList(list, true)
+            setBtnText(R.string.collapse)
+        } else {
+            showList(list.subList(0, minCount), true)
+            setBtnText(R.string.see_all)
+        }
     }
 
     override fun onStop() {

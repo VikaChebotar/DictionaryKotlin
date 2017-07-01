@@ -23,4 +23,5 @@
     <string name="more_from_recent_history">More from recent history</string>
     <string name="speak_now">Speak Now</string>
     <string name="default_error">Error</string>
+    <string name="empty_part_of_speech">-</string>
 </resources>

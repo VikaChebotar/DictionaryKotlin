@@ -11,7 +11,6 @@ import android.support.v7.app.AppCompatActivity
 import android.support.v7.widget.LinearLayoutManager
 import android.support.v7.widget.RecyclerView
 import android.view.View
-import android.widget.Toast
 import com.mydictionary.R
 import com.mydictionary.commons.Constants
 import com.mydictionary.commons.Constants.Companion.VOICE_RECOGNITION_CODE
@@ -19,6 +18,7 @@ import com.mydictionary.commons.Constants.Companion.VOICE_SEARCH_PAUSE_MILLIS
 import com.mydictionary.ui.DictionaryApp
 import com.mydictionary.ui.presenters.search.SearchPresenterImpl
 import com.mydictionary.ui.presenters.search.SearchView
+import com.mydictionary.ui.views.word.WordInfoActivity
 import kotlinx.android.synthetic.main.search_activity.*
 import java.util.*
 
@@ -51,7 +51,9 @@ class SearchActivity : AppCompatActivity(), SearchView, SearchEditText.VoiceButt
     }
 
     fun onItemClick(searchWord: String) {
-        Toast.makeText(this, searchWord, Toast.LENGTH_SHORT).show()
+        val intent = Intent(this, WordInfoActivity::class.java)
+        intent.putExtra(Constants.SELECTED_WORD_NAME_EXTRA, searchWord)
+        startActivity(intent)
     }
 
     override fun onDestroy() {
