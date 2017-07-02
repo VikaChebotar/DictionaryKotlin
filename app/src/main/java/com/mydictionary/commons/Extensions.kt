@@ -39,6 +39,6 @@ fun Context.hideKeyboard(windowToken: IBinder) {
     inputMethodManager.hideSoftInputFromWindow(windowToken, 0)
 }
 
-fun ViewGroup.inflate(layoutRes: Int): View {
-    return LayoutInflater.from(context).inflate(layoutRes, this, false)
+fun ViewGroup.inflate(layoutRes: Int, attachToRoot: Boolean = false): View {
+    return LayoutInflater.from(context).inflate(layoutRes, this, attachToRoot)
 }

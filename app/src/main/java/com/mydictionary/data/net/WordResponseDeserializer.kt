@@ -33,13 +33,12 @@ class WordResponseDeserializer : JsonDeserializer<WordInfo> {
                     antonyms.addAll(it.antonyms)
                     also.addAll(it.also)
                     derivation.addAll(it.derivation)
-                    entails.addAll(it.entails)
                     examples.addAll(it.examples)
                     hasTypes.addAll(it.hasTypes)
-                    inRegion.addAll(it.inRegion)
-                    similarTo.addAll(it.similarTo)
                     typeOf.addAll(it.typeOf)
-                    verbGroup.addAll(it.verbGroup)
+                    partOf.addAll(it.partOf)
+                    hasParts.addAll(it.hasParts)
+                    substanceOf.addAll(it.substanceOf)
                     if (it.definition != null && it.partOfSpeech != null) {
                         definitions.add(Definition(it.definition, it.partOfSpeech))
                     }

@@ -23,13 +23,11 @@ data class WordInfo(val word: String, val pronunciation: String?) : Parcelable {
 
     var hasTypes = mutableListOf<String>()
 
-    var verbGroup = mutableListOf<String>()
+    var partOf = mutableListOf<String>()
 
-    var inRegion = mutableListOf<String>()
+    var hasParts = mutableListOf<String>()
 
-    var entails = mutableListOf<String>()
-
-    var similarTo = mutableListOf<String>()
+    var substanceOf = mutableListOf<String>()
 
     companion object {
         @JvmField val CREATOR: Parcelable.Creator<WordInfo> = object : Parcelable.Creator<WordInfo> {
@@ -60,8 +58,8 @@ data class Definition(val definition: String, val partOfSpeech: String) : Parcel
     }
 
     constructor(source: Parcel) : this(
-    source.readString(),
-    source.readString()
+            source.readString(),
+            source.readString()
     )
 
     override fun describeContents() = 0
@@ -82,8 +80,7 @@ class WordInfoResult {
     val derivation: List<String> = listOf()
     val typeOf: List<String> = listOf()
     val hasTypes: List<String> = listOf()
-    val verbGroup: List<String> = listOf()
-    val inRegion: List<String> = listOf()
-    val entails: List<String> = listOf()
-    val similarTo: List<String> = listOf()
+    val partOf: List<String> = listOf()
+    val hasParts: List<String> = listOf()
+    val substanceOf: List<String> = listOf()
 }

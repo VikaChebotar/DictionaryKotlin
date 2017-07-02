@@ -29,7 +29,7 @@
             android:textColor="@color/colorAccent"
             android:textSize="@dimen/text_size"/>
 
-        <com.mydictionaryapp.view.word.CustomTagLayout
+        <com.mydictionary.ui.views.word.CustomTagLayout
             android:id="@+id/relatedWordTagLayout"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"

@@ -13,6 +13,7 @@ import com.mydictionary.ui.presenters.word.WordInfoPresenterImpl
 import com.mydictionary.ui.presenters.word.WordInfoView
 import kotlinx.android.synthetic.main.definition_card.*
 import kotlinx.android.synthetic.main.example_card.*
+import kotlinx.android.synthetic.main.word_content_scrolling.*
 import kotlinx.android.synthetic.main.word_info_activity.*
 
 /**
@@ -20,9 +21,10 @@ import kotlinx.android.synthetic.main.word_info_activity.*
  */
 
 class WordInfoActivity : AppCompatActivity(), WordInfoView {
-    val presenter by lazy { WordInfoPresenterImpl(DictionaryApp.getInstance(this).repository) }
+    val presenter by lazy { WordInfoPresenterImpl(DictionaryApp.getInstance(this).repository, this) }
     val definitionsAdapter = DefinitionsAdapter()
-    var examplesAdapter = ExamplesAdapter()
+    val examplesAdapter = ExamplesAdapter()
+    val relatedWordsAdapter = RelatedWordsAdapter()
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -30,6 +32,7 @@ class WordInfoActivity : AppCompatActivity(), WordInfoView {
 
         initList(definitionsRecyclerView, definitionsAdapter)
         initList(examplesRecyclerView, examplesAdapter)
+        initList(relatedWordsRecyclerView, relatedWordsAdapter)
 
         presenter.onStart(this)
 
@@ -84,6 +87,11 @@ class WordInfoActivity : AppCompatActivity(), WordInfoView {
 
     override fun setSeeAllExamplesBtnText(textRes: Int) {
         seeAllExamplesBtn.setText(textRes)
+    }
+
+    override fun showRelatedWords(value: List<Pair<String, List<String>>>) {
+        relatedWordsAdapter.dataset = value
+        relatedWordsAdapter.notifyDataSetChanged()
     }
 
     override fun showProgress(progress: Boolean) {
