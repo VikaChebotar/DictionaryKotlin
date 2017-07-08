@@ -5,6 +5,8 @@ import android.support.design.widget.Snackbar
 import android.support.v7.app.AppCompatActivity
 import android.support.v7.widget.LinearLayoutManager
 import android.support.v7.widget.RecyclerView
+import android.view.Menu
+import android.view.MenuItem
 import android.view.View
 import com.mydictionary.R
 import com.mydictionary.data.entity.Definition
@@ -42,6 +44,24 @@ class WordInfoActivity : AppCompatActivity(), WordInfoView {
         seeAllExamplesBtn.setOnClickListener {
             presenter.onSeeAllExamplesBtnClicked(examplesAdapter.itemCount)
         }
+    }
+
+    override fun onCreateOptionsMenu(menu: Menu?): Boolean {
+        menuInflater.inflate(R.menu.word_menu, menu)
+        return true
+    }
+
+    override fun onOptionsItemSelected(item: MenuItem?): Boolean {
+        when (item?.itemId) {
+            android.R.id.home -> {
+                onBackPressed()
+                return true
+            }
+            R.id.pronounce -> {
+                return true
+            }
+        }
+        return false
     }
 
     private fun initList(recyclerView: RecyclerView, adapter: RecyclerView.Adapter<out RecyclerView.ViewHolder>) {

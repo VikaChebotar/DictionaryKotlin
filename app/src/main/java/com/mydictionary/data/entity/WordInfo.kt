@@ -38,14 +38,35 @@ data class WordInfo(val word: String, val pronunciation: String?) : Parcelable {
 
     constructor(source: Parcel) : this(
             source.readString(),
-            source.readString()
-    )
+            source.readString()) {
+        source.readTypedList(definitions, Definition.CREATOR)
+        source.readList(examples, List::class.java.classLoader)
+        source.readList(synonyms, List::class.java.classLoader)
+        source.readList(antonyms, List::class.java.classLoader)
+        source.readList(also, List::class.java.classLoader)
+        source.readList(derivation, List::class.java.classLoader)
+        source.readList(typeOf, List::class.java.classLoader)
+        source.readList(hasTypes, List::class.java.classLoader)
+        source.readList(partOf, List::class.java.classLoader)
+        source.readList(substanceOf, List::class.java.classLoader)
+    }
 
     override fun describeContents() = 0
 
     override fun writeToParcel(dest: Parcel, flags: Int) {
         dest.writeString(word)
         dest.writeString(pronunciation)
+        dest.writeTypedList(definitions)
+        dest.writeList(examples)
+        dest.writeList(synonyms)
+        dest.writeList(antonyms)
+        dest.writeList(also)
+        dest.writeList(derivation)
+        dest.writeList(typeOf)
+        dest.writeList(hasTypes)
+        dest.writeList(partOf)
+        dest.writeList(hasParts)
+        dest.writeList(substanceOf)
     }
 }
 

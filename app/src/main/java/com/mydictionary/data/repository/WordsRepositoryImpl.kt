@@ -1,6 +1,7 @@
 package com.mydictionary.data.repository
 
 import com.mydictionary.commons.isSameDay
+import com.mydictionary.data.entity.HistoryWord
 import com.mydictionary.data.entity.SearchResult
 import com.mydictionary.data.entity.WordInfo
 import java.util.*
@@ -20,6 +21,7 @@ class WordsRepositoryImpl(val factory: WordsStorageFactory) : WordsRepository {
                 override fun onSuccess(t: WordInfo) {
                     listener.onSuccess(t)
                     factory.localStorage.storeWordOfTheDay(t.word, Calendar.getInstance().time)
+                    addWordToHistory(t.word)
                 }
 
                 override fun onError(error: String) {
@@ -33,7 +35,7 @@ class WordsRepositoryImpl(val factory: WordsStorageFactory) : WordsRepository {
         factory.cloudStorage.getWordInfo(wordName, object : WordsRepository.WordSourceListener<WordInfo> {
             override fun onSuccess(t: WordInfo) {
                 listener.onSuccess(t)
-                //todo add word to history or update access time
+                addWordToHistory(t.word)
             }
 
             override fun onError(error: String) {
@@ -42,10 +44,16 @@ class WordsRepositoryImpl(val factory: WordsStorageFactory) : WordsRepository {
         })
     }
 
-    override fun getHistoryWords(listener: WordsRepository.WordSourceListener<List<String>>) {
-        val result = factory.localStorage.getHistoryWords();
-        listener.onSuccess(result)
-        //todo implement properly
+    override fun getHistoryWords(limit: Int, listener: WordsRepository.WordSourceListener<List<String>>) {
+        factory.localStorage.getHistoryWords(limit, object : WordsRepository.WordSourceListener<List<HistoryWord>> {
+            override fun onSuccess(t: List<HistoryWord>) {
+                listener.onSuccess(t.map { it.word })
+            }
+
+            override fun onError(error: String) {
+
+            }
+        });
     }
 
     override fun searchWord(searchPhrase: String, listener: WordsRepository.WordSourceListener<List<String>>) {
@@ -58,5 +66,14 @@ class WordsRepositoryImpl(val factory: WordsStorageFactory) : WordsRepository {
                 listener.onError(error)
             }
         })
+    }
+
+    override fun addWordToHistory(wordName: String) {
+        var historyWord = factory.localStorage.getWordFromHistory(wordName)
+        if (historyWord == null) {
+            historyWord = HistoryWord(wordName)
+        }
+        historyWord.accessTime = Calendar.getInstance().time
+        factory.localStorage.addWordToHistory(historyWord)
     }
 }

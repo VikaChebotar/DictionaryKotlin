@@ -18,7 +18,7 @@ class DictionaryApp : Application() {
     override fun onCreate() {
         super.onCreate()
         Realm.init(this)
-        val realmConfig = RealmConfiguration.Builder().build()
+        val realmConfig = RealmConfiguration.Builder().deleteRealmIfMigrationNeeded().build()
         Realm.setDefaultConfiguration(realmConfig)
         repository = WordsRepositoryImpl(WordsStorageFactory.getInstance(this))
     }

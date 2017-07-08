@@ -1,7 +1,9 @@
 package com.mydictionary.data.repository
 
+import com.mydictionary.data.entity.HistoryWord
 import com.mydictionary.data.entity.WordOfTheDay
 import io.realm.Realm
+import io.realm.Sort
 import java.util.*
 
 /**
@@ -24,7 +26,21 @@ class LocalStorage {
         }
     }
 
-    fun getHistoryWords(): List<String> {
-        return listOf("1", "22", "333")
+    fun getHistoryWords(limit: Int, listener: WordsRepository.WordSourceListener<List<HistoryWord>>) {
+        val results = realm.where(HistoryWord::class.java).findAllSortedAsync("accessTime", Sort.DESCENDING)
+        results.addChangeListener { t -> listener.onSuccess(t.subList(0, Math.min(limit, t.size))) }
     }
+
+    fun addWordToHistory(word: HistoryWord) {
+        realm.executeTransactionAsync {
+            it?.copyToRealmOrUpdate(word)
+        }
+    }
+
+    fun getWordFromHistory(wordName: String): HistoryWord? {
+        val realmWord = realm.where(HistoryWord::class.java).equalTo("word", wordName).findFirst()
+        return if (realmWord != null) realm.copyFromRealm(realmWord) else null
+    }
+
+
 }

@@ -19,7 +19,9 @@ interface WordsRepository {
 
     fun getWordInfo(wordName: String, listener: WordSourceListener<WordInfo>)
 
-    fun getHistoryWords(listener: WordSourceListener<List<String>>)
+    fun getHistoryWords(limit: Int, listener: WordSourceListener<List<String>>)
 
     fun searchWord(searchPhrase: String, listener: WordSourceListener<List<String>>)
+
+    fun addWordToHistory(wordName: String)
 }

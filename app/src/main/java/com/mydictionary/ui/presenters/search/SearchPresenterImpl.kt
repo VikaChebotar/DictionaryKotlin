@@ -20,7 +20,7 @@ class SearchPresenterImpl(val repository: WordsRepository) : SearchPresenter, Se
     }
 
     private fun loadHistoryWords() {
-        repository.getHistoryWords(object : WordsRepository.WordSourceListener<List<String>> {
+        repository.getHistoryWords(Constants.HISTORY_SEARCH_LIMIT, object : WordsRepository.WordSourceListener<List<String>> {
             override fun onSuccess(result: List<String>) {
                 historyWords = result
                 searchView?.showHistoryWords(result)
