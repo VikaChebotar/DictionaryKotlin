@@ -4,6 +4,8 @@ import android.content.Intent
 import android.os.Bundle
 import android.support.design.widget.Snackbar
 import android.support.v7.app.AppCompatActivity
+import android.view.Menu
+import android.view.MenuItem
 import android.view.MotionEvent
 import android.view.View
 import com.mydictionary.R
@@ -13,6 +15,7 @@ import com.mydictionary.data.entity.WordInfo
 import com.mydictionary.ui.DictionaryApp
 import com.mydictionary.ui.presenters.home.HomePresenterImpl
 import com.mydictionary.ui.presenters.home.HomeView
+import com.mydictionary.ui.views.mywords.MyWordsActivity
 import com.mydictionary.ui.views.search.SearchActivity
 import com.mydictionary.ui.views.word.WordInfoActivity
 import kotlinx.android.synthetic.main.home_activity.*
@@ -23,6 +26,7 @@ class HomeActivity : AppCompatActivity(), HomeView {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.home_activity);
+        setSupportActionBar(toolbar)
         presenter.onStart(this)
         searchField.setOnTouchListener(searchTouchListener)
         wordOfTheDayCard.setOnClickListener { presenter.onWordOfTheDayClicked() }
@@ -36,6 +40,29 @@ class HomeActivity : AppCompatActivity(), HomeView {
     override fun onDestroy() {
         super.onDestroy()
         presenter.onStop()
+    }
+
+    override fun onCreateOptionsMenu(menu: Menu?): Boolean {
+        menuInflater.inflate(R.menu.home_menu, menu)
+        return true
+    }
+
+    override fun onOptionsItemSelected(item: MenuItem?): Boolean {
+        when (item?.itemId) {
+            R.id.action_my_words -> {
+                presenter.onMyWordsBtnClicked()
+                return true
+            }
+            R.id.action_settings -> {
+                return true
+            }
+        }
+        return false
+    }
+
+    override fun startMyWordsActivity() {
+        val intent = Intent(this@HomeActivity, MyWordsActivity::class.java);
+        startActivity(intent)
     }
 
     override fun showProgress(progress: Boolean) {

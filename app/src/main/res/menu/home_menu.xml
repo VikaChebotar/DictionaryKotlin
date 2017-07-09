@@ -1,8 +1,8 @@
 <?xml version="1.0" encoding="utf-8"?>
 <menu xmlns:android="http://schemas.android.com/apk/res/android"   xmlns:app="http://schemas.android.com/apk/res-auto">
     <item
-        android:id="@+id/action_your_words"
-        android:title="@string/your_words"
+        android:id="@+id/action_my_words"
+        android:title="@string/my_words"
         app:showAsAction="never"
         android:visible="true" />
     <item

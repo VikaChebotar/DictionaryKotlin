@@ -1,16 +1,16 @@
 <?xml version="1.0" encoding="utf-8"?>
-<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:card_view="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:focusable="true"
+    android:orientation="vertical"
     android:focusableInTouchMode="true">
 
     <android.support.design.widget.AppBarLayout
         android:id="@+id/appBarLayout"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_alignParentTop="true"
         android:background="@color/colorPrimary"
         android:transitionName="search_transition_name">
 
@@ -23,8 +23,7 @@
     <android.support.v4.widget.NestedScrollView
         android:id="@+id/searchScrollContent"
         android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:layout_below="@+id/appBarLayout">
+        android:layout_height="match_parent">
 
         <RelativeLayout
             android:layout_width="match_parent"
@@ -78,4 +77,4 @@
                 android:visibility="gone" />
         </RelativeLayout>
     </android.support.v4.widget.NestedScrollView>
-</RelativeLayout>
+</LinearLayout>

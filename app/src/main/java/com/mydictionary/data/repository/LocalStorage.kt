@@ -1,5 +1,6 @@
 package com.mydictionary.data.repository
 
+import com.mydictionary.commons.Constants
 import com.mydictionary.data.entity.HistoryWord
 import com.mydictionary.data.entity.WordOfTheDay
 import io.realm.Realm
@@ -32,8 +33,14 @@ class LocalStorage {
     }
 
     fun addWordToHistory(word: HistoryWord) {
-        realm.executeTransactionAsync {
-            it?.copyToRealmOrUpdate(word)
+        realm.executeTransactionAsync { realm ->
+            if (realm.where(HistoryWord::class.java).count() >= Constants.MAX_HISTORY_LIMIT) {
+                val oldestWord = realm.where(HistoryWord::class.java).
+                        equalTo("isFavorite", false).
+                        findAllSorted("accessTime", Sort.ASCENDING).first()
+                oldestWord?.deleteFromRealm()
+            }
+            realm?.copyToRealmOrUpdate(word)
         }
     }
 

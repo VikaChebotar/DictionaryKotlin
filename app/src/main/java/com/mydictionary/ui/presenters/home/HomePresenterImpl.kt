@@ -35,6 +35,10 @@ class HomePresenterImpl(val repository: WordsRepository) : HomePresenter {
         }
     }
 
+    override fun onMyWordsBtnClicked() {
+        homeView?.startMyWordsActivity()
+    }
+
     override fun onWordOfTheDayFavoriteBtnClicked() {
         todayWord?.let {
             repository.setWordFavoriteState(it.word, !it.isFavorite,

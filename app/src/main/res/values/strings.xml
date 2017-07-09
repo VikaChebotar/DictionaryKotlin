@@ -1,7 +1,7 @@
 <resources>
     <string name="app_name">KotlinDictionary</string>
     <string name="search_the_word">Search the word...</string>
-    <string name="your_words">Your words</string>
+    <string name="my_words">My words</string>
     <string name="settings">Settings</string>
     <string name="endpoint">https://wordsapiv1.p.mashape.com/</string>
     <string name="networkError">Please check your Internet connection!</string>

@@ -12,11 +12,13 @@ interface HomePresenter : BasePresenter<HomeView> {
     fun onWordOfTheDayClicked()
     fun onResume()
     fun onWordOfTheDayFavoriteBtnClicked()
+    fun onMyWordsBtnClicked()
 }
 
 interface HomeView : BaseView {
     fun showWordOfTheDay(word: WordInfo)
     fun showWordOfTheDayFavoriteBtnState(isFavorite: Boolean)
     fun startWordInfoActivity(word: WordInfo)
+    fun startMyWordsActivity()
 }
 

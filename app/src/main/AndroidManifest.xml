@@ -28,6 +28,10 @@
         <activity
             android:name=".ui.views.word.WordInfoActivity"
             android:screenOrientation="portrait" />
+        <activity
+            android:name=".ui.views.mywords.MyWordsActivity"
+            android:screenOrientation="portrait"
+            android:label="@string/my_words"/>
     </application>
 
 </manifest>
