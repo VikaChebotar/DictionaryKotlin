@@ -5,6 +5,7 @@ import com.mydictionary.R
 import com.mydictionary.commons.Constants
 import com.mydictionary.commons.Constants.Companion.SELECTED_WORD_NAME_EXTRA
 import com.mydictionary.data.entity.WordInfo
+import com.mydictionary.data.repository.RepositoryListener
 import com.mydictionary.data.repository.WordsRepository
 
 /**
@@ -60,7 +61,7 @@ class WordInfoPresenterImpl(val repository: WordsRepository, val context: Contex
     override fun onFavoriteClicked() {
         wordInfo?.let {
             repository.setWordFavoriteState(wordInfo!!.word, !wordInfo!!.isFavorite,
-                    object : WordsRepository.WordSourceListener<Boolean> {
+                    object : RepositoryListener<Boolean> {
                         override fun onSuccess(t: Boolean) {
                             wordInfo?.isFavorite = t
                             wordInfoView?.showIsFavorite(t)
@@ -84,7 +85,7 @@ class WordInfoPresenterImpl(val repository: WordsRepository, val context: Contex
     private fun loadWordInfo(wordName: String) {
         wordInfoView?.showProgress(true)
         repository.getWordInfo(wordName,
-                object : WordsRepository.WordSourceListener<WordInfo> {
+                object : RepositoryListener<WordInfo> {
                     override fun onSuccess(wordInfo: WordInfo) {
                         this@WordInfoPresenterImpl.wordInfo = wordInfo
                         wordInfoView?.showProgress(false)

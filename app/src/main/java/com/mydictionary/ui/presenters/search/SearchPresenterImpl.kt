@@ -1,6 +1,7 @@
 package com.mydictionary.ui.presenters.search
 
 import com.mydictionary.commons.Constants
+import com.mydictionary.data.repository.RepositoryListener
 import com.mydictionary.data.repository.WordsRepository
 import com.mydictionary.ui.views.search.SearchEditText
 
@@ -20,7 +21,7 @@ class SearchPresenterImpl(val repository: WordsRepository) : SearchPresenter, Se
     }
 
     private fun loadHistoryWords() {
-        repository.getHistoryWords(Constants.HISTORY_SEARCH_LIMIT, object : WordsRepository.WordSourceListener<List<String>> {
+        repository.getHistoryWords(Constants.HISTORY_SEARCH_LIMIT, object : RepositoryListener<List<String>> {
             override fun onSuccess(result: List<String>) {
                 historyWords = result
                 searchView?.showHistoryWords(result)
@@ -39,7 +40,7 @@ class SearchPresenterImpl(val repository: WordsRepository) : SearchPresenter, Se
 
     override fun onSearchLetterEntered(phrase: String) {
         if (phrase.length >= Constants.MIN_WORD_LENGTH_TO_SEARCH) {
-            repository.searchWord(phrase, object : WordsRepository.WordSourceListener<List<String>> {
+            repository.searchWord(phrase, object : RepositoryListener<List<String>> {
                 override fun onSuccess(result: List<String>) {
                     searchView?.showSearchResult(result)
                 }

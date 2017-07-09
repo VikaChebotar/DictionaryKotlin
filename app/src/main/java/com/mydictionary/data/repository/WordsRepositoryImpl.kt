@@ -12,51 +12,41 @@ import java.util.*
 
 class WordsRepositoryImpl(val factory: WordsStorageFactory) : WordsRepository {
 
-    override fun getTodayWordInfo(date: Date, listener: WordsRepository.WordSourceListener<WordInfo>) {
+    override fun getTodayWordInfo(date: Date, listener: RepositoryListener<WordInfo>) {
         val wordOfTheDay = factory.localStorage.getWordOfTheDay();
         if ((wordOfTheDay != null) && (wordOfTheDay.date!!.isSameDay(Calendar.getInstance().time))) {
-            factory.cloudStorage.getWordInfo(wordOfTheDay.word!!, object : WordsRepository.WordSourceListener<WordInfo> {
-                override fun onSuccess(t: WordInfo) {
-                    t.isFavorite = factory.localStorage.isWordFavorite(t.word)
-                    listener.onSuccess(t)
-                }
-
-                override fun onError(error: String) {
-                    listener.onError(error)
-                }
-            })
+            factory.cloudStorage.getWordInfo(wordOfTheDay.word!!,
+                    object : RepositoryListenerDelegate<WordInfo>(listener) {
+                        override fun onSuccess(t: WordInfo) {
+                            t.isFavorite = factory.localStorage.isWordFavorite(t.word)
+                            super.onSuccess(t)
+                        }
+                    })
         } else {
-            factory.cloudStorage.getRandomWord(object : WordsRepository.WordSourceListener<WordInfo> {
+            factory.cloudStorage.getRandomWord(object : RepositoryListenerDelegate<WordInfo>(listener) {
                 override fun onSuccess(t: WordInfo) {
                     factory.localStorage.storeWordOfTheDay(t.word, Calendar.getInstance().time)
                     addWordToHistory(t.word)
                     t.isFavorite = factory.localStorage.isWordFavorite(t.word)
-                    listener.onSuccess(t)
-                }
-
-                override fun onError(error: String) {
-                    listener.onError(error)
+                    super.onSuccess(t)
                 }
             })
         }
     }
 
-    override fun getWordInfo(wordName: String, listener: WordsRepository.WordSourceListener<WordInfo>) {
-        factory.cloudStorage.getWordInfo(wordName, object : WordsRepository.WordSourceListener<WordInfo> {
-            override fun onSuccess(t: WordInfo) {
-                addWordToHistory(t.word)
-                t.isFavorite = factory.localStorage.isWordFavorite(t.word)
-                listener.onSuccess(t)
-            }
-
-            override fun onError(error: String) {
-                listener.onError(error)
-            }
-        })
+    override fun getWordInfo(wordName: String, listener: RepositoryListener<WordInfo>) {
+        factory.cloudStorage.getWordInfo(wordName,
+                object : RepositoryListenerDelegate<WordInfo>(listener) {
+                    override fun onSuccess(t: WordInfo) {
+                        addWordToHistory(t.word)
+                        t.isFavorite = factory.localStorage.isWordFavorite(t.word)
+                        super.onSuccess(t)
+                    }
+                })
     }
 
-    override fun getHistoryWords(limit: Int, listener: WordsRepository.WordSourceListener<List<String>>) {
-        factory.localStorage.getHistoryWords(limit, object : WordsRepository.WordSourceListener<List<HistoryWord>> {
+    override fun getHistoryWords(limit: Int, listener: RepositoryListener<List<String>>) {
+        factory.localStorage.getHistoryWords(limit, object : RepositoryListener<List<HistoryWord>> {
             override fun onSuccess(t: List<HistoryWord>) {
                 listener.onSuccess(t.map { it.word })
             }
@@ -67,8 +57,8 @@ class WordsRepositoryImpl(val factory: WordsStorageFactory) : WordsRepository {
         });
     }
 
-    override fun searchWord(searchPhrase: String, listener: WordsRepository.WordSourceListener<List<String>>) {
-        factory.cloudStorage.searchTheWord(searchPhrase, object : WordsRepository.WordSourceListener<SearchResult> {
+    override fun searchWord(searchPhrase: String, listener: RepositoryListener<List<String>>) {
+        factory.cloudStorage.searchTheWord(searchPhrase, object : RepositoryListener<SearchResult> {
             override fun onSuccess(t: SearchResult) {
                 listener.onSuccess(t.searchResults)
             }
@@ -89,7 +79,7 @@ class WordsRepositoryImpl(val factory: WordsStorageFactory) : WordsRepository {
     }
 
     override fun setWordFavoriteState(wordName: String, isFavorite: Boolean,
-                                      listener: WordsRepository.WordSourceListener<Boolean>) {
+                                      listener: RepositoryListener<Boolean>) {
         val isFavoriteResult = factory.localStorage.setWordFavoriteState(wordName, isFavorite)
         listener.onSuccess(isFavoriteResult)
     }

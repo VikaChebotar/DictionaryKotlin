@@ -8,24 +8,26 @@ import java.util.*
  */
 
 interface WordsRepository {
+    fun getTodayWordInfo(date: Date, listener: RepositoryListener<WordInfo>)
 
-    interface WordSourceListener<T> {
-        fun onSuccess(t: T)
+    fun getWordInfo(wordName: String, listener: RepositoryListener<WordInfo>)
 
-        fun onError(error: String)
-    }
+    fun getHistoryWords(limit: Int, listener: RepositoryListener<List<String>>)
 
-    fun getTodayWordInfo(date: Date, listener: WordSourceListener<WordInfo>)
-
-    fun getWordInfo(wordName: String, listener: WordSourceListener<WordInfo>)
-
-    fun getHistoryWords(limit: Int, listener: WordSourceListener<List<String>>)
-
-    fun searchWord(searchPhrase: String, listener: WordSourceListener<List<String>>)
+    fun searchWord(searchPhrase: String, listener: RepositoryListener<List<String>>)
 
     fun addWordToHistory(wordName: String)
 
-    fun setWordFavoriteState(wordName: String, isFavorite: Boolean, listener: WordSourceListener<Boolean>)
+    fun setWordFavoriteState(wordName: String, isFavorite: Boolean, listener: RepositoryListener<Boolean>)
 
     fun getWordFavoriteState(wordName: String): Boolean
 }
+
+interface RepositoryListener<T> {
+    fun onSuccess(t: T)
+
+    fun onError(error: String)
+}
+
+open class RepositoryListenerDelegate<T>(listener: RepositoryListener<T>) :
+        RepositoryListener<T> by listener

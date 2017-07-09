@@ -1,6 +1,7 @@
 package com.mydictionary.ui.presenters.home
 
 import com.mydictionary.data.entity.WordInfo
+import com.mydictionary.data.repository.RepositoryListener
 import com.mydictionary.data.repository.WordsRepository
 import java.util.*
 
@@ -17,7 +18,7 @@ class HomePresenterImpl(val repository: WordsRepository) : HomePresenter {
         if (todayWord == null) {
             homeView?.showProgress(true)
             repository.getTodayWordInfo(Calendar.getInstance().time,
-                    object : WordsRepository.WordSourceListener<WordInfo> {
+                    object : RepositoryListener<WordInfo> {
                         override fun onSuccess(wordInfo: WordInfo) {
                             todayWord = wordInfo;
                             homeView?.showWordOfTheDay(wordInfo)
@@ -37,7 +38,7 @@ class HomePresenterImpl(val repository: WordsRepository) : HomePresenter {
     override fun onWordOfTheDayFavoriteBtnClicked() {
         todayWord?.let {
             repository.setWordFavoriteState(it.word, !it.isFavorite,
-                    object : WordsRepository.WordSourceListener<Boolean> {
+                    object : RepositoryListener<Boolean> {
                         override fun onSuccess(t: Boolean) {
                             todayWord?.isFavorite = t
                             homeView?.showWordOfTheDayFavoriteBtnState(t)

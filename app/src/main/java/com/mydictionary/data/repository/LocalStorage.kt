@@ -26,7 +26,7 @@ class LocalStorage {
         }
     }
 
-    fun getHistoryWords(limit: Int, listener: WordsRepository.WordSourceListener<List<HistoryWord>>) {
+    fun getHistoryWords(limit: Int, listener: RepositoryListener<List<HistoryWord>>) {
         val results = realm.where(HistoryWord::class.java).findAllSortedAsync("accessTime", Sort.DESCENDING)
         results.addChangeListener { t -> listener.onSuccess(t.subList(0, Math.min(limit, t.size))) }
     }

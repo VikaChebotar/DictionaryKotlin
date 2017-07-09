@@ -19,22 +19,22 @@ import retrofit2.Response
 class CloudStorage(val context: Context) {
     private val restApi = WordApiRetrofit.getInstance(context).wordsApi;
 
-    fun getRandomWord(listener: WordsRepository.WordSourceListener<WordInfo>) {
+    fun getRandomWord(listener: RepositoryListener<WordInfo>) {
         val call = restApi.getRandomWord();
         call.enqueue(MyRetrofitCallback(listener, context))
     }
 
-    fun getWordInfo(word: String, listener: WordsRepository.WordSourceListener<WordInfo>) {
+    fun getWordInfo(word: String, listener: RepositoryListener<WordInfo>) {
         val call = restApi.getWordInfo(word);
         call.enqueue(MyRetrofitCallback(listener, context))
     }
 
-    fun searchTheWord(phrase: String, listener: WordsRepository.WordSourceListener<SearchResult>) {
+    fun searchTheWord(phrase: String, listener: RepositoryListener<SearchResult>) {
         val call = restApi.searchTheWord(phrase, Constants.SEARCH_LIMIT)
         call.enqueue(MyRetrofitCallback(listener, context))
     }
 
-    private class MyRetrofitCallback<T>(val listener: WordsRepository.WordSourceListener<T>,
+    private class MyRetrofitCallback<T>(val listener: RepositoryListener<T>,
                                         val context: Context) : Callback<T> {
         override fun onResponse(call: Call<T>?, response: Response<T>?) {
             if (response?.isSuccessful ?: false && response?.body() != null) {
