@@ -10,10 +10,13 @@ import com.mydictionary.ui.presenters.BaseView
 
 interface HomePresenter : BasePresenter<HomeView> {
     fun onWordOfTheDayClicked()
+    fun onResume()
+    fun onWordOfTheDayFavoriteBtnClicked()
 }
 
 interface HomeView : BaseView {
     fun showWordOfTheDay(word: WordInfo)
+    fun showWordOfTheDayFavoriteBtnState(isFavorite: Boolean)
     fun startWordInfoActivity(word: WordInfo)
 }
 

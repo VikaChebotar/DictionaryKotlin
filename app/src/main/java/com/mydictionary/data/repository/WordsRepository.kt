@@ -24,4 +24,8 @@ interface WordsRepository {
     fun searchWord(searchPhrase: String, listener: WordSourceListener<List<String>>)
 
     fun addWordToHistory(wordName: String)
+
+    fun setWordFavoriteState(wordName: String, isFavorite: Boolean, listener: WordSourceListener<Boolean>)
+
+    fun getWordFavoriteState(wordName: String): Boolean
 }

@@ -34,6 +34,29 @@ class HomePresenterImpl(val repository: WordsRepository) : HomePresenter {
         }
     }
 
+    override fun onWordOfTheDayFavoriteBtnClicked() {
+        todayWord?.let {
+            repository.setWordFavoriteState(it.word, !it.isFavorite,
+                    object : WordsRepository.WordSourceListener<Boolean> {
+                        override fun onSuccess(t: Boolean) {
+                            todayWord?.isFavorite = t
+                            homeView?.showWordOfTheDayFavoriteBtnState(t)
+                        }
+
+                        override fun onError(error: String) {
+                        }
+
+                    })
+        }
+    }
+
+    override fun onResume() {
+        todayWord?.let {
+            it.isFavorite = repository.getWordFavoriteState(it.word)
+            homeView?.showWordOfTheDayFavoriteBtnState(it.isFavorite)
+        }
+    }
+
     override fun onStop() {
         homeView = null
     }

@@ -15,13 +15,23 @@ class WordsRepositoryImpl(val factory: WordsStorageFactory) : WordsRepository {
     override fun getTodayWordInfo(date: Date, listener: WordsRepository.WordSourceListener<WordInfo>) {
         val wordOfTheDay = factory.localStorage.getWordOfTheDay();
         if ((wordOfTheDay != null) && (wordOfTheDay.date!!.isSameDay(Calendar.getInstance().time))) {
-            factory.cloudStorage.getWordInfo(wordOfTheDay.word!!, listener)
+            factory.cloudStorage.getWordInfo(wordOfTheDay.word!!, object : WordsRepository.WordSourceListener<WordInfo> {
+                override fun onSuccess(t: WordInfo) {
+                    t.isFavorite = factory.localStorage.isWordFavorite(t.word)
+                    listener.onSuccess(t)
+                }
+
+                override fun onError(error: String) {
+                    listener.onError(error)
+                }
+            })
         } else {
             factory.cloudStorage.getRandomWord(object : WordsRepository.WordSourceListener<WordInfo> {
                 override fun onSuccess(t: WordInfo) {
-                    listener.onSuccess(t)
                     factory.localStorage.storeWordOfTheDay(t.word, Calendar.getInstance().time)
                     addWordToHistory(t.word)
+                    t.isFavorite = factory.localStorage.isWordFavorite(t.word)
+                    listener.onSuccess(t)
                 }
 
                 override fun onError(error: String) {
@@ -34,8 +44,9 @@ class WordsRepositoryImpl(val factory: WordsStorageFactory) : WordsRepository {
     override fun getWordInfo(wordName: String, listener: WordsRepository.WordSourceListener<WordInfo>) {
         factory.cloudStorage.getWordInfo(wordName, object : WordsRepository.WordSourceListener<WordInfo> {
             override fun onSuccess(t: WordInfo) {
-                listener.onSuccess(t)
                 addWordToHistory(t.word)
+                t.isFavorite = factory.localStorage.isWordFavorite(t.word)
+                listener.onSuccess(t)
             }
 
             override fun onError(error: String) {
@@ -76,4 +87,14 @@ class WordsRepositoryImpl(val factory: WordsStorageFactory) : WordsRepository {
         historyWord.accessTime = Calendar.getInstance().time
         factory.localStorage.addWordToHistory(historyWord)
     }
+
+    override fun setWordFavoriteState(wordName: String, isFavorite: Boolean,
+                                      listener: WordsRepository.WordSourceListener<Boolean>) {
+        val isFavoriteResult = factory.localStorage.setWordFavoriteState(wordName, isFavorite)
+        listener.onSuccess(isFavoriteResult)
+    }
+
+    override fun getWordFavoriteState(wordName: String) =
+            factory.localStorage.isWordFavorite(wordName)
+
 }

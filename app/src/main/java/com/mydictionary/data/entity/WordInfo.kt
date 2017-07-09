@@ -29,6 +29,8 @@ data class WordInfo(val word: String, val pronunciation: String?) : Parcelable {
 
     var substanceOf = mutableListOf<String>()
 
+    var isFavorite: Boolean = false
+
     companion object {
         @JvmField val CREATOR: Parcelable.Creator<WordInfo> = object : Parcelable.Creator<WordInfo> {
             override fun createFromParcel(source: Parcel): WordInfo = WordInfo(source)
@@ -48,7 +50,9 @@ data class WordInfo(val word: String, val pronunciation: String?) : Parcelable {
         source.readList(typeOf, List::class.java.classLoader)
         source.readList(hasTypes, List::class.java.classLoader)
         source.readList(partOf, List::class.java.classLoader)
+        source.readList(hasParts, List::class.java.classLoader)
         source.readList(substanceOf, List::class.java.classLoader)
+        isFavorite = source.readInt() == 1
     }
 
     override fun describeContents() = 0
@@ -67,6 +71,7 @@ data class WordInfo(val word: String, val pronunciation: String?) : Parcelable {
         dest.writeList(partOf)
         dest.writeList(hasParts)
         dest.writeList(substanceOf)
+        dest.writeInt(if (isFavorite) 1 else 0)
     }
 }
 

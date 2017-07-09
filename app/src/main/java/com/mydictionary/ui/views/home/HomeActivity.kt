@@ -28,6 +28,11 @@ class HomeActivity : AppCompatActivity(), HomeView {
         wordOfTheDayCard.setOnClickListener { presenter.onWordOfTheDayClicked() }
     }
 
+    override fun onResume() {
+        super.onResume()
+        presenter.onResume()
+    }
+
     override fun onDestroy() {
         super.onDestroy()
         presenter.onStop()
@@ -39,7 +44,7 @@ class HomeActivity : AppCompatActivity(), HomeView {
     }
 
     override fun showWordOfTheDay(word: WordInfo) {
-        wordOfTheDayCard.bind(word)
+        wordOfTheDayCard.bind(word, { presenter.onWordOfTheDayFavoriteBtnClicked() })
     }
 
     override fun showError(message: String) {
@@ -51,6 +56,10 @@ class HomeActivity : AppCompatActivity(), HomeView {
         val intent = Intent(this@HomeActivity, WordInfoActivity::class.java);
         intent.putExtra(Constants.SELCTED_WORD_INFO_EXTRA, word)
         startActivity(intent)
+    }
+
+    override fun showWordOfTheDayFavoriteBtnState(isFavorite: Boolean) {
+        wordOfTheDayCard.onBindFavoriteBtnState(isFavorite)
     }
 
     fun startSearchActivity(isVoiceSearchClicked: Boolean = false) {

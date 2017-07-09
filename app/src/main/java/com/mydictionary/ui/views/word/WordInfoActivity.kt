@@ -44,6 +44,9 @@ class WordInfoActivity : AppCompatActivity(), WordInfoView {
         seeAllExamplesBtn.setOnClickListener {
             presenter.onSeeAllExamplesBtnClicked(examplesAdapter.itemCount)
         }
+        favoriteFab.setOnClickListener {
+            presenter.onFavoriteClicked()
+        }
     }
 
     override fun onCreateOptionsMenu(menu: Menu?): Boolean {
@@ -69,6 +72,12 @@ class WordInfoActivity : AppCompatActivity(), WordInfoView {
         linearLayoutManager.isAutoMeasureEnabled = true
         recyclerView.layoutManager = linearLayoutManager
         recyclerView.adapter = adapter
+    }
+
+    override fun showIsFavorite(isFavorite: Boolean) {
+        val imageRes = if (isFavorite) R.drawable.ic_favorite_white_24dp else
+            R.drawable.ic_favorite_border_white_24dp
+        favoriteFab.setImageResource(imageRes)
     }
 
     override fun onDestroy() {

@@ -13,6 +13,7 @@ interface WordInfoPresenter : BasePresenter<WordInfoView> {
     fun onSeeAllDefinitionsBtnClicked(definitionsCount: Int)
     fun onSeeAllExamplesBtnClicked(examplesCount: Int)
     fun onWordClicked(word: String)
+    fun onFavoriteClicked()
 }
 
 interface WordInfoView : BaseView {
@@ -24,4 +25,5 @@ interface WordInfoView : BaseView {
     fun showExamples(value: List<String>, showSeeAllBtn: Boolean)
     fun setSeeAllExamplesBtnText(textRes: Int)
     fun showRelatedWords(value: List<Pair<String, List<String>>>)
+    fun showIsFavorite(isFavorite: Boolean)
 }

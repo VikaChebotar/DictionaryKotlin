@@ -32,8 +32,9 @@ class WordInfoPresenterImpl(val repository: WordsRepository, val context: Contex
     }
 
     private fun showWord(wordInfo: WordInfo) {
-        wordInfoView?.showPronunciation(wordInfo.pronunciation ?: "")
         wordInfo.apply {
+            wordInfoView?.showPronunciation(pronunciation ?: "")
+            wordInfoView?.showIsFavorite(wordInfo.isFavorite)
             definitions.let {
                 val definitionsList = it.subList(0, minOf(it.size, Constants.TOP_DEFINITIONS_LENGTH))
                 wordInfoView?.showDefinitions(definitionsList, it.size > Constants.TOP_DEFINITIONS_LENGTH)
@@ -54,6 +55,23 @@ class WordInfoPresenterImpl(val repository: WordsRepository, val context: Contex
             addPairIfNotEmpty(R.string.substanceOf, substanceOf, relatedWords)
             wordInfoView?.showRelatedWords(relatedWords)
         }
+    }
+
+    override fun onFavoriteClicked() {
+        wordInfo?.let {
+            repository.setWordFavoriteState(wordInfo!!.word, !wordInfo!!.isFavorite,
+                    object : WordsRepository.WordSourceListener<Boolean> {
+                        override fun onSuccess(t: Boolean) {
+                            wordInfo?.isFavorite = t
+                            wordInfoView?.showIsFavorite(t)
+                        }
+
+                        override fun onError(error: String) {
+
+                        }
+                    })
+        }
+
     }
 
     private fun addPairIfNotEmpty(titleRes: Int, list: List<String>,

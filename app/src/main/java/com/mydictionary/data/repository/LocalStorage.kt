@@ -42,5 +42,16 @@ class LocalStorage {
         return if (realmWord != null) realm.copyFromRealm(realmWord) else null
     }
 
+    fun isWordFavorite(wordName: String): Boolean {
+        val historyWord = realm.where(HistoryWord::class.java).equalTo("word", wordName).findFirst()
+        return historyWord?.isFavorite ?: false
+    }
 
+    fun setWordFavoriteState(wordName: String, isFavorite: Boolean): Boolean {
+        val historyWord = realm.where(HistoryWord::class.java).equalTo("word", wordName).findFirst()
+        realm.executeTransaction {
+            historyWord?.isFavorite = isFavorite
+        }
+        return historyWord?.isFavorite ?: false
+    }
 }

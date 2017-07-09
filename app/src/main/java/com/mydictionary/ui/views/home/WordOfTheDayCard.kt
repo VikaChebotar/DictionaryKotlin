@@ -28,8 +28,8 @@ class WordOfTheDayCard : FrameLayout {
         inflater.inflate(R.layout.random_word_card, this)
     }
 
-    fun bind(wordInfo: WordInfo) {
-        wordOfTheDay.setText(wordInfo.word)
+    fun bind(wordInfo: WordInfo, favListener: (View) -> (Unit)) {
+        wordOfTheDay.text = wordInfo.word
 
         wordPronounce.visibility = if (wordInfo.pronunciation.isNullOrEmpty()) View.GONE else View.VISIBLE
         wordPronounce.text = context.getString(R.string.prononcuation, wordInfo.pronunciation ?: "")
@@ -40,9 +40,15 @@ class WordOfTheDayCard : FrameLayout {
 
         example.text = wordInfo.examples.getOrNull(0) ?: ""
         example.visibility = if (example.text.isEmpty()) View.GONE else View.VISIBLE
-
+        onBindFavoriteBtnState(wordInfo.isFavorite)
 //        speakWord.setOnClickListener { TODO("not implemented")}
-//        likeWord.setOnClickListener { TODO("not implemented") }
+        favWord.setOnClickListener(favListener)
+    }
+
+    fun onBindFavoriteBtnState(isFavorite: Boolean) {
+        val imageRes = if (isFavorite) R.drawable.ic_favorite_black_24dp
+        else R.drawable.ic_favorite_border_black_24dp
+        favWord.setImageResource(imageRes)
     }
 
 }
