@@ -6,7 +6,7 @@ import android.view.LayoutInflater
 import android.view.View
 import android.widget.FrameLayout
 import com.mydictionary.R
-import com.mydictionary.data.entity.WordInfo
+import com.mydictionary.data.pojo.WordInfo
 import kotlinx.android.synthetic.main.random_word_card.view.*
 
 

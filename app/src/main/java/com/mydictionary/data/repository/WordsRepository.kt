@@ -1,7 +1,6 @@
 package com.mydictionary.data.repository
 
-import com.mydictionary.data.entity.WordInfo
-import java.util.*
+import com.mydictionary.data.pojo.WordDetails
 
 /**
  * Created by Viktoria_Chebotar on 6/7/2017.
@@ -15,9 +14,9 @@ interface WordsRepository {
         fun onError(error: String)
     }
 
-    fun getTodayWordInfo(date: Date, listener: WordSourceListener<WordInfo>)
+//    fun getTodayWordInfo(date: Date, listener: WordSourceListener<WordDetails>)
 
-    fun getWordInfo(wordName: String, listener: WordSourceListener<WordInfo>)
+    fun getWordInfo(wordName: String, listener: WordSourceListener<WordDetails>)
 
     fun getHistoryWords(listener: WordSourceListener<List<String>>)
 

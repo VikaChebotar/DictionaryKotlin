@@ -1,4 +1,4 @@
-package com.mydictionary.data.entity
+package com.mydictionary.data.pojo
 
 import android.os.Parcel
 import android.os.Parcelable

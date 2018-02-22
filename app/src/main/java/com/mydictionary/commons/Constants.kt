@@ -5,7 +5,9 @@ package com.mydictionary.commons
  */
 class Constants {
     companion object {
-        val WORDS_API_ENDPOINT = "https://wordsapiv1.p.mashape.com/"
+        val OXFORD_API_ENDPOINT = "https://od-api.oxforddictionaries.com/api/v1/"
+        val OXFORD_API_APP_KEY_HEADER = "app_key"
+        val OXFORD_API_APP_ID_HEADER = "app_id"
         val VOICE_RECOGNITION_CODE = 1
         val HOME_SEARCH_FRAGMENT_TAG = "home_search_fragment_tag"
         val AUTOCOMPLETE_DELAY = 500L

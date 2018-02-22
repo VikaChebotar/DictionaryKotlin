@@ -1,7 +1,7 @@
 package com.mydictionary.ui.presenters.word
 
 import android.os.Bundle
-import com.mydictionary.data.entity.WordInfo
+import com.mydictionary.data.pojo.WordInfo
 import com.mydictionary.ui.presenters.BasePresenter
 import com.mydictionary.ui.presenters.BaseView
 

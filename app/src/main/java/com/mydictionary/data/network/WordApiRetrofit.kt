@@ -1,4 +1,4 @@
-package com.mydictionary.data.net
+package com.mydictionary.data.network
 
 import android.content.Context
 import android.net.ConnectivityManager
@@ -8,8 +8,8 @@ import com.mydictionary.R
 import com.mydictionary.commons.Constants
 import com.mydictionary.commons.NoConnectivityException
 import com.mydictionary.commons.isOnline
-import com.mydictionary.data.entity.SearchResult
-import com.mydictionary.data.entity.WordInfo
+import com.mydictionary.data.pojo.SearchResult
+import com.mydictionary.data.pojo.WordInfo
 import okhttp3.Interceptor
 import okhttp3.OkHttpClient
 import okhttp3.Response
@@ -49,7 +49,7 @@ class WordApiRetrofit private constructor(context: Context) {
                 addInterceptor(ConnectivityInterceptor(context)).build();
 
         val retrofit = Retrofit.Builder()
-                .baseUrl(Constants.WORDS_API_ENDPOINT)
+                .baseUrl(Constants.OXFORD_API_ENDPOINT)
                 .client(client)
                 .addConverterFactory(GsonConverterFactory.create(gson))
                 .build()
@@ -61,8 +61,10 @@ class WordApiRetrofit private constructor(context: Context) {
         override fun intercept(chain: Interceptor.Chain?): Response {
             val request = chain!!.request().
                     newBuilder().
-                    addHeader(context.getString(R.string.api_key_name),
-                            context.getString(R.string.words_api_key)).
+                    addHeader(Constants.OXFORD_API_APP_KEY_HEADER,
+                            context.getString(R.string.oxford_app_key)).
+                    addHeader(Constants.OXFORD_API_APP_ID_HEADER,
+                            context.getString(R.string.oxford_app_id)).
                     build()
             return chain.proceed(request)
         }

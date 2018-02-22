@@ -2,7 +2,8 @@ package com.mydictionary.ui.presenters.word
 
 import com.mydictionary.commons.Constants
 import com.mydictionary.commons.Constants.Companion.SELECTED_WORD_NAME_EXTRA
-import com.mydictionary.data.entity.WordInfo
+import com.mydictionary.data.pojo.WordDetails
+import com.mydictionary.data.pojo.WordInfo
 import com.mydictionary.data.repository.WordsRepository
 
 /**
@@ -36,11 +37,11 @@ class WordInfoPresenterImpl(val repository: WordsRepository) : WordInfoPresenter
     private fun loadWordInfo(wordName: String) {
         wordInfoView?.showProgress(true)
         repository.getWordInfo(wordName,
-                object : WordsRepository.WordSourceListener<WordInfo> {
-                    override fun onSuccess(wordInfo: WordInfo) {
-                        this@WordInfoPresenterImpl.wordInfo = wordInfo
+                object : WordsRepository.WordSourceListener<WordDetails> {
+                    override fun onSuccess(wordInfo: WordDetails) {
+
                         wordInfoView?.showProgress(false)
-                        showWord(wordInfo)
+
                     }
 
                     override fun onError(error: String) {

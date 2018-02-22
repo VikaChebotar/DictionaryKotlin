@@ -1,6 +1,6 @@
 package com.mydictionary.data.repository
 
-import com.mydictionary.data.entity.WordOfTheDay
+import com.mydictionary.data.pojo.WordOfTheDay
 import io.realm.Realm
 import java.util.*
 

@@ -1,13 +1,13 @@
-package com.mydictionary.data.net
+package com.mydictionary.data.network
 
 import com.google.gson.Gson
 import com.google.gson.JsonDeserializationContext
 import com.google.gson.JsonDeserializer
 import com.google.gson.JsonElement
 import com.google.gson.reflect.TypeToken
-import com.mydictionary.data.entity.Definition
-import com.mydictionary.data.entity.WordInfo
-import com.mydictionary.data.entity.WordInfoResult
+import com.mydictionary.data.pojo.Definition
+import com.mydictionary.data.pojo.WordInfo
+import com.mydictionary.data.pojo.WordInfoResult
 import java.lang.reflect.Type
 
 /**

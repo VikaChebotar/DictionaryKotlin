@@ -4,7 +4,7 @@ import android.os.Bundle
 import android.support.design.widget.Snackbar
 import android.support.v7.app.AppCompatActivity
 import com.mydictionary.R
-import com.mydictionary.data.entity.WordInfo
+import com.mydictionary.data.pojo.WordInfo
 import com.mydictionary.ui.DictionaryApp
 import com.mydictionary.ui.presenters.word.WordInfoPresenterImpl
 import com.mydictionary.ui.presenters.word.WordInfoView

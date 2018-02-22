@@ -9,7 +9,7 @@ import android.view.View
 import com.mydictionary.R
 import com.mydictionary.commons.Constants
 import com.mydictionary.commons.Constants.CompoundDrawables.RIGHT
-import com.mydictionary.data.entity.WordInfo
+import com.mydictionary.data.pojo.WordInfo
 import com.mydictionary.ui.DictionaryApp
 import com.mydictionary.ui.presenters.home.HomePresenterImpl
 import com.mydictionary.ui.presenters.home.HomeView
