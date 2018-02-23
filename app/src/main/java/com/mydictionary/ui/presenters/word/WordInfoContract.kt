@@ -1,7 +1,6 @@
 package com.mydictionary.ui.presenters.word
 
 import android.os.Bundle
-import com.mydictionary.data.entity.Definition
 import com.mydictionary.ui.presenters.BasePresenter
 import com.mydictionary.ui.presenters.BaseView
 
@@ -20,7 +19,7 @@ interface WordInfoView : BaseView {
     fun getExtras(): Bundle
     fun initToolbar(word: String)
     fun showPronunciation(value: String)
-    fun showDefinitions(value: List<Definition>, showSeeAllBtn: Boolean)
+  //  fun showDefinitions(value: List<Definition>, showSeeAllBtn: Boolean)
     fun setSeeAllDefinitionsBtnText(textRes: Int)
     fun showExamples(value: List<String>, showSeeAllBtn: Boolean)
     fun setSeeAllExamplesBtnText(textRes: Int)

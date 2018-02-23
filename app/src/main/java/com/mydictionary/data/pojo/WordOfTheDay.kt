@@ -1,4 +1,4 @@
-package com.mydictionary.data.entity
+package com.mydictionary.data.pojo
 
 import io.realm.RealmObject
 import io.realm.annotations.PrimaryKey

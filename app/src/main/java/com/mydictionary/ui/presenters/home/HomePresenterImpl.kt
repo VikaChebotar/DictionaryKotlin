@@ -1,9 +1,7 @@
 package com.mydictionary.ui.presenters.home
 
-import com.mydictionary.data.entity.WordInfo
-import com.mydictionary.data.repository.RepositoryListener
+import com.mydictionary.data.pojo.WordDetails
 import com.mydictionary.data.repository.WordsRepository
-import java.util.*
 
 /**
  * Created by Viktoria Chebotar on 18.06.17.
@@ -11,27 +9,27 @@ import java.util.*
 
 class HomePresenterImpl(val repository: WordsRepository) : HomePresenter {
     var homeView: HomeView? = null
-    var todayWord: WordInfo? = null
+    var todayWord: WordDetails? = null
 
     override fun onStart(view: HomeView) {
         this.homeView = view
         if (todayWord == null) {
             homeView?.showProgress(true)
-            repository.getTodayWordInfo(Calendar.getInstance().time,
-                    object : RepositoryListener<WordInfo> {
-                        override fun onSuccess(wordInfo: WordInfo) {
-                            todayWord = wordInfo;
-                            homeView?.showWordOfTheDay(wordInfo)
-                            homeView?.showProgress(false)
-                        }
-
-                        override fun onError(error: String) {
-                            homeView?.showProgress(false)
-                            homeView?.showError(error)
-                        }
-                    })
+//            repository.getTodayWordInfo(Calendar.getInstance().time,
+//                    object : RepositoryListener<WordInfo> {
+//                        override fun onSuccess(wordInfo: WordInfo) {
+//                            todayWord = wordInfo;
+//                            homeView?.showWordOfTheDay(wordInfo)
+//                            homeView?.showProgress(false)
+//                        }
+//
+//                        override fun onError(error: String) {
+//                            homeView?.showProgress(false)
+//                            homeView?.showError(error)
+//                        }
+//                    })
         } else {
-            homeView?.showWordOfTheDay(todayWord as WordInfo)
+            homeView?.showWordOfTheDay(todayWord as WordDetails)
         }
     }
 
@@ -40,26 +38,26 @@ class HomePresenterImpl(val repository: WordsRepository) : HomePresenter {
     }
 
     override fun onWordOfTheDayFavoriteBtnClicked() {
-        todayWord?.let {
-            repository.setWordFavoriteState(it.word, !it.isFavorite,
-                    object : RepositoryListener<Boolean> {
-                        override fun onSuccess(t: Boolean) {
-                            todayWord?.isFavorite = t
-                            homeView?.showWordOfTheDayFavoriteBtnState(t)
-                        }
-
-                        override fun onError(error: String) {
-                        }
-
-                    })
-        }
+//        todayWord?.let {
+//            repository.setWordFavoriteState(it.word, !it.isFavorite,
+//                    object : RepositoryListener<Boolean> {
+//                        override fun onSuccess(t: Boolean) {
+//                            todayWord?.isFavorite = t
+//                            homeView?.showWordOfTheDayFavoriteBtnState(t)
+//                        }
+//
+//                        override fun onError(error: String) {
+//                        }
+//
+//                    })
+//        }
     }
 
     override fun onResume() {
-        todayWord?.let {
-            it.isFavorite = repository.getWordFavoriteState(it.word)
-            homeView?.showWordOfTheDayFavoriteBtnState(it.isFavorite)
-        }
+//        todayWord?.let {
+//            it.isFavorite = repository.getWordFavoriteState(it.word)
+//            homeView?.showWordOfTheDayFavoriteBtnState(it.isFavorite)
+//        }
     }
 
     override fun onStop() {

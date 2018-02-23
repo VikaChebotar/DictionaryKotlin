@@ -7,15 +7,12 @@ import android.support.v7.widget.LinearLayoutManager
 import android.support.v7.widget.RecyclerView
 import android.view.Menu
 import android.view.MenuItem
-import android.view.View
 import com.mydictionary.R
-import com.mydictionary.data.entity.Definition
 import com.mydictionary.ui.DictionaryApp
 import com.mydictionary.ui.presenters.word.WordInfoPresenterImpl
 import com.mydictionary.ui.presenters.word.WordInfoView
 import kotlinx.android.synthetic.main.definition_card.*
 import kotlinx.android.synthetic.main.example_card.*
-import kotlinx.android.synthetic.main.word_content_scrolling.*
 import kotlinx.android.synthetic.main.word_info_activity.*
 
 /**
@@ -24,29 +21,29 @@ import kotlinx.android.synthetic.main.word_info_activity.*
 
 class WordInfoActivity : AppCompatActivity(), WordInfoView {
     val presenter by lazy { WordInfoPresenterImpl(DictionaryApp.getInstance(this).repository, this) }
-    val definitionsAdapter = DefinitionsAdapter()
-    val examplesAdapter = ExamplesAdapter()
-    val relatedWordsAdapter = RelatedWordsAdapter()
+ //   val definitionsAdapter = DefinitionsAdapter()
+//    val examplesAdapter = ExamplesAdapter()
+  //  val relatedWordsAdapter = RelatedWordsAdapter()
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.word_info_activity);
 
-        initList(definitionsRecyclerView, definitionsAdapter)
-        initList(examplesRecyclerView, examplesAdapter)
-        initList(relatedWordsRecyclerView, relatedWordsAdapter)
+     //   initList(definitionsRecyclerView, definitionsAdapter)
+     //   initList(examplesRecyclerView, examplesAdapter)
+     //   initList(relatedWordsRecyclerView, relatedWordsAdapter)
 
         presenter.onStart(this)
 
-        seeAllDefinitionsBtn.setOnClickListener {
-            presenter.onSeeAllDefinitionsBtnClicked(definitionsAdapter.itemCount)
-        }
-        seeAllExamplesBtn.setOnClickListener {
-            presenter.onSeeAllExamplesBtnClicked(examplesAdapter.itemCount)
-        }
-        favoriteFab.setOnClickListener {
-            presenter.onFavoriteClicked()
-        }
+//        seeAllDefinitionsBtn.setOnClickListener {
+//            presenter.onSeeAllDefinitionsBtnClicked(definitionsAdapter.itemCount)
+//        }
+//        seeAllExamplesBtn.setOnClickListener {
+//            presenter.onSeeAllExamplesBtnClicked(examplesAdapter.itemCount)
+//        }
+//        favoriteFab.setOnClickListener {
+//            presenter.onFavoriteClicked()
+//        }
     }
 
     override fun onCreateOptionsMenu(menu: Menu?): Boolean {
@@ -95,23 +92,23 @@ class WordInfoActivity : AppCompatActivity(), WordInfoView {
     override fun showPronunciation(value: String) {
         pronunciation.text = getString(R.string.prononcuation, value)
     }
-
-    override fun showDefinitions(value: List<Definition>, showSeeAllBtn: Boolean) {
-        definitionsAdapter.dataset = value
-        definitionsAdapter.notifyDataSetChanged()
-        if (value.isEmpty()) definitionCard.visibility = View.GONE
-        seeAllDefinitionsBtn.visibility = if (showSeeAllBtn) View.VISIBLE else View.GONE
-    }
+//
+//    override fun showDefinitions(value: List<Definition>, showSeeAllBtn: Boolean) {
+//        definitionsAdapter.dataset = value
+//        definitionsAdapter.notifyDataSetChanged()
+//        if (value.isEmpty()) definitionCard.visibility = View.GONE
+//        seeAllDefinitionsBtn.visibility = if (showSeeAllBtn) View.VISIBLE else View.GONE
+//    }
 
     override fun setSeeAllDefinitionsBtnText(textRes: Int) {
         seeAllDefinitionsBtn.setText(textRes)
     }
 
     override fun showExamples(value: List<String>, showSeeAllBtn: Boolean) {
-        examplesAdapter.dataset = value
-        examplesAdapter.notifyDataSetChanged()
-        if (value.isEmpty()) exampleCard.visibility = View.GONE
-        seeAllExamplesBtn.visibility = if (showSeeAllBtn) View.VISIBLE else View.GONE
+//        examplesAdapter.dataset = value
+//        examplesAdapter.notifyDataSetChanged()
+//        if (value.isEmpty()) exampleCard.visibility = View.GONE
+//        seeAllExamplesBtn.visibility = if (showSeeAllBtn) View.VISIBLE else View.GONE
     }
 
     override fun setSeeAllExamplesBtnText(textRes: Int) {
@@ -119,8 +116,8 @@ class WordInfoActivity : AppCompatActivity(), WordInfoView {
     }
 
     override fun showRelatedWords(value: List<Pair<String, List<String>>>) {
-        relatedWordsAdapter.dataset = value
-        relatedWordsAdapter.notifyDataSetChanged()
+//        relatedWordsAdapter.dataset = value
+//        relatedWordsAdapter.notifyDataSetChanged()
     }
 
     override fun showProgress(progress: Boolean) {

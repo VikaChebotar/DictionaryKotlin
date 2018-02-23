@@ -6,7 +6,7 @@ import android.view.LayoutInflater
 import android.view.View
 import android.widget.FrameLayout
 import com.mydictionary.R
-import com.mydictionary.data.entity.WordInfo
+import com.mydictionary.data.pojo.WordDetails
 import kotlinx.android.synthetic.main.random_word_card.view.*
 
 
@@ -28,21 +28,21 @@ class WordOfTheDayCard : FrameLayout {
         inflater.inflate(R.layout.random_word_card, this)
     }
 
-    fun bind(wordInfo: WordInfo, favListener: (View) -> (Unit)) {
-        wordOfTheDay.text = wordInfo.word
-
-        wordPronounce.visibility = if (wordInfo.pronunciation.isNullOrEmpty()) View.GONE else View.VISIBLE
-        wordPronounce.text = context.getString(R.string.prononcuation, wordInfo.pronunciation ?: "")
-
-        definition.text = wordInfo.definitions.getOrNull(0)?.definition ?: ""
-
-        partOfSpeech.text = wordInfo.definitions.getOrNull(0)?.partOfSpeech ?: ""
-
-        example.text = wordInfo.examples.getOrNull(0) ?: ""
-        example.visibility = if (example.text.isEmpty()) View.GONE else View.VISIBLE
-        onBindFavoriteBtnState(wordInfo.isFavorite)
-//        speakWord.setOnClickListener { TODO("not implemented")}
-        favWord.setOnClickListener(favListener)
+    fun bind(wordInfo: WordDetails, favListener: (View) -> (Unit)) {
+//        wordOfTheDay.text = wordInfo.word
+//
+//        wordPronounce.visibility = if (wordInfo.pronunciation.isNullOrEmpty()) View.GONE else View.VISIBLE
+//        wordPronounce.text = context.getString(R.string.prononcuation, wordInfo.pronunciation ?: "")
+//
+//        definition.text = wordInfo.definitions.getOrNull(0)?.definition ?: ""
+//
+//        partOfSpeech.text = wordInfo.definitions.getOrNull(0)?.partOfSpeech ?: ""
+//
+//        example.text = wordInfo.examples.getOrNull(0) ?: ""
+//        example.visibility = if (example.text.isEmpty()) View.GONE else View.VISIBLE
+//        onBindFavoriteBtnState(wordInfo.isFavorite)
+////        speakWord.setOnClickListener { TODO("not implemented")}
+//        favWord.setOnClickListener(favListener)
     }
 
     fun onBindFavoriteBtnState(isFavorite: Boolean) {

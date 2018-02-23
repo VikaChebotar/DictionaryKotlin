@@ -21,16 +21,16 @@ class SearchPresenterImpl(val repository: WordsRepository) : SearchPresenter, Se
     }
 
     private fun loadHistoryWords() {
-        repository.getHistoryWords(Constants.HISTORY_SEARCH_LIMIT, object : RepositoryListener<List<String>> {
-            override fun onSuccess(result: List<String>) {
-                historyWords = result
-                searchView?.showHistoryWords(result)
-            }
-
-            override fun onError(error: String) {
-                searchView?.showError(error)
-            }
-        })
+//        repository.getHistoryWords(Constants.HISTORY_SEARCH_LIMIT, object : RepositoryListener<List<String>> {
+//            override fun onSuccess(result: List<String>) {
+//                historyWords = result
+//                searchView?.showHistoryWords(result)
+//            }
+//
+//            override fun onError(error: String) {
+//                searchView?.showError(error)
+//            }
+//        })
     }
 
 

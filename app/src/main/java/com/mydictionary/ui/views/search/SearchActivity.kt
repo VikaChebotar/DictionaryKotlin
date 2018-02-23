@@ -39,7 +39,7 @@ class SearchActivity : AppCompatActivity(), SearchView, SearchEditText.VoiceButt
         with(searchRecyclerView) {
             layoutManager = LinearLayoutManager(context) as RecyclerView.LayoutManager?
             val dividerDecoration = DividerItemDecoration(context, ContextCompat.getDrawable(context,
-                    R.drawable.divider_with_padding))
+                    R.drawable.divider_with_padding)!!)
             addItemDecoration(dividerDecoration)
             adapter = SearchResultsAdapter({ value -> onItemClick(value) })
             isNestedScrollingEnabled = false

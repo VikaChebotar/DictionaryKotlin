@@ -5,9 +5,11 @@ import android.util.Log
 import com.mydictionary.R
 import com.mydictionary.commons.Constants
 import com.mydictionary.commons.NoConnectivityException
-import com.mydictionary.data.entity.SearchResult
-import com.mydictionary.data.entity.WordInfo
-import com.mydictionary.data.net.WordApiRetrofit
+import com.mydictionary.data.network.WordApiRetrofit
+import com.mydictionary.data.network.dto.WordDetailsResponse
+import com.mydictionary.data.pojo.Mapper
+import com.mydictionary.data.pojo.SearchResult
+import com.mydictionary.data.pojo.WordDetails
 import retrofit2.Call
 import retrofit2.Callback
 import retrofit2.Response
@@ -19,14 +21,22 @@ import retrofit2.Response
 class CloudStorage(val context: Context) {
     private val restApi = WordApiRetrofit.getInstance(context).wordsApi;
 
-    fun getRandomWord(listener: RepositoryListener<WordInfo>) {
-        val call = restApi.getRandomWord();
-        call.enqueue(MyRetrofitCallback(listener, context))
-    }
+  //  fun getRandomWord(listener: RepositoryListener<WordInfo>) {
+     //   val call = restApi.getRandomWord();
+      //  call.enqueue(MyRetrofitCallback(listener, context))
+    //}
 
-    fun getWordInfo(word: String, listener: RepositoryListener<WordInfo>) {
+    fun getWordInfo(word: String, listener: RepositoryListener<WordDetails>) {
         val call = restApi.getWordInfo(word);
-        call.enqueue(MyRetrofitCallback(listener, context))
+        call.enqueue(MyRetrofitCallback(object : RepositoryListener<WordDetailsResponse> {
+            override fun onSuccess(t: WordDetailsResponse) {
+                listener.onSuccess(Mapper.fromDto(t))
+            }
+
+            override fun onError(error: String) {
+                listener.onError(error)
+            }
+        }, context))
     }
 
     fun searchTheWord(phrase: String, listener: RepositoryListener<SearchResult>) {
@@ -38,7 +48,7 @@ class CloudStorage(val context: Context) {
                                         val context: Context) : Callback<T> {
         override fun onResponse(call: Call<T>?, response: Response<T>?) {
             if (response?.isSuccessful ?: false && response?.body() != null) {
-                listener.onSuccess(response.body())
+                listener.onSuccess(response.body() as T)
             } else {
                 listener.onError(response?.errorBody().toString())
             }

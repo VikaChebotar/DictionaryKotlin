@@ -1,6 +1,6 @@
 package com.mydictionary.ui.presenters.home
 
-import com.mydictionary.data.entity.WordInfo
+import com.mydictionary.data.pojo.WordDetails
 import com.mydictionary.ui.presenters.BasePresenter
 import com.mydictionary.ui.presenters.BaseView
 
@@ -16,9 +16,9 @@ interface HomePresenter : BasePresenter<HomeView> {
 }
 
 interface HomeView : BaseView {
-    fun showWordOfTheDay(word: WordInfo)
+    fun showWordOfTheDay(word: WordDetails)
     fun showWordOfTheDayFavoriteBtnState(isFavorite: Boolean)
-    fun startWordInfoActivity(word: WordInfo)
+    fun startWordInfoActivity(word: WordDetails)
     fun startMyWordsActivity()
 }
 

@@ -5,7 +5,7 @@ import android.support.v7.app.AppCompatActivity
 import android.view.MenuItem
 import com.mydictionary.R
 import com.mydictionary.data.entity.HistoryWord
-import com.mydictionary.data.entity.WordInfo
+import com.mydictionary.data.pojo.WordDetails
 import com.mydictionary.ui.presenters.mywords.MyWordsView
 import kotlinx.android.synthetic.main.my_words_activity.*
 
@@ -42,7 +42,7 @@ class MyWordsActivity : AppCompatActivity(), MyWordsView{
         TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
     }
 
-    override fun startWordInfoActivity(word: WordInfo) {
+    override fun startWordInfoActivity(word: WordDetails) {
         TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
     }
 }

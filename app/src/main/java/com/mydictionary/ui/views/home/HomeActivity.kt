@@ -11,16 +11,16 @@ import android.view.View
 import com.mydictionary.R
 import com.mydictionary.commons.Constants
 import com.mydictionary.commons.Constants.CompoundDrawables.RIGHT
-import com.mydictionary.data.entity.WordInfo
+import com.mydictionary.data.pojo.WordDetails
 import com.mydictionary.ui.DictionaryApp
 import com.mydictionary.ui.presenters.home.HomePresenterImpl
 import com.mydictionary.ui.presenters.home.HomeView
 import com.mydictionary.ui.views.mywords.MyWordsActivity
 import com.mydictionary.ui.views.search.SearchActivity
-import com.mydictionary.ui.views.word.WordInfoActivity
 import kotlinx.android.synthetic.main.home_activity.*
 
 class HomeActivity : AppCompatActivity(), HomeView {
+
     val presenter by lazy { HomePresenterImpl(DictionaryApp.getInstance(this).repository) }
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -70,8 +70,8 @@ class HomeActivity : AppCompatActivity(), HomeView {
         homeLayout.visibility = if (progress) View.GONE else View.VISIBLE
     }
 
-    override fun showWordOfTheDay(word: WordInfo) {
-        wordOfTheDayCard.bind(word, { presenter.onWordOfTheDayFavoriteBtnClicked() })
+    override fun showWordOfTheDay(word: WordDetails) {
+     //   wordOfTheDayCard.bind(word, { presenter.onWordOfTheDayFavoriteBtnClicked() })
     }
 
     override fun showError(message: String) {
@@ -79,10 +79,10 @@ class HomeActivity : AppCompatActivity(), HomeView {
         homeLayout.visibility = View.GONE
     }
 
-    override fun startWordInfoActivity(word: WordInfo) {
-        val intent = Intent(this@HomeActivity, WordInfoActivity::class.java);
-        intent.putExtra(Constants.SELCTED_WORD_INFO_EXTRA, word)
-        startActivity(intent)
+    override fun startWordInfoActivity(word: WordDetails) {
+//        val intent = Intent(this@HomeActivity, WordInfoActivity::class.java);
+//        intent.putExtra(Constants.SELCTED_WORD_INFO_EXTRA, word)
+//        startActivity(intent)
     }
 
     override fun showWordOfTheDayFavoriteBtnState(isFavorite: Boolean) {

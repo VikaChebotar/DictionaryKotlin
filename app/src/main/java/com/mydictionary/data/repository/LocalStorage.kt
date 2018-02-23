@@ -2,7 +2,7 @@ package com.mydictionary.data.repository
 
 import com.mydictionary.commons.Constants
 import com.mydictionary.data.entity.HistoryWord
-import com.mydictionary.data.entity.WordOfTheDay
+import com.mydictionary.data.pojo.WordOfTheDay
 import io.realm.Realm
 import io.realm.Sort
 import java.util.*
