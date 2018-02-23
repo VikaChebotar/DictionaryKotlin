@@ -8,20 +8,18 @@
     android:paddingRight="16dp">
 
     <TextView
-        android:id="@+id/partOfSpeech"
+        android:id="@+id/definition"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="@string/empty_part_of_speech"
         android:textColor="@color/colorPrimary"
         android:textSize="@dimen/small_text_size"
         android:textStyle="italic|bold" />
 
     <TextView
-        android:id="@+id/definition"
+        android:id="@+id/example"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:textColor="@color/textSecondary"
         android:textSize="@dimen/medium_text_size" />
-
 
 </LinearLayout>

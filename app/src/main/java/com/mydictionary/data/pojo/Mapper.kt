@@ -12,9 +12,12 @@ class Mapper {
             val result = dto.results?.elementAtOrNull(0)
             val word = WordDetails(result?.word ?: "")
             val allEntries = mutableListOf<WordDetailsResponse.Entry>()
+            val pronunciations = mutableSetOf<String>()
             result?.lexicalEntries?.forEach { lexicalEntry ->
                 allEntries.addAll(lexicalEntry.entries?.onEach { it.lexicalCategory = lexicalEntry.lexicalCategory }.orEmpty())
+                pronunciations.addAll(lexicalEntry.pronunciations?.map { it.phoneticSpelling }?.filterNotNull()?.asIterable() ?: emptySet())
             }
+            word.pronunciation = pronunciations.elementAtOrNull(0)
             allEntries.sortBy { it.homographNumber }
             allEntries.forEach { entry ->
                 entry.senses?.forEach {

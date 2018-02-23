@@ -21,9 +21,9 @@ import retrofit2.Response
 class CloudStorage(val context: Context) {
     private val restApi = WordApiRetrofit.getInstance(context).wordsApi;
 
-  //  fun getRandomWord(listener: RepositoryListener<WordInfo>) {
-     //   val call = restApi.getRandomWord();
-      //  call.enqueue(MyRetrofitCallback(listener, context))
+    //  fun getRandomWord(listener: RepositoryListener<WordInfo>) {
+    //   val call = restApi.getRandomWord();
+    //  call.enqueue(MyRetrofitCallback(listener, context))
     //}
 
     fun getWordInfo(word: String, listener: RepositoryListener<WordDetails>) {
@@ -50,7 +50,7 @@ class CloudStorage(val context: Context) {
             if (response?.isSuccessful ?: false && response?.body() != null) {
                 listener.onSuccess(response.body() as T)
             } else {
-                listener.onError(response?.errorBody().toString())
+                listener.onError(response?.raw()?.message() ?: context.getString(R.string.default_error))
             }
         }
 

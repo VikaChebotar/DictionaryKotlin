@@ -13,7 +13,7 @@
         android:layout_height="match_parent">
 
         <TextView
-            android:id="@+id/definitionsLbl"
+            android:id="@+id/partOfSpeech"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_alignParentLeft="true"
@@ -25,27 +25,11 @@
             android:textSize="@dimen/text_size"
             android:textStyle="bold"/>
 
-        <Button
-            android:id="@+id/seeAllDefinitionsBtn"
-            style="?android:attr/borderlessButtonStyle"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_alignBottom="@+id/exampleLbl"
-            android:layout_alignParentRight="true"
-            android:minHeight="0dp"
-            android:minWidth="0dp"
-            android:padding="@dimen/activity_horizontal_margin"
-            android:text="@string/see_all"
-            android:textAllCaps="true"
-            android:textColor="@color/textColorGrey"
-            android:textSize="@dimen/small_text_size"
-            android:visibility="gone"/>
-
         <android.support.v7.widget.RecyclerView
-            android:id="@+id/definitionsRecyclerView"
+            android:id="@+id/meaningRecyclerView"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_below="@+id/definitionsLbl"
+            android:layout_below="@+id/partOfSpeech"
             android:clipToPadding="false"
             android:nestedScrollingEnabled="false"
             app:layout_behavior="@string/appbar_scrolling_view_behavior"/>

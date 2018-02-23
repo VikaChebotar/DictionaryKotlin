@@ -8,11 +8,11 @@ import android.support.v7.widget.RecyclerView
 import android.view.Menu
 import android.view.MenuItem
 import com.mydictionary.R
+import com.mydictionary.data.pojo.WordMeaning
 import com.mydictionary.ui.DictionaryApp
 import com.mydictionary.ui.presenters.word.WordInfoPresenterImpl
 import com.mydictionary.ui.presenters.word.WordInfoView
 import kotlinx.android.synthetic.main.definition_card.*
-import kotlinx.android.synthetic.main.example_card.*
 import kotlinx.android.synthetic.main.word_info_activity.*
 
 /**
@@ -20,18 +20,14 @@ import kotlinx.android.synthetic.main.word_info_activity.*
  */
 
 class WordInfoActivity : AppCompatActivity(), WordInfoView {
+
     val presenter by lazy { WordInfoPresenterImpl(DictionaryApp.getInstance(this).repository, this) }
- //   val definitionsAdapter = DefinitionsAdapter()
-//    val examplesAdapter = ExamplesAdapter()
-  //  val relatedWordsAdapter = RelatedWordsAdapter()
+    val definitionsAdapter = DefinitionsAdapter()
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.word_info_activity);
-
-     //   initList(definitionsRecyclerView, definitionsAdapter)
-     //   initList(examplesRecyclerView, examplesAdapter)
-     //   initList(relatedWordsRecyclerView, relatedWordsAdapter)
+        initList(meaningRecyclerView, definitionsAdapter)
 
         presenter.onStart(this)
 
@@ -70,12 +66,12 @@ class WordInfoActivity : AppCompatActivity(), WordInfoView {
         recyclerView.layoutManager = linearLayoutManager
         recyclerView.adapter = adapter
     }
-
-    override fun showIsFavorite(isFavorite: Boolean) {
-        val imageRes = if (isFavorite) R.drawable.ic_favorite_white_24dp else
-            R.drawable.ic_favorite_border_white_24dp
-        favoriteFab.setImageResource(imageRes)
-    }
+//
+//    override fun showIsFavorite(isFavorite: Boolean) {
+//        val imageRes = if (isFavorite) R.drawable.ic_favorite_white_24dp else
+//            R.drawable.ic_favorite_border_white_24dp
+//        favoriteFab.setImageResource(imageRes)
+//    }
 
     override fun onDestroy() {
         super.onDestroy()
@@ -92,32 +88,17 @@ class WordInfoActivity : AppCompatActivity(), WordInfoView {
     override fun showPronunciation(value: String) {
         pronunciation.text = getString(R.string.prononcuation, value)
     }
-//
-//    override fun showDefinitions(value: List<Definition>, showSeeAllBtn: Boolean) {
+
+    //
+//    override fun showMeanings(value: List<Definition>, showSeeAllBtn: Boolean) {
 //        definitionsAdapter.dataset = value
 //        definitionsAdapter.notifyDataSetChanged()
 //        if (value.isEmpty()) definitionCard.visibility = View.GONE
 //        seeAllDefinitionsBtn.visibility = if (showSeeAllBtn) View.VISIBLE else View.GONE
 //    }
-
-    override fun setSeeAllDefinitionsBtnText(textRes: Int) {
-        seeAllDefinitionsBtn.setText(textRes)
-    }
-
-    override fun showExamples(value: List<String>, showSeeAllBtn: Boolean) {
-//        examplesAdapter.dataset = value
-//        examplesAdapter.notifyDataSetChanged()
-//        if (value.isEmpty()) exampleCard.visibility = View.GONE
-//        seeAllExamplesBtn.visibility = if (showSeeAllBtn) View.VISIBLE else View.GONE
-    }
-
-    override fun setSeeAllExamplesBtnText(textRes: Int) {
-        seeAllExamplesBtn.setText(textRes)
-    }
-
-    override fun showRelatedWords(value: List<Pair<String, List<String>>>) {
-//        relatedWordsAdapter.dataset = value
-//        relatedWordsAdapter.notifyDataSetChanged()
+    override fun showMeanings(value: List<WordMeaning>) {
+        definitionsAdapter.dataset = value
+        definitionsAdapter.notifyDataSetChanged()
     }
 
     override fun showProgress(progress: Boolean) {
