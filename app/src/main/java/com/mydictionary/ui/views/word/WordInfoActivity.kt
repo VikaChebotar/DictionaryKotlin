@@ -1,5 +1,6 @@
 package com.mydictionary.ui.views.word
 
+import android.graphics.Rect
 import android.os.Bundle
 import android.support.design.widget.Snackbar
 import android.support.v7.app.AppCompatActivity
@@ -7,12 +8,13 @@ import android.support.v7.widget.LinearLayoutManager
 import android.support.v7.widget.RecyclerView
 import android.view.Menu
 import android.view.MenuItem
+import android.view.View
 import com.mydictionary.R
 import com.mydictionary.data.pojo.WordMeaning
 import com.mydictionary.ui.DictionaryApp
 import com.mydictionary.ui.presenters.word.WordInfoPresenterImpl
 import com.mydictionary.ui.presenters.word.WordInfoView
-import kotlinx.android.synthetic.main.definition_card.*
+import kotlinx.android.synthetic.main.word_content_scrolling.*
 import kotlinx.android.synthetic.main.word_info_activity.*
 
 /**
@@ -22,12 +24,12 @@ import kotlinx.android.synthetic.main.word_info_activity.*
 class WordInfoActivity : AppCompatActivity(), WordInfoView {
 
     val presenter by lazy { WordInfoPresenterImpl(DictionaryApp.getInstance(this).repository, this) }
-    val definitionsAdapter = DefinitionsAdapter()
+    val definitionsAdapter = WordCardsAdapter()
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.word_info_activity);
-        initList(meaningRecyclerView, definitionsAdapter)
+        initList(scrollContent, definitionsAdapter)
 
         presenter.onStart(this)
 
@@ -65,6 +67,13 @@ class WordInfoActivity : AppCompatActivity(), WordInfoView {
         linearLayoutManager.isAutoMeasureEnabled = true
         recyclerView.layoutManager = linearLayoutManager
         recyclerView.adapter = adapter
+        val margin = resources.getDimension(R.dimen.activity_horizontal_margin).toInt()
+        recyclerView.addItemDecoration(object : RecyclerView.ItemDecoration() {
+            override fun getItemOffsets(outRect: Rect, view: View, parent: RecyclerView, state: RecyclerView.State) {
+                val position = parent.getChildAdapterPosition(view)
+                outRect.set(margin, margin, margin, if (position < state.itemCount-1) 0 else margin);
+            }
+        })
     }
 //
 //    override fun showIsFavorite(isFavorite: Boolean) {

@@ -1,39 +1,64 @@
 <?xml version="1.0" encoding="utf-8"?>
 <android.support.v7.widget.CardView xmlns:android="http://schemas.android.com/apk/res/android"
-                                    xmlns:app="http://schemas.android.com/apk/res-auto"
-                                    android:id="@+id/definitionCard"
-                                    android:layout_width="match_parent"
-                                    android:layout_height="wrap_content"
-                                    android:layout_margin="@dimen/activity_horizontal_margin"
-                                    app:cardBackgroundColor="@android:color/white"
-                                    app:cardCornerRadius="3dp">
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:id="@+id/definitionCard"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    app:cardBackgroundColor="@android:color/white"
+    app:cardCornerRadius="3dp">
 
-    <RelativeLayout
+    <LinearLayout
         android:layout_width="match_parent"
-        android:layout_height="match_parent">
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:paddingBottom="16dp"
+        android:paddingLeft="16dp"
+        android:paddingRight="8dp"
+        android:paddingTop="8dp">
 
-        <TextView
-            android:id="@+id/partOfSpeech"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_alignParentLeft="true"
-            android:fontFamily="sans-serif-condensed"
-            android:padding="@dimen/activity_horizontal_margin"
-            android:text="@string/definitions"
-            android:textAllCaps="true"
-            android:textColor="@color/colorAccent"
-            android:textSize="@dimen/text_size"
-            android:textStyle="bold"/>
-
-        <android.support.v7.widget.RecyclerView
-            android:id="@+id/meaningRecyclerView"
+        <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_below="@+id/partOfSpeech"
+            android:orientation="horizontal">
+
+            <TextView
+                android:id="@+id/partOfSpeech"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center_vertical"
+                android:layout_weight="1"
+                android:fontFamily="sans-serif-condensed"
+                android:text="@string/definitions"
+                android:textColor="@color/colorPrimaryDark"
+                android:textSize="@dimen/text_size"
+                android:textStyle="bold" />
+
+            <ImageButton
+                android:id="@+id/favWord"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:background="?android:attr/selectableItemBackgroundBorderless"
+                android:src="@drawable/ic_favorite_border_black_24dp" />
+
+        </LinearLayout>
+
+        <android.support.v7.widget.RecyclerView
+            android:id="@+id/definitionsRecyclerView"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:paddingRight="8dp"
+            android:clipToPadding="false"
+            android:nestedScrollingEnabled="false" />
+
+        <android.support.v7.widget.RecyclerView
+            android:id="@+id/examplesRecyclerView"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:paddingRight="8dp"
             android:clipToPadding="false"
             android:nestedScrollingEnabled="false"
-            app:layout_behavior="@string/appbar_scrolling_view_behavior"/>
+            android:paddingTop="5dp" />
 
-    </RelativeLayout>
+    </LinearLayout>
 
 </android.support.v7.widget.CardView>

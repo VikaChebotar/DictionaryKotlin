@@ -32,7 +32,8 @@ class WordInfoPresenterImpl(val repository: WordsRepository, val context: Contex
 
     private fun showWord(wordInfo: WordDetails) {
         wordInfo.apply {
-                       wordInfoView?.showPronunciation(pronunciation ?: "")
+            wordInfoView?.showPronunciation(pronunciation ?: "")
+            wordInfoView?.showMeanings(wordInfo.meanings)
 //            wordInfoView?.showIsFavorite(wordInfo.isFavorite)
 //            definitions.let {
 //                val definitionsList = it.subList(0, minOf(it.size, Constants.TOP_DEFINITIONS_LENGTH))
@@ -40,7 +41,7 @@ class WordInfoPresenterImpl(val repository: WordsRepository, val context: Contex
 //            }
 //            examples.let {
 //                val examplesList = it.subList(0, minOf(it.size, Constants.TOP_EXAMPLES_LENGTH))
-//                wordInfoView?.showExamples(examplesList, it.size > Constants.TOP_EXAMPLES_LENGTH)
+//                wordInfoView?.showExamples(examplesList, it.size > Constants.TOP_EXAadbMPLES_LENGTH)
 //            }
 //            val relatedWords: MutableList<Pair<String, List<String>>> = mutableListOf()
 //            addPairIfNotEmpty(R.string.synonyms, synonyms, relatedWords)
