@@ -1,6 +1,7 @@
 package com.mydictionary.ui.presenters.word
 
 import android.content.Context
+import com.mydictionary.R
 import com.mydictionary.commons.Constants.Companion.SELECTED_WORD_NAME_EXTRA
 import com.mydictionary.data.pojo.WordDetails
 import com.mydictionary.data.repository.RepositoryListener
@@ -33,27 +34,22 @@ class WordInfoPresenterImpl(val repository: WordsRepository, val context: Contex
     private fun showWord(wordInfo: WordDetails) {
         wordInfo.apply {
             wordInfoView?.showPronunciation(pronunciation ?: "")
-            wordInfoView?.showMeanings(wordInfo.meanings)
-//            wordInfoView?.showIsFavorite(wordInfo.isFavorite)
-//            definitions.let {
-//                val definitionsList = it.subList(0, minOf(it.size, Constants.TOP_DEFINITIONS_LENGTH))
-//                wordInfoView?.showMeanings(definitionsList, it.size > Constants.TOP_DEFINITIONS_LENGTH)
-//            }
-//            examples.let {
-//                val examplesList = it.subList(0, minOf(it.size, Constants.TOP_EXAMPLES_LENGTH))
-//                wordInfoView?.showExamples(examplesList, it.size > Constants.TOP_EXAadbMPLES_LENGTH)
-//            }
-//            val relatedWords: MutableList<Pair<String, List<String>>> = mutableListOf()
-//            addPairIfNotEmpty(R.string.synonyms, synonyms, relatedWords)
-//            addPairIfNotEmpty(R.string.antonyms, antonyms, relatedWords)
-//            addPairIfNotEmpty(R.string.phrases, also, relatedWords)
-//            addPairIfNotEmpty(R.string.derivations, derivation, relatedWords)
-//            addPairIfNotEmpty(R.string.typeOf, typeOf, relatedWords)
-//            addPairIfNotEmpty(R.string.hasTypes, hasTypes, relatedWords)
-//            addPairIfNotEmpty(R.string.partOf, partOf, relatedWords)
-//            addPairIfNotEmpty(R.string.hasParts, hasParts, relatedWords)
-//            addPairIfNotEmpty(R.string.substanceOf, substanceOf, relatedWords)
-//            wordInfoView?.showRelatedWords(relatedWords)
+            val wordCardsList = mutableListOf<Any>()
+            wordCardsList.add(context.getString(R.string.definitions))
+            wordCardsList.addAll(wordInfo.meanings)
+            if (wordInfo.synonyms.isNotEmpty()) {
+                wordCardsList.add(context.getString(R.string.synonyms))
+                wordCardsList.add(wordInfo.synonyms)
+            }
+            if (wordInfo.antonyms.isNotEmpty()) {
+                wordCardsList.add(context.getString(R.string.antonyms))
+                wordCardsList.add(wordInfo.antonyms)
+            }
+            if (wordInfo.notes.isNotEmpty()) {
+                wordCardsList.add(context.getString(R.string.notes))
+                wordCardsList.addAll(wordInfo.notes)
+            }
+            wordInfoView?.showWordCards(wordCardsList)
         }
     }
 

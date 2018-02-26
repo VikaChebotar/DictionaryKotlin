@@ -1,5 +1,6 @@
 package com.mydictionary.data.network
 
+import com.mydictionary.data.network.dto.RelatedWordsResponse
 import com.mydictionary.data.network.dto.WordDetailsResponse
 import com.mydictionary.data.pojo.SearchResult
 import retrofit2.Call
@@ -17,6 +18,9 @@ interface WordsAPI {
 
     @GET("entries/en/{word}")
     fun getWordInfo(@Path("word") word: String): Call<WordDetailsResponse>
+
+    @GET("entries/en/{word}/synonyms;antonyms")
+    fun getRelatedWords(@Path("word") word: String): Call<RelatedWordsResponse>
 //
 //    @GET("words?random=true&frequencyMin=3&frequencyMax=7")
 //    fun getRandomWord(): Call<WordInfo>

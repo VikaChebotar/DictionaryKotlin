@@ -1,23 +1,19 @@
 package com.mydictionary.ui.views.word
 
 import android.content.Context
-import android.graphics.Point
 import android.util.AttributeSet
 import android.view.View
 import android.view.ViewGroup
-import android.view.WindowManager
+import com.mydictionary.R
 
 /**
  * Created by Viktoria Chebotar on 02.07.17.
  */
 class CustomTagLayout @JvmOverloads constructor(context: Context, attrs: AttributeSet? = null, defStyleAttr: Int = 0) : ViewGroup(context, attrs, defStyleAttr) {
-    private var deviceWidth: Int = 0
+    private var itemMargin: Int = 0
 
     init {
-        val display = (context.getSystemService(Context.WINDOW_SERVICE) as WindowManager).defaultDisplay
-        val deviceDisplay = Point()
-        display.getSize(deviceDisplay)
-        deviceWidth = deviceDisplay.x
+        itemMargin = context.resources.getDimensionPixelSize(R.dimen.very_small_margin)
     }
 
     override fun onLayout(changed: Boolean, l: Int, t: Int, r: Int, b: Int) {
@@ -38,7 +34,7 @@ class CustomTagLayout @JvmOverloads constructor(context: Context, attrs: Attribu
         curLeft = childLeft
         curTop = childTop
 
-        for (i in 0..childCount - 1) {
+        for (i in 0 until childCount) {
             val child = getChildAt(i)
 
             if (child.visibility == View.GONE) return
@@ -51,49 +47,45 @@ class CustomTagLayout @JvmOverloads constructor(context: Context, attrs: Attribu
             //wrap is reach to the end
             if (curLeft + curWidth >= childRight) {
                 curLeft = childLeft
+                maxHeight = curHeight + itemMargin
                 curTop += maxHeight
-                maxHeight = 0
             }
             //do the layout
             child.layout(curLeft, curTop, curLeft + curWidth, curTop + curHeight)
             //store the max height
-            if (maxHeight < curHeight) maxHeight = curHeight
-            curLeft += curWidth
+            curLeft += curWidth + itemMargin
         }
     }
 
     override fun onMeasure(widthMeasureSpec: Int, heightMeasureSpec: Int) {
         // Measurement will ultimately be computing these values.
         var maxHeight = 0
-        var maxWidth = 0
+        val maxWidth = MeasureSpec.getSize(widthMeasureSpec) - paddingLeft - paddingRight
         var childState = 0
         var mLeftWidth = 0
         var rowCount = 0
 
         // Iterate through all children, measuring them and computing our dimensions
         // from their size.
-        for (i in 0..childCount - 1) {
+        for (i in 0 until childCount) {
             val child = getChildAt(i)
-
             if (child.visibility == View.GONE) continue
 
             // Measure the child.
             measureChild(child, widthMeasureSpec, heightMeasureSpec)
-            maxWidth += Math.max(maxWidth, child.measuredWidth)
-            mLeftWidth += child.measuredWidth
-
-            if (mLeftWidth / deviceWidth > rowCount) {
-                maxHeight += child.measuredHeight
+            if (mLeftWidth + child.measuredWidth >= maxWidth) {
                 rowCount++
+                mLeftWidth = child.measuredWidth + itemMargin
+                maxHeight += child.measuredHeight
             } else {
+                mLeftWidth += child.measuredWidth + itemMargin
                 maxHeight = Math.max(maxHeight, child.measuredHeight)
             }
             childState = View.combineMeasuredStates(childState, child.measuredState)
         }
 
         // Check against our minimum height and width
-        maxHeight = Math.max(maxHeight, suggestedMinimumHeight)
-        maxWidth = Math.max(maxWidth, suggestedMinimumWidth)
+        maxHeight = Math.max(maxHeight, suggestedMinimumHeight) + itemMargin * rowCount + itemMargin/2
 
         // Report our final dimensions.
         setMeasuredDimension(View.resolveSizeAndState(maxWidth, widthMeasureSpec, childState),

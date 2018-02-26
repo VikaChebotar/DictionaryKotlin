@@ -24,17 +24,17 @@ import kotlinx.android.synthetic.main.word_info_activity.*
 class WordInfoActivity : AppCompatActivity(), WordInfoView {
 
     val presenter by lazy { WordInfoPresenterImpl(DictionaryApp.getInstance(this).repository, this) }
-    val definitionsAdapter = WordCardsAdapter()
+    val wordCardsAdapter = WordCardsAdapter()
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.word_info_activity);
-        initList(scrollContent, definitionsAdapter)
+        initList(scrollContent, wordCardsAdapter)
 
         presenter.onStart(this)
 
 //        seeAllDefinitionsBtn.setOnClickListener {
-//            presenter.onSeeAllDefinitionsBtnClicked(definitionsAdapter.itemCount)
+//            presenter.onSeeAllDefinitionsBtnClicked(wordCardsAdapter.itemCount)
 //        }
 //        seeAllExamplesBtn.setOnClickListener {
 //            presenter.onSeeAllExamplesBtnClicked(examplesAdapter.itemCount)
@@ -99,15 +99,15 @@ class WordInfoActivity : AppCompatActivity(), WordInfoView {
     }
 
     //
-//    override fun showMeanings(value: List<Definition>, showSeeAllBtn: Boolean) {
-//        definitionsAdapter.dataset = value
-//        definitionsAdapter.notifyDataSetChanged()
+//    override fun showWordCards(value: List<Definition>, showSeeAllBtn: Boolean) {
+//        wordCardsAdapter.dataset = value
+//        wordCardsAdapter.notifyDataSetChanged()
 //        if (value.isEmpty()) definitionCard.visibility = View.GONE
 //        seeAllDefinitionsBtn.visibility = if (showSeeAllBtn) View.VISIBLE else View.GONE
 //    }
-    override fun showMeanings(value: List<WordMeaning>) {
-        definitionsAdapter.dataset = value
-        definitionsAdapter.notifyDataSetChanged()
+    override fun showWordCards(value: List<Any>) {
+        wordCardsAdapter.dataset = value
+        wordCardsAdapter.notifyDataSetChanged()
     }
 
     override fun showProgress(progress: Boolean) {

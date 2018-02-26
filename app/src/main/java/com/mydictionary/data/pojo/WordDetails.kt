@@ -6,10 +6,10 @@ package com.mydictionary.data.pojo
 
 data class WordDetails(val word: String) {
     var pronunciation: String? = null
-    var notes: String? = null
-    var meanings = mutableListOf<WordMeaning>()
-    var synonyms = mutableListOf<String>()
-    var antonyms = mutableListOf<String>()
+    var notes = listOf<Note>()
+    var meanings = listOf<WordMeaning>()
+    var synonyms = listOf<String>()
+    var antonyms = listOf<String>()
 
 }
 
@@ -18,3 +18,5 @@ data class WordMeaning(val definitionId: String) {
     var partOfSpeech: String? = null
     val examples = mutableListOf<String>()
 }
+
+data class Note(val text: String, val type: String?)

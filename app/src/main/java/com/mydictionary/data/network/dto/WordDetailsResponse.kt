@@ -52,7 +52,7 @@ class WordDetailsResponse {
 
         @SerializedName("text")
         @Expose
-        var text: String? = null
+        var text: String = ""
         @SerializedName("type")
         @Expose
         var type: String? = null

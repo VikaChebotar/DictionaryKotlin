@@ -29,4 +29,5 @@
     <string name="default_error">Error</string>
     <string name="empty_part_of_speech">-</string>
     <string name="example_formatted_string">\'%1$s\'</string>
+    <string name="notes">Notes</string>
 </resources>
