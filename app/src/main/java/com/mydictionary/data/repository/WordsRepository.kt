@@ -11,7 +11,7 @@ interface WordsRepository {
 
     fun getWordInfo(wordName: String, listener: RepositoryListener<WordDetails>)
 
-//    fun getHistoryWords(limit: Int, listener: RepositoryListener<List<String>>)
+    fun getHistoryWords(limit: Int, listener: RepositoryListener<List<String>>)
 
     fun searchWord(searchPhrase: String, listener: RepositoryListener<List<String>>)
 //
@@ -20,6 +20,8 @@ interface WordsRepository {
 //    fun setWordFavoriteState(wordName: String, isFavorite: Boolean, listener: RepositoryListener<Boolean>)
 //
 //    fun getWordFavoriteState(wordName: String): Boolean
+
+
 }
 
 interface RepositoryListener<T> {

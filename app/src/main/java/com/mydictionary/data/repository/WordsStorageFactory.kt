@@ -7,8 +7,8 @@ import android.content.Context
  */
 
 class WordsStorageFactory private constructor(context: Context) {
-    val cloudStorage = CloudStorage(context)
-    val localStorage = LocalStorage()
+    val oxfordStorage = OxfordDictionaryStorage(context)
+    val firebaseStorage = InternalFirebaseStorage()
 
     companion object {
         private var instance: WordsStorageFactory? = null

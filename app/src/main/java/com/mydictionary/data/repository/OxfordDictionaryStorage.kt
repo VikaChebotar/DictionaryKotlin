@@ -20,7 +20,7 @@ import retrofit2.Response
  * Created by Viktoria_Chebotar on 6/7/2017.
  */
 
-class CloudStorage(val context: Context) {
+class OxfordDictionaryStorage(val context: Context) {
     private val restApi = WordApiRetrofit.getInstance(context).wordsApi;
 
     //  fun getRandomWord(listener: RepositoryListener<WordInfo>) {
@@ -38,7 +38,7 @@ class CloudStorage(val context: Context) {
                     && wordDetailsResponse.body() != null && relatedWordsResponse.body() != null) {
                 listener.onSuccess(Mapper.fromDto(wordDetailsResponse.body(), relatedWordsResponse.body()))
             } else {
-                var message = this@CloudStorage.context.getString(R.string.default_error)
+                var message = this@OxfordDictionaryStorage.context.getString(R.string.default_error)
                 if (wordDetailsResponse?.isSuccessful == false) {
                     message = wordDetailsResponse.raw()?.message() ?: message
                 }
@@ -85,7 +85,7 @@ class CloudStorage(val context: Context) {
             errorMes = t?.message ?: context.getString(R.string.default_error)
         }
         listener.onError(errorMes)
-        Log.e(CloudStorage::class.java.simpleName, errorMes)
+        Log.e(OxfordDictionaryStorage::class.java.simpleName, errorMes)
     }
 
 }
