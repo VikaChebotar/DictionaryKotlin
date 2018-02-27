@@ -27,15 +27,11 @@ class Mapper {
             allEntries.sortBy { it.homographNumber }
             allEntries.forEach { entry ->
                 entry.notes?.forEach { notesList.add(Note(it.text, it.type)) }
-                entry.senses?.forEach {
+                entry.senses?.filter { it.definitions?.isNotEmpty() == true }?.forEach {
                     val meaning = WordMeaning(it.id)
                     meaning.partOfSpeech = entry.lexicalCategory
                     meaning.definitions.addAll(it.definitions.orEmpty())
-                    // it.subsenses?.map { it.definitions }?.filterNotNull()?.forEach { meaning.definitions.addAll(it) }
                     it.examples?.map { it.text }?.filterNotNull()?.forEach { meaning.examples.add(it) }
-//                    it.subsenses?.map { it.examples }?.forEach {
-//                        it?.map { it.text }?.filterNotNull()?.forEach { meaning.examples.add(it) }
-//                    }
                     meanings.add(meaning)
                 }
             }

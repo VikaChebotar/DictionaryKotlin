@@ -50,10 +50,8 @@ class SearchActivity : AppCompatActivity(), SearchView, SearchEditText.VoiceButt
         }
     }
 
-    fun onItemClick(searchWord: String) {
-        val intent = Intent(this, WordInfoActivity::class.java)
-        intent.putExtra(Constants.SELECTED_WORD_NAME_EXTRA, searchWord)
-        startActivity(intent)
+    private fun onItemClick(searchWord: String) {
+        WordInfoActivity.startActivity(this, searchWord)
     }
 
     override fun onDestroy() {

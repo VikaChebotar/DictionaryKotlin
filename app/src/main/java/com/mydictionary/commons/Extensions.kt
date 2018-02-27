@@ -42,3 +42,8 @@ fun Context.hideKeyboard(windowToken: IBinder) {
 fun ViewGroup.inflate(layoutRes: Int, attachToRoot: Boolean = false): View {
     return LayoutInflater.from(context).inflate(layoutRes, this, attachToRoot)
 }
+
+fun String.containsWhiteSpace(): Boolean {
+    val strLen = this.length
+    return (0 until strLen).any { Character.isWhitespace(this.toCharArray()[it]) }
+}

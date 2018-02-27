@@ -1,5 +1,7 @@
 package com.mydictionary.ui.views.word
 
+import android.content.Context
+import android.content.Intent
 import android.graphics.Rect
 import android.os.Bundle
 import android.support.design.widget.Snackbar
@@ -10,7 +12,7 @@ import android.view.Menu
 import android.view.MenuItem
 import android.view.View
 import com.mydictionary.R
-import com.mydictionary.data.pojo.WordMeaning
+import com.mydictionary.commons.Constants
 import com.mydictionary.ui.DictionaryApp
 import com.mydictionary.ui.presenters.word.WordInfoPresenterImpl
 import com.mydictionary.ui.presenters.word.WordInfoView
@@ -21,10 +23,17 @@ import kotlinx.android.synthetic.main.word_info_activity.*
  * Created by Viktoria Chebotar on 28.06.17.
  */
 
-class WordInfoActivity : AppCompatActivity(), WordInfoView {
-
+class WordInfoActivity : AppCompatActivity(), WordInfoView, WordCardsAdapter.ViewClickListener {
     val presenter by lazy { WordInfoPresenterImpl(DictionaryApp.getInstance(this).repository, this) }
-    val wordCardsAdapter = WordCardsAdapter()
+    val wordCardsAdapter = WordCardsAdapter(this)
+
+    companion object {
+        fun startActivity(context: Context, word: String) {
+            val intent = Intent(context, WordInfoActivity::class.java)
+            intent.putExtra(Constants.SELECTED_WORD_NAME_EXTRA, word)
+            context.startActivity(intent)
+        }
+    }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -71,7 +80,7 @@ class WordInfoActivity : AppCompatActivity(), WordInfoView {
         recyclerView.addItemDecoration(object : RecyclerView.ItemDecoration() {
             override fun getItemOffsets(outRect: Rect, view: View, parent: RecyclerView, state: RecyclerView.State) {
                 val position = parent.getChildAdapterPosition(view)
-                outRect.set(margin, margin, margin, if (position < state.itemCount-1) 0 else margin);
+                outRect.set(margin, margin, margin, if (position < state.itemCount - 1) 0 else margin);
             }
         })
     }
@@ -95,7 +104,7 @@ class WordInfoActivity : AppCompatActivity(), WordInfoView {
     }
 
     override fun showPronunciation(value: String) {
-        pronunciation.text = getString(R.string.prononcuation, value)
+        pronunciation.text = if (value.isBlank()) "" else getString(R.string.prononcuation, value)
     }
 
     //
@@ -120,5 +129,9 @@ class WordInfoActivity : AppCompatActivity(), WordInfoView {
 
     override fun getExtras(): Bundle {
         return intent.extras
+    }
+
+    override fun onRelatedWordClicked(item: String) {
+        WordInfoActivity.startActivity(this, item)
     }
 }

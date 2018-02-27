@@ -5,6 +5,7 @@ import android.support.v7.widget.RecyclerView
 import android.view.View
 import android.view.ViewGroup
 import com.mydictionary.R
+import com.mydictionary.commons.containsWhiteSpace
 import com.mydictionary.commons.inflate
 import com.mydictionary.data.pojo.Note
 import com.mydictionary.data.pojo.WordMeaning
@@ -18,12 +19,16 @@ import kotlinx.android.synthetic.main.word_notes_list_item.view.*
  * Created by Viktoria Chebotar on 01.07.17.
  */
 
-class WordCardsAdapter : RecyclerView.Adapter<RecyclerView.ViewHolder>() {
+class WordCardsAdapter(val listener: ViewClickListener) : RecyclerView.Adapter<RecyclerView.ViewHolder>() {
 
     var dataset: List<Any> = emptyList()
 
     enum class ViewTypes {
         HEADER, WORD_MEANING, RELATED_WORDS, NOTES
+    }
+
+    interface ViewClickListener {
+        fun onRelatedWordClicked(item: String)
     }
 
     override fun onBindViewHolder(holder: RecyclerView.ViewHolder, position: Int) {
@@ -55,7 +60,7 @@ class WordCardsAdapter : RecyclerView.Adapter<RecyclerView.ViewHolder>() {
         }
     }
 
-    class WordCardItemViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
+    inner class WordCardItemViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
         fun bind(value: WordMeaning) {
             itemView.partOfSpeech.text = value.partOfSpeech?.toLowerCase()
             //todo optimize
@@ -68,24 +73,25 @@ class WordCardsAdapter : RecyclerView.Adapter<RecyclerView.ViewHolder>() {
         }
     }
 
-    class HeaderItemViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
+    inner class HeaderItemViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
         fun bind(value: String) {
             itemView.header.text = value
         }
     }
 
-    class RelatedWordsItemViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
+    inner class RelatedWordsItemViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
         fun bind(value: List<String>) {
             itemView.relatedWordTagLayout.removeAllViews()
             for (item in value) {
                 val relatedWordCardItem = itemView.relatedWordTagLayout.inflate(R.layout.related_word_item)
                 relatedWordCardItem.relatedWord.text = item
+                relatedWordCardItem.setOnClickListener({ if (!item.containsWhiteSpace()) listener.onRelatedWordClicked(item) })
                 itemView.relatedWordTagLayout.addView(relatedWordCardItem)
             }
         }
     }
 
-    class NotesItemViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
+    inner class NotesItemViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
         fun bind(value: Note) {
             itemView.notes.text = value.text
         }

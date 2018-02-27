@@ -14,7 +14,7 @@ class HomePresenterImpl(val repository: WordsRepository) : HomePresenter {
     override fun onStart(view: HomeView) {
         this.homeView = view
         if (todayWord == null) {
-            homeView?.showProgress(true)
+       //    homeView?.showProgress(true)
 //            repository.getTodayWordInfo(Calendar.getInstance().time,
 //                    object : RepositoryListener<WordInfo> {
 //                        override fun onSuccess(wordInfo: WordInfo) {
@@ -29,7 +29,7 @@ class HomePresenterImpl(val repository: WordsRepository) : HomePresenter {
 //                        }
 //                    })
         } else {
-            homeView?.showWordOfTheDay(todayWord as WordDetails)
+           // homeView?.showWordOfTheDay(todayWord as WordDetails)
         }
     }
 
