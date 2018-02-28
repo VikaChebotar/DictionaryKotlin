@@ -1,15 +1,21 @@
 package com.mydictionary.data.repository
 
+import android.content.Context
 import android.util.Log
 import com.google.firebase.auth.FirebaseAuth
+import com.google.firebase.database.DataSnapshot
+import com.google.firebase.database.DatabaseError
 import com.google.firebase.database.FirebaseDatabase
-import com.mydictionary.data.entity.HistoryWord
+import com.google.firebase.database.ValueEventListener
+import com.mydictionary.R
+import com.mydictionary.commons.Constants.Companion.MAX_HISTORY_LIMIT
+import com.mydictionary.data.entity.UserWord
 
 
 /**
  * Created by Viktoria_Chebotar on 6/12/2017.
  */
-class InternalFirebaseStorage {
+class InternalFirebaseStorage(val context: Context) {
     private val TAG = InternalFirebaseStorage::class.java.canonicalName
     // private val realm: Realm = Realm.getDefaultInstance()
     private val firebaseAuth = FirebaseAuth.getInstance();
@@ -18,7 +24,7 @@ class InternalFirebaseStorage {
     init {
         if (firebaseAuth.currentUser == null) {
             loginAnonymously()
-        } else{
+        } else {
             Log.d(TAG, "already signedIn");
         }
     }
@@ -36,13 +42,28 @@ class InternalFirebaseStorage {
 //        }
 //    }
 //
-    fun getHistoryWords(limit: Int, listener: RepositoryListener<List<HistoryWord>>) {
-//        val results = realm.where(HistoryWord::class.java).findAllSortedAsync("accessTime", Sort.DESCENDING)
-//        results.addChangeListener { t -> listener.onSuccess(t.subList(0, Math.min(limit, t.size))) }
+    fun getHistoryWords(listener: RepositoryListener<List<String>>) {
+        val query = firebaseDatabase.reference.child("users").
+                child(firebaseAuth.currentUser?.uid).orderByChild("accessTime").limitToLast(MAX_HISTORY_LIMIT)
+        query.addListenerForSingleValueEvent(object : ValueEventListener {
+            override fun onCancelled(error: DatabaseError?) {
+                listener.onError(error?.toException()?.message ?: context.getString(R.string.default_error))
+            }
+
+            override fun onDataChange(data: DataSnapshot?) {
+                if (data?.value != null) {
+                    listener.onSuccess(data.children.reversed().map { it.key }.toList())
+                }
+            }
+        })
     }
 
-    fun addWordToHistory(word: HistoryWord) {
-        firebaseDatabase.reference.child("history").setValue(word)
+    fun addWordToHistory(word: String) {
+        val userReference = firebaseDatabase.reference.child("users")
+        val userWord = UserWord(word)
+        val task = userReference.child(firebaseAuth.currentUser?.uid).child(userWord.word).setValue(userWord.value)
+        task.addOnSuccessListener { Log.d(TAG, "success") }.addOnFailureListener { Log.d(TAG, it.message) }
+    }
 //        realm.executeTransactionAsync { realm ->
 //            if (realm.where(HistoryWord::class.java).count() >= Constants.MAX_HISTORY_LIMIT) {
 //                val oldestWord = realm.where(HistoryWord::class.java).
@@ -52,7 +73,7 @@ class InternalFirebaseStorage {
 //            }
 //            realm?.copyToRealmOrUpdate(word)
 //        }
-    }
+
 
     //
 //    fun getWordFromHistory(wordName: String): HistoryWord? {

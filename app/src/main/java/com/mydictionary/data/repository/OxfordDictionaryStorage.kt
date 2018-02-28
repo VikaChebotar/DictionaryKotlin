@@ -34,9 +34,8 @@ class OxfordDictionaryStorage(val context: Context) {
         launch(UI) {
             val wordDetailsResponse = wordDetailsRequest.await()
             val relatedWordsResponse = relatedWordsRequest.await()
-            if (wordDetailsResponse?.isSuccessful == true && relatedWordsResponse?.isSuccessful == true
-                    && wordDetailsResponse.body() != null && relatedWordsResponse.body() != null) {
-                listener.onSuccess(Mapper.fromDto(wordDetailsResponse.body(), relatedWordsResponse.body()))
+            if (wordDetailsResponse?.isSuccessful == true && wordDetailsResponse.body() != null) {
+                listener.onSuccess(Mapper.fromDto(wordDetailsResponse.body(), relatedWordsResponse?.body()))
             } else {
                 var message = this@OxfordDictionaryStorage.context.getString(R.string.default_error)
                 if (wordDetailsResponse?.isSuccessful == false) {

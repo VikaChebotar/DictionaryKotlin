@@ -1,10 +1,10 @@
 package com.mydictionary.data.entity
 
-import java.util.*
+import com.google.firebase.database.ServerValue
 
 /**
  * Created by Viktoria Chebotar on 08.07.17.
  */
-class HistoryWord(var word: String = "",
-                       var isFavorite: Boolean = false,
-                       var accessTime: Date? = null)
+data class UserWord(var word: String = "", var value: UserWordValue = UserWordValue()) {
+    data class UserWordValue(var accessTime: Any = ServerValue.TIMESTAMP, val favSenses: List<String> = mutableListOf())
+}

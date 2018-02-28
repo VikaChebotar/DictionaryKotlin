@@ -1,6 +1,6 @@
 package com.mydictionary.ui.presenters.mywords
 
-import com.mydictionary.data.entity.HistoryWord
+import com.mydictionary.data.entity.UserWord
 import com.mydictionary.data.pojo.WordDetails
 import com.mydictionary.ui.presenters.BasePresenter
 import com.mydictionary.ui.presenters.BaseView
@@ -15,6 +15,6 @@ interface MyWordsPresenter : BasePresenter<MyWordsView> {
 }
 
 interface MyWordsView : BaseView {
-    fun showWords(words: List<HistoryWord>, isFavorite: Boolean)
+    fun showWords(words: List<UserWord>, isFavorite: Boolean)
     fun startWordInfoActivity(word: WordDetails)
 }

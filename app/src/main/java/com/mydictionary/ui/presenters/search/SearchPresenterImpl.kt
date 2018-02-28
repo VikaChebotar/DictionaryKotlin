@@ -12,7 +12,6 @@ import com.mydictionary.ui.views.search.SearchEditText
 class SearchPresenterImpl(val repository: WordsRepository) : SearchPresenter, SearchEditText.ContentChangedListener {
 
     var searchView: SearchView? = null
-    var historyWords: List<String>? = null
 
     override fun onStart(view: SearchView) {
         searchView = view;
@@ -21,16 +20,15 @@ class SearchPresenterImpl(val repository: WordsRepository) : SearchPresenter, Se
     }
 
     private fun loadHistoryWords() {
-//        repository.getHistoryWords(Constants.HISTORY_SEARCH_LIMIT, object : RepositoryListener<List<String>> {
-//            override fun onSuccess(result: List<String>) {
-//                historyWords = result
-//                searchView?.showHistoryWords(result)
-//            }
-//
-//            override fun onError(error: String) {
-//                searchView?.showError(error)
-//            }
-//        })
+        repository.getHistoryWords(object : RepositoryListener<List<String>> {
+            override fun onSuccess(result: List<String>) {
+                searchView?.showHistoryWords(result)
+            }
+
+            override fun onError(error: String) {
+                searchView?.showError(error)
+            }
+        })
     }
 
 
@@ -56,11 +54,7 @@ class SearchPresenterImpl(val repository: WordsRepository) : SearchPresenter, Se
     }
 
     override fun onSearchCleared() {
-        if (historyWords == null) {
-            loadHistoryWords()
-        } else {
-            searchView?.showHistoryWords(historyWords as List<String>)
-        }
+        loadHistoryWords()
     }
 
     override fun onSearchClosed() {

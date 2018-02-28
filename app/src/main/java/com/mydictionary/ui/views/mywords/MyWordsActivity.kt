@@ -4,7 +4,7 @@ import android.os.Bundle
 import android.support.v7.app.AppCompatActivity
 import android.view.MenuItem
 import com.mydictionary.R
-import com.mydictionary.data.entity.HistoryWord
+import com.mydictionary.data.entity.UserWord
 import com.mydictionary.data.pojo.WordDetails
 import com.mydictionary.ui.presenters.mywords.MyWordsView
 import kotlinx.android.synthetic.main.my_words_activity.*
@@ -38,7 +38,7 @@ class MyWordsActivity : AppCompatActivity(), MyWordsView{
         TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
     }
 
-    override fun showWords(words: List<HistoryWord>, isFavorite: Boolean) {
+    override fun showWords(words: List<UserWord>, isFavorite: Boolean) {
         TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
     }
 

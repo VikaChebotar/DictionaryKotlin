@@ -1,9 +1,7 @@
 package com.mydictionary.data.repository
 
-import com.mydictionary.data.entity.HistoryWord
 import com.mydictionary.data.pojo.SearchResult
 import com.mydictionary.data.pojo.WordDetails
-import java.util.*
 
 /**
  * Created by Viktoria_Chebotar on 6/7/2017.
@@ -44,16 +42,8 @@ class WordsRepositoryImpl(val factory: WordsStorageFactory) : WordsRepository {
                 })
     }
 
-    override fun getHistoryWords(limit: Int, listener: RepositoryListener<List<String>>) {
-        factory.firebaseStorage.getHistoryWords(limit, object : RepositoryListener<List<HistoryWord>> {
-            override fun onSuccess(t: List<HistoryWord>) {
-                listener.onSuccess(t.map { it.word })
-            }
-
-            override fun onError(error: String) {
-
-            }
-        });
+    override fun getHistoryWords(listener: RepositoryListener<List<String>>) {
+        factory.firebaseStorage.getHistoryWords(listener)
     }
 
     override fun searchWord(searchPhrase: String, listener: RepositoryListener<List<String>>) {
@@ -73,9 +63,7 @@ class WordsRepositoryImpl(val factory: WordsStorageFactory) : WordsRepository {
 //        if (historyWord == null) {
 //            historyWord = HistoryWord(wordName)
 //        }
-        val historyWord = HistoryWord(wordName)
-        historyWord.accessTime = Calendar.getInstance().time
-        factory.firebaseStorage.addWordToHistory(historyWord)
+        factory.firebaseStorage.addWordToHistory(wordName)
     }
 
 //    override fun setWordFavoriteState(wordName: String, isFavorite: Boolean,
