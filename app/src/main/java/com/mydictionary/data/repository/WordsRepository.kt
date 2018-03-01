@@ -14,13 +14,12 @@ interface WordsRepository {
     fun getHistoryWords(listener: RepositoryListener<List<String>>)
 
     fun searchWord(searchPhrase: String, listener: RepositoryListener<List<String>>)
+    //
+//    fun addWordToHistoryAndGet(wordName: String)
 //
-//    fun addWordToHistory(wordName: String)
-//
-//    fun setWordFavoriteState(wordName: String, isFavorite: Boolean, listener: RepositoryListener<Boolean>)
+    fun setWordFavoriteState(word: WordDetails, favMeanings: List<String>, listener: RepositoryListener<WordDetails>)
 //
 //    fun getWordFavoriteState(wordName: String): Boolean
-
 
 }
 

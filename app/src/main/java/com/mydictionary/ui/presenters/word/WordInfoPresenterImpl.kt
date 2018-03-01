@@ -1,9 +1,11 @@
 package com.mydictionary.ui.presenters.word
 
 import android.content.Context
+import android.util.Log
 import com.mydictionary.R
 import com.mydictionary.commons.Constants.Companion.SELECTED_WORD_NAME_EXTRA
 import com.mydictionary.data.pojo.WordDetails
+import com.mydictionary.data.pojo.WordMeaning
 import com.mydictionary.data.repository.RepositoryListener
 import com.mydictionary.data.repository.WordsRepository
 
@@ -53,8 +55,8 @@ class WordInfoPresenterImpl(val repository: WordsRepository, val context: Contex
         }
     }
 
-    //  override fun onFavoriteClicked() {
-    //      wordInfo?.let {
+    override fun onFavoriteClicked(item: WordMeaning) {
+//          wordInfo?.let {
 //            repository.setWordFavoriteState(wordInfo!!.word, !wordInfo!!.isFavorite,
 //                    object : RepositoryListener<Boolean> {
 //                        override fun onSuccess(t: Boolean) {
@@ -66,9 +68,26 @@ class WordInfoPresenterImpl(val repository: WordsRepository, val context: Contex
 //
 //                        }
 //                    })
-    //   }
+//       }
+        wordInfo?.let {
+            val favMeanings = mutableListOf<String>()
+            it.meanings.filter { it.isFavourite }.forEach { favMeanings.add(it.definitionId) }
+            if (favMeanings.contains(item.definitionId)) {
+                favMeanings.remove(item.definitionId)
+            } else favMeanings.add(item.definitionId)
+            repository.setWordFavoriteState(it, favMeanings, object : RepositoryListener<WordDetails> {
+                override fun onSuccess(t: WordDetails) {
+                    wordInfo = t
+                }
 
-//    }
+                override fun onError(error: String) {
+                    Log.e("TAG", "error: " + error)
+                }
+
+            })
+        }
+
+    }
 
 
     private fun loadWordInfo(wordName: String) {

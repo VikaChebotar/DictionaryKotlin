@@ -13,6 +13,7 @@ import android.view.MenuItem
 import android.view.View
 import com.mydictionary.R
 import com.mydictionary.commons.Constants
+import com.mydictionary.data.pojo.WordMeaning
 import com.mydictionary.ui.DictionaryApp
 import com.mydictionary.ui.presenters.word.WordInfoPresenterImpl
 import com.mydictionary.ui.presenters.word.WordInfoView
@@ -133,5 +134,9 @@ class WordInfoActivity : AppCompatActivity(), WordInfoView, WordCardsAdapter.Vie
 
     override fun onRelatedWordClicked(item: String) {
         WordInfoActivity.startActivity(this, item)
+    }
+
+    override fun onFavouriteBtnClicked(item: WordMeaning) {
+        presenter.onFavoriteClicked(item)
     }
 }

@@ -29,6 +29,7 @@ class WordCardsAdapter(val listener: ViewClickListener) : RecyclerView.Adapter<R
 
     interface ViewClickListener {
         fun onRelatedWordClicked(item: String)
+        fun onFavouriteBtnClicked(item: WordMeaning)
     }
 
     override fun onBindViewHolder(holder: RecyclerView.ViewHolder, position: Int) {
@@ -70,6 +71,10 @@ class WordCardsAdapter(val listener: ViewClickListener) : RecyclerView.Adapter<R
             itemView.examplesRecyclerView.layoutManager = LinearLayoutManager(itemView.context)
             itemView.examplesRecyclerView.adapter = MeaningsAdapter(value.examples,
                     MeaningsAdapter.ViewType.EXAMPLE)
+            itemView.favWord.isChecked = value.isFavourite
+            itemView.favWord.isEnabled = true
+            itemView.favWord.setOnClickListener {
+                listener.onFavouriteBtnClicked(dataset[adapterPosition] as WordMeaning) }
         }
     }
 

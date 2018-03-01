@@ -71,7 +71,7 @@ class SearchActivity : AppCompatActivity(), SearchView, SearchEditText.VoiceButt
 
     override fun showHistoryWords(list: List<String>) {
         (searchRecyclerView.adapter as SearchResultsAdapter).setList(list, true)
-        moreHistoryBtn.visibility = View.VISIBLE
+        moreHistoryBtn.visibility = if (list.isNotEmpty()) View.VISIBLE else View.GONE
     }
 
     override fun showSearchResult(list: List<String>) {

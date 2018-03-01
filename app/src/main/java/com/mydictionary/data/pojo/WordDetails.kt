@@ -17,6 +17,7 @@ data class WordMeaning(val definitionId: String) {
     val definitions = mutableListOf<String>()
     var partOfSpeech: String? = null
     val examples = mutableListOf<String>()
+    var isFavourite = false
 }
 
 data class Note(val text: String, val type: String?)

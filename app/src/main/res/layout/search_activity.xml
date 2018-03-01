@@ -60,6 +60,7 @@
                         android:paddingBottom="@dimen/search_icon_padding"
                         android:paddingLeft="@dimen/recent_history_btn_padding_left"
                         android:paddingTop="@dimen/search_icon_padding"
+                        android:visibility="gone"
                         android:singleLine="true"
                         android:text="@string/more_from_recent_history"
                         android:textAllCaps="true"

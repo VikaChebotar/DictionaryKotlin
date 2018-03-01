@@ -1,6 +1,7 @@
 package com.mydictionary.ui.presenters.word
 
 import android.os.Bundle
+import com.mydictionary.data.pojo.WordMeaning
 import com.mydictionary.ui.presenters.BasePresenter
 import com.mydictionary.ui.presenters.BaseView
 
@@ -9,7 +10,7 @@ import com.mydictionary.ui.presenters.BaseView
  */
 
 interface WordInfoPresenter : BasePresenter<WordInfoView> {
-
+    fun onFavoriteClicked(item: WordMeaning)
 }
 
 interface WordInfoView : BaseView {

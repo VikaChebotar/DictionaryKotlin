@@ -53,16 +53,35 @@ class InternalFirebaseStorage(val context: Context) {
             override fun onDataChange(data: DataSnapshot?) {
                 if (data?.value != null) {
                     listener.onSuccess(data.children.reversed().map { it.key }.toList())
+                } else {
+                    listener.onSuccess(emptyList())
                 }
             }
         })
     }
 
-    fun addWordToHistory(word: String) {
+    fun addWordToHistoryAndGet(word: String, listener: RepositoryListener<UserWord?>) {
         val userReference = firebaseDatabase.reference.child("users")
-        val userWord = UserWord(word)
-        val task = userReference.child(firebaseAuth.currentUser?.uid).child(userWord.word).setValue(userWord.value)
-        task.addOnSuccessListener { Log.d(TAG, "success") }.addOnFailureListener { Log.d(TAG, it.message) }
+        val query = firebaseDatabase.reference.child("users").
+                child(firebaseAuth.currentUser?.uid).child(word)
+        query.addListenerForSingleValueEvent(object : ValueEventListener {
+            override fun onCancelled(p0: DatabaseError?) {
+                listener.onError(p0?.toException()?.message ?: context.getString(R.string.default_error))
+            }
+
+            override fun onDataChange(userWordValue: DataSnapshot?) {
+                if (userWordValue?.exists() == true) {
+                    val userFavWords = userWordValue.child("favSenses")
+                    val userWord = UserWord(userWordValue.key)
+                    userWord.value.favSenses = userFavWords.value as? List<String> ?: emptyList()
+                    listener.onSuccess(userWord)
+                } else {
+                    val userWord = UserWord(word)
+                    userReference.child(firebaseAuth.currentUser?.uid).child(userWord.word).setValue(userWord.value)
+                    listener.onSuccess(userWord)
+                }
+            }
+        })
     }
 //        realm.executeTransactionAsync { realm ->
 //            if (realm.where(HistoryWord::class.java).count() >= Constants.MAX_HISTORY_LIMIT) {
@@ -75,24 +94,34 @@ class InternalFirebaseStorage(val context: Context) {
 //        }
 
 
-    //
-//    fun getWordFromHistory(wordName: String): HistoryWord? {
-//        val realmWord = realm.where(HistoryWord::class.java).equalTo("word", wordName).findFirst()
-//        return if (realmWord != null) realm.copyFromRealm(realmWord) else null
-//    }
-//
+    fun getWordFromHistory(wordName: String, listener: RepositoryListener<UserWord?>) {
+        val query = firebaseDatabase.reference.child("users").
+                child(firebaseAuth.currentUser?.uid).equalTo(wordName)
+        query.addListenerForSingleValueEvent(object : ValueEventListener {
+            override fun onCancelled(p0: DatabaseError?) {
+
+            }
+
+            override fun onDataChange(p0: DataSnapshot?) {
+
+            }
+        })
+    }
+
 //    fun isWordFavorite(wordName: String): Boolean {
 //        val historyWord = realm.where(HistoryWord::class.java).equalTo("word", wordName).findFirst()
 //        return historyWord?.isFavorite ?: false
 //    }
-//
-//    fun setWordFavoriteState(wordName: String, isFavorite: Boolean): Boolean {
-//        val historyWord = realm.where(HistoryWord::class.java).equalTo("word", wordName).findFirst()
-//        realm.executeTransaction {
-//            historyWord?.isFavorite = isFavorite
-//        }
-//        return historyWord?.isFavorite ?: false
-//    }
+
+    fun setWordFavoriteState(wordName: String, favMeanings: List<String>, listener: RepositoryListener<List<String>>) {
+        val userReference = firebaseDatabase.reference.child("users")
+        val userWord = UserWord(wordName)
+        userWord.value.favSenses = favMeanings
+        val task = userReference.child(firebaseAuth.currentUser?.uid).child(userWord.word).setValue(userWord.value)
+        task.addOnSuccessListener { listener.onSuccess(favMeanings) }.
+                addOnFailureListener { listener.onError(it.message ?: context.getString(R.string.default_error)) }
+    }
+
     private fun loginAnonymously() {
         firebaseAuth.signInAnonymously().addOnCompleteListener {
             if (it.isSuccessful && firebaseAuth.currentUser != null) {

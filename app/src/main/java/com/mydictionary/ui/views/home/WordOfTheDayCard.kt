@@ -46,8 +46,8 @@ class WordOfTheDayCard : FrameLayout {
     }
 
     fun onBindFavoriteBtnState(isFavorite: Boolean) {
-        val imageRes = if (isFavorite) R.drawable.ic_favorite_black_24dp
-        else R.drawable.ic_favorite_border_black_24dp
+        val imageRes = if (isFavorite) R.drawable.ic_favorite_accent
+        else R.drawable.ic_favorite_border_black
         favWord.setImageResource(imageRes)
     }
 

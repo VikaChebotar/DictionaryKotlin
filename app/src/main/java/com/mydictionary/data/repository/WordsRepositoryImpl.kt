@@ -1,5 +1,7 @@
 package com.mydictionary.data.repository
 
+import android.util.Log
+import com.mydictionary.data.entity.UserWord
 import com.mydictionary.data.pojo.SearchResult
 import com.mydictionary.data.pojo.WordDetails
 
@@ -8,7 +10,7 @@ import com.mydictionary.data.pojo.WordDetails
  */
 
 class WordsRepositoryImpl(val factory: WordsStorageFactory) : WordsRepository {
-
+    private val TAG = WordsRepositoryImpl::class.java.canonicalName
 //    override fun getTodayWordDetails(date: Date, listener: RepositoryListener<WordDetails>) {
 //        val wordOfTheDay = factory.firebaseStorage.getWordOfTheDay();
 //        if ((wordOfTheDay != null) && (wordOfTheDay.date!!.isSameDay(Calendar.getInstance().time))) {
@@ -23,7 +25,7 @@ class WordsRepositoryImpl(val factory: WordsStorageFactory) : WordsRepository {
 //            factory.oxfordStorage.getRandomWord(object : RepositoryListenerDelegate<WordDetails>(listener) {
 //                override fun onSuccess(t: WordDetails) {
 //                    factory.firebaseStorage.storeWordOfTheDay(t.word, Calendar.getInstance().time)
-//                    addWordToHistory(t.word)
+//                    addWordToHistoryAndGet(t.word)
 //                    t.isFavorite = factory.firebaseStorage.isWordFavorite(t.word)
 //                    super.onSuccess(t)
 //                }
@@ -32,14 +34,28 @@ class WordsRepositoryImpl(val factory: WordsStorageFactory) : WordsRepository {
 //    }
 
     override fun getWordInfo(wordName: String, listener: RepositoryListener<WordDetails>) {
-        factory.oxfordStorage.getWordInfo(wordName,
-                object : RepositoryListenerDelegate<WordDetails>(listener) {
-                    override fun onSuccess(t: WordDetails) {
-                        addWordToHistory(t.word)
-                        // t.isFavorite = factory.firebaseStorage.isWordFavorite(t.word)
-                        super.onSuccess(t)
+        factory.oxfordStorage.getWordInfo(wordName, object : RepositoryListener<WordDetails> {
+            override fun onSuccess(t: WordDetails) {
+                factory.firebaseStorage.addWordToHistoryAndGet(wordName, object : RepositoryListener<UserWord?> {
+                    override fun onSuccess(userWord: UserWord?) {
+                        t.meanings.forEach {
+                            it.isFavourite = userWord?.value?.favSenses?.contains(it.definitionId) == true
+                        }
+                        listener.onSuccess(t)
+                    }
+
+                    override fun onError(error: String) {
+                        listener.onSuccess(t)
+                        Log.e(TAG, error)
                     }
                 })
+            }
+
+            override fun onError(error: String) {
+                listener.onError(error)
+            }
+
+        })
     }
 
     override fun getHistoryWords(listener: RepositoryListener<List<String>>) {
@@ -58,14 +74,6 @@ class WordsRepositoryImpl(val factory: WordsStorageFactory) : WordsRepository {
         })
     }
 
-    private fun addWordToHistory(wordName: String) {
-//        var historyWord = factory.firebaseStorage.getWordFromHistory(wordName)
-//        if (historyWord == null) {
-//            historyWord = HistoryWord(wordName)
-//        }
-        factory.firebaseStorage.addWordToHistory(wordName)
-    }
-
 //    override fun setWordFavoriteState(wordName: String, isFavorite: Boolean,
 //                                      listener: RepositoryListener<Boolean>) {
 //        val isFavoriteResult = factory.firebaseStorage.setWordFavoriteState(wordName, isFavorite)
@@ -75,4 +83,19 @@ class WordsRepositoryImpl(val factory: WordsStorageFactory) : WordsRepository {
 //    override fun getWordFavoriteState(wordName: String) =
 //            factory.firebaseStorage.isWordFavorite(wordName)
 
+    override fun setWordFavoriteState(word: WordDetails, favMeanings: List<String>, listener: RepositoryListener<WordDetails>) {
+        factory.firebaseStorage.setWordFavoriteState(word.word, favMeanings, object : RepositoryListener<List<String>> {
+            override fun onSuccess(t: List<String>) {
+                word.meanings.forEach {
+                    it.isFavourite = t.contains(it.definitionId)
+                }
+                listener.onSuccess(word)
+            }
+
+            override fun onError(error: String) {
+                listener.onError(error)
+            }
+
+        })
+    }
 }
