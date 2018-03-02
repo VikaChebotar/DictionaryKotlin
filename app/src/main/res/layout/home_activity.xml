@@ -45,15 +45,34 @@
             android:layout_height="match_parent"
             android:orientation="vertical">
 
-            <com.mydictionary.ui.views.home.WordOfTheDayCard
-                android:id="@+id/wordOfTheDayCard"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:clickable="true"
-                android:visibility="gone"/>
+
         </LinearLayout>
 
     </android.support.v4.widget.NestedScrollView>
+
+    <RelativeLayout
+        android:id="@+id/loginLayout"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:visibility="gone"
+        android:layout_below="@+id/appBarLayout"
+        android:orientation="vertical">
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_above="@+id/loginBtn"
+            android:layout_centerHorizontal="true"
+            android:text="To add words to your favorites please login"/>
+
+        <com.google.android.gms.common.SignInButton
+            android:id="@+id/loginBtn"
+            android:layout_centerInParent="true"
+            android:layout_marginTop="15dp"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"/>
+
+    </RelativeLayout>
 
     <ProgressBar
         android:id="@+id/progressBar"

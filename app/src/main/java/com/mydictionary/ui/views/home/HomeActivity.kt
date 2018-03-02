@@ -19,9 +19,10 @@ import com.mydictionary.ui.views.mywords.MyWordsActivity
 import com.mydictionary.ui.views.search.SearchActivity
 import kotlinx.android.synthetic.main.home_activity.*
 
-class HomeActivity : AppCompatActivity(), HomeView {
 
-    val presenter by lazy { HomePresenterImpl(DictionaryApp.getInstance(this).repository) }
+class HomeActivity : AppCompatActivity(), HomeView {
+    val SIGN_IN_REQUEST_CODE = 1
+    val presenter by lazy { HomePresenterImpl(DictionaryApp.getInstance(this).repository, this) }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -29,7 +30,7 @@ class HomeActivity : AppCompatActivity(), HomeView {
         setSupportActionBar(toolbar)
         presenter.onStart(this)
         searchField.setOnTouchListener(searchTouchListener)
-        wordOfTheDayCard.setOnClickListener { presenter.onWordOfTheDayClicked() }
+
     }
 
     override fun onResume() {
@@ -70,8 +71,9 @@ class HomeActivity : AppCompatActivity(), HomeView {
         homeLayout.visibility = if (progress) View.GONE else View.VISIBLE
     }
 
-    override fun showWordOfTheDay(word: WordDetails) {
-     //   wordOfTheDayCard.bind(word, { presenter.onWordOfTheDayFavoriteBtnClicked() })
+    override fun showUserLoginState(isLoggedIn: Boolean) {
+        loginLayout.visibility = if (isLoggedIn) View.GONE else View.VISIBLE
+        //TODO add logout button
     }
 
     override fun showError(message: String) {
@@ -85,14 +87,14 @@ class HomeActivity : AppCompatActivity(), HomeView {
 //        startActivity(intent)
     }
 
-    override fun showWordOfTheDayFavoriteBtnState(isFavorite: Boolean) {
-        wordOfTheDayCard.onBindFavoriteBtnState(isFavorite)
-    }
-
-    fun startSearchActivity(isVoiceSearchClicked: Boolean = false) {
+    private fun startSearchActivity(isVoiceSearchClicked: Boolean = false) {
         val intent = Intent(this@HomeActivity, SearchActivity::class.java);
         intent.putExtra(Constants.VOICE_SEARCH_EXTRA, isVoiceSearchClicked)
         startActivity(intent)
+    }
+
+    override fun startSignInActivity(intent: Intent) {
+        startActivityForResult(intent, SIGN_IN_REQUEST_CODE);
     }
 
     private val searchTouchListener = View.OnTouchListener { _, event ->

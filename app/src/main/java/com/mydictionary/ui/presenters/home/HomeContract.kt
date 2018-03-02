@@ -1,5 +1,6 @@
 package com.mydictionary.ui.presenters.home
 
+import android.content.Intent
 import com.mydictionary.data.pojo.WordDetails
 import com.mydictionary.ui.presenters.BasePresenter
 import com.mydictionary.ui.presenters.BaseView
@@ -9,16 +10,15 @@ import com.mydictionary.ui.presenters.BaseView
  */
 
 interface HomePresenter : BasePresenter<HomeView> {
-    fun onWordOfTheDayClicked()
     fun onResume()
-    fun onWordOfTheDayFavoriteBtnClicked()
     fun onMyWordsBtnClicked()
+    fun onSingInClicked()
 }
 
 interface HomeView : BaseView {
-    fun showWordOfTheDay(word: WordDetails)
-    fun showWordOfTheDayFavoriteBtnState(isFavorite: Boolean)
     fun startWordInfoActivity(word: WordDetails)
     fun startMyWordsActivity()
+    fun startSignInActivity(intent: Intent)
+    fun showUserLoginState(isLoggedIn: Boolean)
 }
 
