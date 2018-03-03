@@ -3,6 +3,7 @@ package com.mydictionary.data.repository
 import android.content.Context
 import android.util.Log
 import com.google.firebase.auth.FirebaseAuth
+import com.google.firebase.auth.GoogleAuthProvider
 import com.google.firebase.database.DataSnapshot
 import com.google.firebase.database.DatabaseError
 import com.google.firebase.database.FirebaseDatabase
@@ -28,6 +29,8 @@ class InternalFirebaseStorage(val context: Context) {
             Log.d(TAG, "already signedIn");
         }
     }
+
+    fun getCurrentUser() = firebaseAuth.currentUser
 
     //    fun getWordOfTheDay(): WordOfTheDay? {
 //        return realm.where(WordOfTheDay::class.java).findFirst();
@@ -130,5 +133,25 @@ class InternalFirebaseStorage(val context: Context) {
                 Log.e(TAG, "signInAnonymously:failure", it.exception);
             }
         }
+    }
+
+    fun linkGoogleAccountToFirebase(googleToken: String?, listener: RepositoryListener<String>) {
+        if (firebaseAuth.currentUser?.isAnonymous != true)
+            listener.onError("User is already signedIn")
+        val credential = GoogleAuthProvider.getCredential(googleToken, null)
+        firebaseAuth.currentUser?.linkWithCredential(credential)?.
+                addOnCompleteListener { task ->
+                    if (task.isSuccessful) {
+                        val email = task.result.user.email
+                        if (email != null) {
+                            listener.onSuccess(email)
+                        } else {
+                            listener.onError(context.getString(R.string.login_error))
+                        }
+                    } else {
+                        Log.e(TAG, "linkGoogleAccountToFirebase:failure", task.getException())
+                        listener.onError(task.exception?.message ?: context.getString(R.string.login_error))
+                    }
+                } ?: listener.onError(context.getString(R.string.login_error))
     }
 }

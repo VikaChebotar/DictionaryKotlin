@@ -13,12 +13,15 @@ interface HomePresenter : BasePresenter<HomeView> {
     fun onResume()
     fun onMyWordsBtnClicked()
     fun onSingInClicked()
+    fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?)
 }
 
 interface HomeView : BaseView {
     fun startWordInfoActivity(word: WordDetails)
     fun startMyWordsActivity()
-    fun startSignInActivity(intent: Intent)
+    fun startSignInActivity(intent: Intent, requestCode: Int)
     fun showUserLoginState(isLoggedIn: Boolean)
+    fun onLoginError(message: String)
+    fun onLoginSuccess(userName: String)
 }
 

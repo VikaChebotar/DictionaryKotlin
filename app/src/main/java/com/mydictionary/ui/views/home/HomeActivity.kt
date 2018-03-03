@@ -21,7 +21,6 @@ import kotlinx.android.synthetic.main.home_activity.*
 
 
 class HomeActivity : AppCompatActivity(), HomeView {
-    val SIGN_IN_REQUEST_CODE = 1
     val presenter by lazy { HomePresenterImpl(DictionaryApp.getInstance(this).repository, this) }
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -30,7 +29,7 @@ class HomeActivity : AppCompatActivity(), HomeView {
         setSupportActionBar(toolbar)
         presenter.onStart(this)
         searchField.setOnTouchListener(searchTouchListener)
-
+        loginBtn.setOnClickListener { presenter.onSingInClicked() }
     }
 
     override fun onResume() {
@@ -93,8 +92,22 @@ class HomeActivity : AppCompatActivity(), HomeView {
         startActivity(intent)
     }
 
-    override fun startSignInActivity(intent: Intent) {
-        startActivityForResult(intent, SIGN_IN_REQUEST_CODE);
+    override fun startSignInActivity(intent: Intent, requestCode: Int) {
+        startActivityForResult(intent, requestCode);
+    }
+
+    override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
+        super.onActivityResult(requestCode, resultCode, data)
+        presenter.onActivityResult(requestCode, resultCode, data)
+    }
+
+    override fun onLoginError(message: String) {
+        Snackbar.make(loginLayout, message, Snackbar.LENGTH_SHORT).show()
+    }
+
+    override fun onLoginSuccess(userName: String) {
+        Snackbar.make(loginLayout, getString(R.string.login_success, userName),
+                Snackbar.LENGTH_SHORT).show()
     }
 
     private val searchTouchListener = View.OnTouchListener { _, event ->

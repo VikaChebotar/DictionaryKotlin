@@ -1,5 +1,6 @@
 package com.mydictionary.data.repository
 
+import com.google.firebase.auth.FirebaseUser
 import com.mydictionary.data.pojo.WordDetails
 
 /**
@@ -18,15 +19,19 @@ interface WordsRepository {
 //    fun addWordToHistoryAndGet(wordName: String)
 //
     fun setWordFavoriteState(word: WordDetails, favMeanings: List<String>, listener: RepositoryListener<WordDetails>)
-//
+
+    //
 //    fun getWordFavoriteState(wordName: String): Boolean
+    fun loginFirebaseUser(googleToken: String?, listener: RepositoryListener<String>)
+
+    fun getCurrentUser(): FirebaseUser?
 
 }
 
 interface RepositoryListener<T> {
-    fun onSuccess(t: T)
+    fun onSuccess(t: T){}
 
-    fun onError(error: String)
+    fun onError(error: String){}
 }
 
 open class RepositoryListenerDelegate<T>(listener: RepositoryListener<T>) :

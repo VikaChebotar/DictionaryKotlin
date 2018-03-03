@@ -30,4 +30,6 @@
     <string name="empty_part_of_speech">-</string>
     <string name="example_formatted_string">\'%1$s\'</string>
     <string name="notes">Notes</string>
+    <string name="login_error">Google sign in failed</string>
+    <string name="login_success">You successfully signed in as %1$s</string>
 </resources>
