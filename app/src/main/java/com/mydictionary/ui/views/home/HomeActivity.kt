@@ -3,6 +3,7 @@ package com.mydictionary.ui.views.home
 import android.content.Intent
 import android.os.Bundle
 import android.support.design.widget.Snackbar
+import android.support.v7.app.AlertDialog
 import android.support.v7.app.AppCompatActivity
 import android.view.Menu
 import android.view.MenuItem
@@ -44,6 +45,7 @@ class HomeActivity : AppCompatActivity(), HomeView {
 
     override fun onCreateOptionsMenu(menu: Menu?): Boolean {
         menuInflater.inflate(R.menu.home_menu, menu)
+        menu?.findItem(R.id.action_signout)?.isVisible = loginLayout.visibility == View.GONE
         return true
     }
 
@@ -53,11 +55,20 @@ class HomeActivity : AppCompatActivity(), HomeView {
                 presenter.onMyWordsBtnClicked()
                 return true
             }
-            R.id.action_settings -> {
+            R.id.action_signout -> {
+                showSignOutConfirmDialog()
                 return true
             }
         }
         return false
+    }
+
+    private fun showSignOutConfirmDialog() {
+        AlertDialog.Builder(this).
+                setTitle(getString(R.string.sign_out)).
+                setMessage(getString(R.string.sign_out_confirm_question)).
+                setPositiveButton(getString(R.string.yes), { _, _ -> presenter.onSignOutClicked() }).
+                setNegativeButton(getString(R.string.cancel), { _, _ -> }).show()
     }
 
     override fun startMyWordsActivity() {
@@ -72,7 +83,7 @@ class HomeActivity : AppCompatActivity(), HomeView {
 
     override fun showUserLoginState(isLoggedIn: Boolean) {
         loginLayout.visibility = if (isLoggedIn) View.GONE else View.VISIBLE
-        //TODO add logout button
+        invalidateOptionsMenu()
     }
 
     override fun showError(message: String) {

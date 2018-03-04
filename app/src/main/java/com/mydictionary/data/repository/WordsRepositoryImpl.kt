@@ -1,7 +1,6 @@
 package com.mydictionary.data.repository
 
 import android.util.Log
-import com.google.firebase.auth.FirebaseUser
 import com.mydictionary.data.entity.UserWord
 import com.mydictionary.data.pojo.SearchResult
 import com.mydictionary.data.pojo.WordDetails
@@ -105,4 +104,8 @@ class WordsRepositoryImpl(val factory: WordsStorageFactory) : WordsRepository {
     }
 
     override fun getCurrentUser() = factory.firebaseStorage.getCurrentUser()
+
+    override fun logoutFirebaseUser() {
+        factory.firebaseStorage.logoutFirebaseUser()
+    }
 }

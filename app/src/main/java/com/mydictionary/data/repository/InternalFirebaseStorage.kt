@@ -23,6 +23,7 @@ class InternalFirebaseStorage(val context: Context) {
     private var firebaseDatabase = FirebaseDatabase.getInstance()
 
     init {
+        firebaseDatabase.setPersistenceEnabled(true)
         if (firebaseAuth.currentUser == null) {
             loginAnonymously()
         } else {
@@ -47,7 +48,10 @@ class InternalFirebaseStorage(val context: Context) {
 //
     fun getHistoryWords(listener: RepositoryListener<List<String>>) {
         val query = firebaseDatabase.reference.child("users").
-                child(firebaseAuth.currentUser?.uid).orderByChild("accessTime").limitToLast(MAX_HISTORY_LIMIT)
+                child(firebaseAuth.currentUser?.uid).
+                orderByChild("accessTime").
+                limitToLast(MAX_HISTORY_LIMIT)
+        query.keepSynced(true)
         query.addListenerForSingleValueEvent(object : ValueEventListener {
             override fun onCancelled(error: DatabaseError?) {
                 listener.onError(error?.toException()?.message ?: context.getString(R.string.default_error))
@@ -67,6 +71,7 @@ class InternalFirebaseStorage(val context: Context) {
         val userReference = firebaseDatabase.reference.child("users")
         val query = firebaseDatabase.reference.child("users").
                 child(firebaseAuth.currentUser?.uid).child(word)
+        query.keepSynced(true)
         query.addListenerForSingleValueEvent(object : ValueEventListener {
             override fun onCancelled(p0: DatabaseError?) {
                 listener.onError(p0?.toException()?.message ?: context.getString(R.string.default_error))
@@ -153,5 +158,9 @@ class InternalFirebaseStorage(val context: Context) {
                         listener.onError(task.exception?.message ?: context.getString(R.string.login_error))
                     }
                 } ?: listener.onError(context.getString(R.string.login_error))
+    }
+
+    fun logoutFirebaseUser() {
+        firebaseAuth.signOut();
     }
 }

@@ -26,6 +26,8 @@ interface WordsRepository {
 
     fun getCurrentUser(): FirebaseUser?
 
+    fun logoutFirebaseUser()
+
 }
 
 interface RepositoryListener<T> {

@@ -6,8 +6,8 @@
         app:showAsAction="never"
         android:visible="true" />
     <item
-        android:id="@+id/action_settings"
-        android:title="@string/settings"
+        android:id="@+id/action_signout"
+        android:title="@string/sign_out"
         app:showAsAction="never"
-        android:visible="true" />
+        android:visible="false" />
 </menu>

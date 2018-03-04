@@ -49,6 +49,13 @@ class HomePresenterImpl(val repository: WordsRepository, val context: Context) :
         homeView = null
     }
 
+    override fun onSignOutClicked() {
+        googleSignInClient.signOut()
+        googleSignInClient.revokeAccess()
+        repository.logoutFirebaseUser()
+        homeView?.showUserLoginState(false)
+    }
+
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
         // Result returned from launching the Intent from GoogleSignInApi.getSignInIntent(...);
         if (requestCode == SIGN_IN_REQUEST_CODE) {

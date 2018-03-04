@@ -13,6 +13,7 @@ interface HomePresenter : BasePresenter<HomeView> {
     fun onResume()
     fun onMyWordsBtnClicked()
     fun onSingInClicked()
+    fun onSignOutClicked()
     fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?)
 }
 
