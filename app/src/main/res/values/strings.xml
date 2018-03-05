@@ -27,6 +27,7 @@
     <string name="more_from_recent_history">More from recent history</string>
     <string name="speak_now">Speak Now</string>
     <string name="default_error">Error</string>
+    <string name="word_not_found_error">Word not found</string>
     <string name="empty_part_of_speech">-</string>
     <string name="example_formatted_string">\'%1$s\'</string>
     <string name="notes">Notes</string>

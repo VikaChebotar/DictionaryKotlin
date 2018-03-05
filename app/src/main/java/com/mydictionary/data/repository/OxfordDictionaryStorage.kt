@@ -35,7 +35,12 @@ class OxfordDictionaryStorage(val context: Context) {
             val wordDetailsResponse = wordDetailsRequest.await()
             val relatedWordsResponse = relatedWordsRequest.await()
             if (wordDetailsResponse?.isSuccessful == true && wordDetailsResponse.body() != null) {
-                listener.onSuccess(Mapper.fromDto(wordDetailsResponse.body(), relatedWordsResponse?.body()))
+                val wordDetails = Mapper.fromDto(wordDetailsResponse.body(), relatedWordsResponse?.body())
+                if (wordDetails.meanings.isEmpty() && wordDetails.notes.isEmpty() && wordDetails.synonyms.isEmpty() && wordDetails.antonyms.isEmpty()) {
+                    listener.onError(this@OxfordDictionaryStorage.context.getString(R.string.word_not_found_error))
+                } else {
+                    listener.onSuccess(wordDetails)
+                }
             } else {
                 var message = this@OxfordDictionaryStorage.context.getString(R.string.default_error)
                 if (wordDetailsResponse?.isSuccessful == false) {

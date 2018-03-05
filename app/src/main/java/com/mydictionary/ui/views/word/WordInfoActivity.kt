@@ -121,7 +121,7 @@ class WordInfoActivity : AppCompatActivity(), WordInfoView, WordCardsAdapter.Vie
     }
 
     override fun showProgress(progress: Boolean) {
-
+        progressBar.visibility = if (progress) View.VISIBLE else View.GONE
     }
 
     override fun showError(message: String) {

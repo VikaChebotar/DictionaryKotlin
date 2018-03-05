@@ -4,5 +4,7 @@
     android:id="@+id/relatedWordTagLayout"
     android:paddingLeft="3dp"
     android:paddingRight="3dp"
+    android:clipToPadding="false"
+    android:clipChildren="false"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"/>

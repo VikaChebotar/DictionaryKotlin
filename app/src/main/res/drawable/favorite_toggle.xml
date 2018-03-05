@@ -1,8 +1,14 @@
 <selector xmlns:android="http://schemas.android.com/apk/res/android">
     <item
-        android:drawable="@drawable/ic_favorite_border_black"
-        android:state_checked="false"/>
+        android:state_checked="false">
+        <inset
+            android:drawable="@drawable/ic_favorite_border_black"
+            android:inset="6dp"/>
+    </item>
     <item
-        android:drawable="@drawable/ic_favorite_accent"
-        android:state_checked="true"/>
+        android:state_checked="true">
+        <inset
+            android:drawable="@drawable/ic_favorite_accent"
+            android:inset="6dp"/>
+    </item>
 </selector>

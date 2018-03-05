@@ -34,8 +34,11 @@ class WordsRepositoryImpl(val factory: WordsStorageFactory) : WordsRepository {
 //    }
 
     override fun getWordInfo(wordName: String, listener: RepositoryListener<WordDetails>) {
+        val start = System.currentTimeMillis()
         factory.oxfordStorage.getWordInfo(wordName, object : RepositoryListener<WordDetails> {
             override fun onSuccess(t: WordDetails) {
+                val getWordTime = System.currentTimeMillis()
+                Log.e(TAG, "get word time: " + (getWordTime - start))
                 if (factory.firebaseStorage.getCurrentUser() != null) {
                     factory.firebaseStorage.addWordToHistoryAndGet(wordName, object : RepositoryListener<UserWord?> {
                         override fun onSuccess(userWord: UserWord?) {
@@ -43,6 +46,7 @@ class WordsRepositoryImpl(val factory: WordsStorageFactory) : WordsRepository {
                                 it.isFavourite = userWord?.value?.favSenses?.contains(it.definitionId) == true
                             }
                             listener.onSuccess(t)
+                            Log.e(TAG, "get history time: " + (System.currentTimeMillis() - getWordTime))
                         }
 
                         override fun onError(error: String) {
