@@ -1,5 +1,6 @@
 package com.mydictionary.ui.presenters.home
 
+import android.app.Activity
 import android.content.Context
 import android.content.Intent
 import android.util.Log
@@ -58,7 +59,7 @@ class HomePresenterImpl(val repository: WordsRepository, val context: Context) :
 
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
         // Result returned from launching the Intent from GoogleSignInApi.getSignInIntent(...);
-        if (requestCode == SIGN_IN_REQUEST_CODE) {
+        if (requestCode == SIGN_IN_REQUEST_CODE && resultCode == Activity.RESULT_OK) {
             val task = GoogleSignIn.getSignedInAccountFromIntent(data)
             homeView?.showProgress(true)
             try {
@@ -86,7 +87,7 @@ class HomePresenterImpl(val repository: WordsRepository, val context: Context) :
 
     private fun checkIfLoggedIn() {
         val firebaseUser = repository.getCurrentUser()
-        if (firebaseUser != null && !firebaseUser.isAnonymous) {
+        if (firebaseUser != null) {
             homeView?.showUserLoginState(true)
         } else {
             val account = GoogleSignIn.getLastSignedInAccount(context)

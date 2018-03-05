@@ -36,19 +36,21 @@ class WordsRepositoryImpl(val factory: WordsStorageFactory) : WordsRepository {
     override fun getWordInfo(wordName: String, listener: RepositoryListener<WordDetails>) {
         factory.oxfordStorage.getWordInfo(wordName, object : RepositoryListener<WordDetails> {
             override fun onSuccess(t: WordDetails) {
-                factory.firebaseStorage.addWordToHistoryAndGet(wordName, object : RepositoryListener<UserWord?> {
-                    override fun onSuccess(userWord: UserWord?) {
-                        t.meanings.forEach {
-                            it.isFavourite = userWord?.value?.favSenses?.contains(it.definitionId) == true
+                if (factory.firebaseStorage.getCurrentUser() != null) {
+                    factory.firebaseStorage.addWordToHistoryAndGet(wordName, object : RepositoryListener<UserWord?> {
+                        override fun onSuccess(userWord: UserWord?) {
+                            t.meanings.forEach {
+                                it.isFavourite = userWord?.value?.favSenses?.contains(it.definitionId) == true
+                            }
+                            listener.onSuccess(t)
                         }
-                        listener.onSuccess(t)
-                    }
 
-                    override fun onError(error: String) {
-                        listener.onSuccess(t)
-                        Log.e(TAG, error)
-                    }
-                })
+                        override fun onError(error: String) {
+                            listener.onSuccess(t)
+                            Log.e(TAG, error)
+                        }
+                    })
+                } else listener.onSuccess(t)
             }
 
             override fun onError(error: String) {
@@ -59,7 +61,9 @@ class WordsRepositoryImpl(val factory: WordsStorageFactory) : WordsRepository {
     }
 
     override fun getHistoryWords(listener: RepositoryListener<List<String>>) {
-        factory.firebaseStorage.getHistoryWords(listener)
+        if (factory.firebaseStorage.getCurrentUser() != null) {
+            factory.firebaseStorage.getHistoryWords(listener)
+        } else listener.onSuccess(emptyList())
     }
 
     override fun searchWord(searchPhrase: String, listener: RepositoryListener<List<String>>) {
@@ -100,7 +104,7 @@ class WordsRepositoryImpl(val factory: WordsStorageFactory) : WordsRepository {
     }
 
     override fun loginFirebaseUser(googleToken: String?, listener: RepositoryListener<String>) {
-        factory.firebaseStorage.linkGoogleAccountToFirebase(googleToken, listener)
+        factory.firebaseStorage.loginFirebaseUser(googleToken, listener)
     }
 
     override fun getCurrentUser() = factory.firebaseStorage.getCurrentUser()

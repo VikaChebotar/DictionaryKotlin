@@ -63,7 +63,7 @@
             android:layout_height="wrap_content"
             android:layout_above="@+id/loginBtn"
             android:layout_centerHorizontal="true"
-            android:text="To add words to your favorites please login"/>
+            android:text="@string/sign_in_message"/>
 
         <com.google.android.gms.common.SignInButton
             android:id="@+id/loginBtn"

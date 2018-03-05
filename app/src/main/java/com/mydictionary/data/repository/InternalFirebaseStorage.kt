@@ -24,11 +24,6 @@ class InternalFirebaseStorage(val context: Context) {
 
     init {
         firebaseDatabase.setPersistenceEnabled(true)
-        if (firebaseAuth.currentUser == null) {
-            loginAnonymously()
-        } else {
-            Log.d(TAG, "already signedIn");
-        }
     }
 
     fun getCurrentUser() = firebaseAuth.currentUser
@@ -47,6 +42,10 @@ class InternalFirebaseStorage(val context: Context) {
 //    }
 //
     fun getHistoryWords(listener: RepositoryListener<List<String>>) {
+        if (firebaseAuth.currentUser == null) {
+            listener.onError(context.getString(R.string.sign_in_message))
+            return
+        }
         val query = firebaseDatabase.reference.child("users").
                 child(firebaseAuth.currentUser?.uid).
                 orderByChild("accessTime").
@@ -68,6 +67,10 @@ class InternalFirebaseStorage(val context: Context) {
     }
 
     fun addWordToHistoryAndGet(word: String, listener: RepositoryListener<UserWord?>) {
+        if (firebaseAuth.currentUser == null) {
+            listener.onError(context.getString(R.string.sign_in_message))
+            return
+        }
         val userReference = firebaseDatabase.reference.child("users")
         val query = firebaseDatabase.reference.child("users").
                 child(firebaseAuth.currentUser?.uid).child(word)
@@ -103,6 +106,10 @@ class InternalFirebaseStorage(val context: Context) {
 
 
     fun getWordFromHistory(wordName: String, listener: RepositoryListener<UserWord?>) {
+        if (firebaseAuth.currentUser == null) {
+            listener.onError(context.getString(R.string.sign_in_message))
+            return
+        }
         val query = firebaseDatabase.reference.child("users").
                 child(firebaseAuth.currentUser?.uid).equalTo(wordName)
         query.addListenerForSingleValueEvent(object : ValueEventListener {
@@ -122,6 +129,10 @@ class InternalFirebaseStorage(val context: Context) {
 //    }
 
     fun setWordFavoriteState(wordName: String, favMeanings: List<String>, listener: RepositoryListener<List<String>>) {
+        if (firebaseAuth.currentUser == null) {
+            listener.onError(context.getString(R.string.sign_in_message))
+            return
+        }
         val userReference = firebaseDatabase.reference.child("users")
         val userWord = UserWord(wordName)
         userWord.value.favSenses = favMeanings
@@ -130,21 +141,13 @@ class InternalFirebaseStorage(val context: Context) {
                 addOnFailureListener { listener.onError(it.message ?: context.getString(R.string.default_error)) }
     }
 
-    private fun loginAnonymously() {
-        firebaseAuth.signInAnonymously().addOnCompleteListener {
-            if (it.isSuccessful && firebaseAuth.currentUser != null) {
-                Log.d(TAG, "signInAnonymously:success");
-            } else {
-                Log.e(TAG, "signInAnonymously:failure", it.exception);
-            }
-        }
-    }
-
-    fun linkGoogleAccountToFirebase(googleToken: String?, listener: RepositoryListener<String>) {
-        if (firebaseAuth.currentUser?.isAnonymous != true)
+    fun loginFirebaseUser(googleToken: String?, listener: RepositoryListener<String>) {
+        if (firebaseAuth.currentUser != null) {
             listener.onError("User is already signedIn")
+            return
+        }
         val credential = GoogleAuthProvider.getCredential(googleToken, null)
-        firebaseAuth.currentUser?.linkWithCredential(credential)?.
+        firebaseAuth.signInWithCredential(credential).
                 addOnCompleteListener { task ->
                     if (task.isSuccessful) {
                         val email = task.result.user.email
@@ -154,10 +157,10 @@ class InternalFirebaseStorage(val context: Context) {
                             listener.onError(context.getString(R.string.login_error))
                         }
                     } else {
-                        Log.e(TAG, "linkGoogleAccountToFirebase:failure", task.getException())
+                        Log.e(TAG, "firebaseAuthWithGoogle:failure", task.getException())
                         listener.onError(task.exception?.message ?: context.getString(R.string.login_error))
                     }
-                } ?: listener.onError(context.getString(R.string.login_error))
+                }
     }
 
     fun logoutFirebaseUser() {

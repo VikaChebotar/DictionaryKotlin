@@ -36,4 +36,5 @@
     <string name="sign_out_confirm_question">Are you sure you want to sign out?</string>
     <string name="yes">Yes</string>
     <string name="cancel">Cancel</string>
+    <string name="sign_in_message">To add words to your favorites please sign in</string>
 </resources>

@@ -56,19 +56,7 @@ class WordInfoPresenterImpl(val repository: WordsRepository, val context: Contex
     }
 
     override fun onFavoriteClicked(item: WordMeaning) {
-//          wordInfo?.let {
-//            repository.setWordFavoriteState(wordInfo!!.word, !wordInfo!!.isFavorite,
-//                    object : RepositoryListener<Boolean> {
-//                        override fun onSuccess(t: Boolean) {
-//                            wordInfo?.isFavorite = t
-//                            wordInfoView?.showIsFavorite(t)
-//                        }
-//
-//                        override fun onError(error: String) {
-//
-//                        }
-//                    })
-//       }
+
         wordInfo?.let {
             val favMeanings = mutableListOf<String>()
             it.meanings.filter { it.isFavourite }.forEach { favMeanings.add(it.definitionId) }
@@ -82,6 +70,8 @@ class WordInfoPresenterImpl(val repository: WordsRepository, val context: Contex
 
                 override fun onError(error: String) {
                     Log.e("TAG", "error: " + error)
+                    wordInfoView?.showError(error)
+                    showWord(wordInfo as WordDetails)
                 }
 
             })
