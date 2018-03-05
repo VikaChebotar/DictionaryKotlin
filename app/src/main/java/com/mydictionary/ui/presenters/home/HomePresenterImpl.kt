@@ -8,6 +8,7 @@ import com.google.android.gms.auth.api.signin.GoogleSignIn
 import com.google.android.gms.auth.api.signin.GoogleSignInOptions
 import com.google.android.gms.common.api.ApiException
 import com.mydictionary.R
+import com.mydictionary.data.pojo.WordDetails
 import com.mydictionary.data.repository.RepositoryListener
 import com.mydictionary.data.repository.WordsRepository
 
@@ -24,6 +25,7 @@ class HomePresenterImpl(val repository: WordsRepository, val context: Context) :
             .requestEmail().build()
     val googleSignInClient = GoogleSignIn.getClient(context, googleSignInOptions);
     var homeView: HomeView? = null
+    var isLoggedIn = false
 
     override fun onStart(view: HomeView) {
         this.homeView = view
@@ -40,10 +42,7 @@ class HomePresenterImpl(val repository: WordsRepository, val context: Context) :
     }
 
     override fun onResume() {
-//        todayWord?.let {
-//            it.isFavorite = repository.getWordFavoriteState(it.word)
-//            homeView?.showWordOfTheDayFavoriteBtnState(it.isFavorite)
-//        }
+        loadFavoriteWords()
     }
 
     override fun onStop() {
@@ -89,17 +88,38 @@ class HomePresenterImpl(val repository: WordsRepository, val context: Context) :
         val firebaseUser = repository.getCurrentUser()
         if (firebaseUser != null) {
             homeView?.showUserLoginState(true)
+            isLoggedIn = true
         } else {
             val account = GoogleSignIn.getLastSignedInAccount(context)
-            homeView?.showUserLoginState(account != null)
+            isLoggedIn = account != null
+            homeView?.showUserLoginState(isLoggedIn)
             if (account != null) {
                 repository.loginFirebaseUser(account.idToken, object : RepositoryListener<String> {
                     override fun onError(error: String) {
                         homeView?.showUserLoginState(false)
                         homeView?.onLoginError(context.getString(R.string.login_error))
+                        isLoggedIn = false
                     }
                 })
             }
+        }
+    }
+
+    private fun loadFavoriteWords() {
+        if (isLoggedIn) {
+            val time = System.currentTimeMillis()
+            repository.getFavoriteWords(0, 10, object : RepositoryListener<List<WordDetails>> {
+                override fun onSuccess(t: List<WordDetails>) {
+                    super.onSuccess(t)
+                    Log.d(TAG, "time" + (System.currentTimeMillis() - time))
+                    t.forEach { Log.d(TAG, it.word) }
+                }
+
+                override fun onError(error: String) {
+                    super.onError(error)
+                    Log.d(TAG, "error time" + (System.currentTimeMillis() - time))
+                }
+            })
         }
     }
 }

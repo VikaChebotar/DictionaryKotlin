@@ -11,31 +11,20 @@ import com.mydictionary.data.pojo.WordDetails
 
 class WordsRepositoryImpl(val factory: WordsStorageFactory) : WordsRepository {
     private val TAG = WordsRepositoryImpl::class.java.canonicalName
-//    override fun getTodayWordDetails(date: Date, listener: RepositoryListener<WordDetails>) {
-//        val wordOfTheDay = factory.firebaseStorage.getWordOfTheDay();
-//        if ((wordOfTheDay != null) && (wordOfTheDay.date!!.isSameDay(Calendar.getInstance().time))) {
-//            factory.oxfordStorage.getWordDetails(wordOfTheDay.word!!,
-//                    object : RepositoryListenerDelegate<WordDetails>(listener) {
-//                        override fun onSuccess(t: WordDetails) {
-//                            t.isFavorite = factory.firebaseStorage.isWordFavorite(t.word)
-//                            super.onSuccess(t)
-//                        }
-//                    })
-//        } else {
-//            factory.oxfordStorage.getRandomWord(object : RepositoryListenerDelegate<WordDetails>(listener) {
-//                override fun onSuccess(t: WordDetails) {
-//                    factory.firebaseStorage.storeWordOfTheDay(t.word, Calendar.getInstance().time)
-//                    addWordToHistoryAndGet(t.word)
-//                    t.isFavorite = factory.firebaseStorage.isWordFavorite(t.word)
-//                    super.onSuccess(t)
-//                }
-//            })
-//        }
-//    }
+
+    override fun loginFirebaseUser(googleToken: String?, listener: RepositoryListener<String>) {
+        factory.firebaseStorage.loginFirebaseUser(googleToken, listener)
+    }
+
+    override fun getCurrentUser() = factory.firebaseStorage.getCurrentUser()
+
+    override fun logoutFirebaseUser() {
+        factory.firebaseStorage.logoutFirebaseUser()
+    }
 
     override fun getWordInfo(wordName: String, listener: RepositoryListener<WordDetails>) {
         val start = System.currentTimeMillis()
-        factory.oxfordStorage.getWordInfo(wordName, object : RepositoryListener<WordDetails> {
+        factory.oxfordStorage.getFullWordInfo(wordName, object : RepositoryListener<WordDetails> {
             override fun onSuccess(t: WordDetails) {
                 val getWordTime = System.currentTimeMillis()
                 Log.e(TAG, "get word time: " + (getWordTime - start))
@@ -82,15 +71,6 @@ class WordsRepositoryImpl(val factory: WordsStorageFactory) : WordsRepository {
         })
     }
 
-//    override fun setWordFavoriteState(wordName: String, isFavorite: Boolean,
-//                                      listener: RepositoryListener<Boolean>) {
-//        val isFavoriteResult = factory.firebaseStorage.setWordFavoriteState(wordName, isFavorite)
-//        listener.onSuccess(isFavoriteResult)
-//    }
-//
-//    override fun getWordFavoriteState(wordName: String) =
-//            factory.firebaseStorage.isWordFavorite(wordName)
-
     override fun setWordFavoriteState(word: WordDetails, favMeanings: List<String>, listener: RepositoryListener<WordDetails>) {
         factory.firebaseStorage.setWordFavoriteState(word.word, favMeanings, object : RepositoryListener<List<String>> {
             override fun onSuccess(t: List<String>) {
@@ -107,13 +87,30 @@ class WordsRepositoryImpl(val factory: WordsStorageFactory) : WordsRepository {
         })
     }
 
-    override fun loginFirebaseUser(googleToken: String?, listener: RepositoryListener<String>) {
-        factory.firebaseStorage.loginFirebaseUser(googleToken, listener)
-    }
+    override fun getFavoriteWords(offset: Int, pageSize: Int, listener: RepositoryListener<List<WordDetails>>) {
+        factory.firebaseStorage.getFavoriteWords(offset, pageSize, object : RepositoryListener<List<UserWord>> {
+            override fun onSuccess(favWordsList: List<UserWord>) {
+                val favWordNamesList = favWordsList.map { it.word }
+                factory.oxfordStorage.getShortWordInfos(favWordNamesList, object : RepositoryListener<List<WordDetails>> {
+                    override fun onSuccess(wordsList: List<WordDetails>) {
+                        wordsList.map { wordDetails ->
+                            val userWord = favWordsList.find { it.word == wordDetails.word }
+                            wordDetails.meanings.forEach {
+                                it.isFavourite = userWord?.favSenses?.contains(it.definitionId) == true
+                            }
+                        }
+                        listener.onSuccess(wordsList)
+                    }
 
-    override fun getCurrentUser() = factory.firebaseStorage.getCurrentUser()
+                    override fun onError(error: String) {
+                        listener.onError(error)
+                    }
+                })
+            }
 
-    override fun logoutFirebaseUser() {
-        factory.firebaseStorage.logoutFirebaseUser()
+            override fun onError(error: String) {
+                listener.onError(error)
+            }
+        })
     }
 }
