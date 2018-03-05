@@ -28,26 +28,12 @@ class InternalFirebaseStorage(val context: Context) {
 
     fun getCurrentUser() = firebaseAuth.currentUser
 
-    //    fun getWordOfTheDay(): WordOfTheDay? {
-//        return realm.where(WordOfTheDay::class.java).findFirst();
-//    }
-//
-//    fun storeWordOfTheDay(word: String, date: Date) {
-//        realm.executeTransactionAsync { realm: Realm? ->
-//            run {
-//                realm?.delete(WordOfTheDay::class.java)
-//                realm?.copyToRealm(WordOfTheDay(word, date))
-//            }
-//        }
-//    }
-//
     fun getHistoryWords(listener: RepositoryListener<List<String>>) {
         if (firebaseAuth.currentUser == null) {
             listener.onError(context.getString(R.string.sign_in_message))
             return
         }
-        val query = firebaseDatabase.reference.child("users").
-                child(firebaseAuth.currentUser?.uid).
+        val query = getUserReference().
                 orderByChild("accessTime").
                 limitToLast(MAX_HISTORY_LIMIT)
         query.keepSynced(true)
@@ -71,72 +57,37 @@ class InternalFirebaseStorage(val context: Context) {
             listener.onError(context.getString(R.string.sign_in_message))
             return
         }
-        val userReference = firebaseDatabase.reference.child("users")
-        val query = firebaseDatabase.reference.child("users").
-                child(firebaseAuth.currentUser?.uid).child(word)
-        query.keepSynced(true)
-        query.addListenerForSingleValueEvent(object : ValueEventListener {
+        val userReferenceQuery = getUserReference()
+        userReferenceQuery.keepSynced(true)
+        userReferenceQuery.addListenerForSingleValueEvent(object : ValueEventListener {
             override fun onCancelled(p0: DatabaseError?) {
                 listener.onError(p0?.toException()?.message ?: context.getString(R.string.default_error))
             }
 
-            override fun onDataChange(userWordValue: DataSnapshot?) {
-                if (userWordValue?.exists() == true) {
-                    val userFavWords = userWordValue.child("favSenses")
-                    val userWord = UserWord(userWordValue.key)
-                    userWord.value.favSenses = userFavWords.value as? List<String> ?: emptyList()
-                    listener.onSuccess(userWord)
+            override fun onDataChange(userWords: DataSnapshot?) {
+                val userWordsList = mutableListOf<UserWord>()
+                userWords?.children?.mapNotNullTo(userWordsList) { it.getValue<UserWord>(UserWord::class.java) }
+                val userSavedWord = userWordsList.find { it.word == word }
+                if (userSavedWord != null) {
+                    listener.onSuccess(userSavedWord)
                 } else {
                     val userWord = UserWord(word)
-                    userReference.child(firebaseAuth.currentUser?.uid).child(userWord.word).setValue(userWord.value)
+                    userReferenceQuery.child(userWord.word).setValue(userWord)
                     listener.onSuccess(userWord)
                 }
             }
         })
     }
-//        realm.executeTransactionAsync { realm ->
-//            if (realm.where(HistoryWord::class.java).count() >= Constants.MAX_HISTORY_LIMIT) {
-//                val oldestWord = realm.where(HistoryWord::class.java).
-//                        equalTo("isFavorite", false).
-//                        findAllSorted("accessTime", Sort.ASCENDING).first()
-//                oldestWord?.deleteFromRealm()
-//            }
-//            realm?.copyToRealmOrUpdate(word)
-//        }
 
-
-    fun getWordFromHistory(wordName: String, listener: RepositoryListener<UserWord?>) {
-        if (firebaseAuth.currentUser == null) {
-            listener.onError(context.getString(R.string.sign_in_message))
-            return
-        }
-        val query = firebaseDatabase.reference.child("users").
-                child(firebaseAuth.currentUser?.uid).equalTo(wordName)
-        query.addListenerForSingleValueEvent(object : ValueEventListener {
-            override fun onCancelled(p0: DatabaseError?) {
-
-            }
-
-            override fun onDataChange(p0: DataSnapshot?) {
-
-            }
-        })
-    }
-
-//    fun isWordFavorite(wordName: String): Boolean {
-//        val historyWord = realm.where(HistoryWord::class.java).equalTo("word", wordName).findFirst()
-//        return historyWord?.isFavorite ?: false
-//    }
 
     fun setWordFavoriteState(wordName: String, favMeanings: List<String>, listener: RepositoryListener<List<String>>) {
         if (firebaseAuth.currentUser == null) {
             listener.onError(context.getString(R.string.sign_in_message))
             return
         }
-        val userReference = firebaseDatabase.reference.child("users")
         val userWord = UserWord(wordName)
-        userWord.value.favSenses = favMeanings
-        val task = userReference.child(firebaseAuth.currentUser?.uid).child(userWord.word).setValue(userWord.value)
+        userWord.favSenses = favMeanings
+        val task = getUserReference().child(userWord.word).setValue(userWord)
         task.addOnSuccessListener { listener.onSuccess(favMeanings) }.
                 addOnFailureListener { listener.onError(it.message ?: context.getString(R.string.default_error)) }
     }
@@ -166,4 +117,9 @@ class InternalFirebaseStorage(val context: Context) {
     fun logoutFirebaseUser() {
         firebaseAuth.signOut();
     }
+
+    private fun getUserReference() = firebaseDatabase.
+            reference.
+            child("users").
+            child(firebaseAuth.currentUser?.uid)
 }

@@ -43,7 +43,7 @@ class WordsRepositoryImpl(val factory: WordsStorageFactory) : WordsRepository {
                     factory.firebaseStorage.addWordToHistoryAndGet(wordName, object : RepositoryListener<UserWord?> {
                         override fun onSuccess(userWord: UserWord?) {
                             t.meanings.forEach {
-                                it.isFavourite = userWord?.value?.favSenses?.contains(it.definitionId) == true
+                                it.isFavourite = userWord?.favSenses?.contains(it.definitionId) == true
                             }
                             listener.onSuccess(t)
                             Log.e(TAG, "get history time: " + (System.currentTimeMillis() - getWordTime))

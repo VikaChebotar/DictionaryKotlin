@@ -27,7 +27,7 @@ class Constants {
         val SPEECH_RATE = 0.9f
         val VOICE_SEARCH_EXTRA = "voice_search_extra"
         val VOICE_SEARCH_PAUSE_MILLIS = 500;
-        val MAX_HISTORY_LIMIT = 3
+        val MAX_HISTORY_LIMIT = 10
     }
 
     enum class CompoundDrawables {
