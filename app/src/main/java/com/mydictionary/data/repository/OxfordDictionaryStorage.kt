@@ -2,9 +2,11 @@ package com.mydictionary.data.repository
 
 import android.content.Context
 import android.util.Log
+import android.util.LruCache
 import com.mydictionary.R
 import com.mydictionary.commons.Constants
 import com.mydictionary.commons.NoConnectivityException
+import com.mydictionary.commons.Utils
 import com.mydictionary.data.network.WordApiRetrofit
 import com.mydictionary.data.network.dto.RelatedWordsResponse
 import com.mydictionary.data.network.dto.WordDetailsResponse
@@ -24,6 +26,7 @@ import retrofit2.Response
 
 class OxfordDictionaryStorage(val context: Context) {
     private val restApi = WordApiRetrofit.getInstance(context).wordsApi;
+    private val wordsCache = LruCache<String, WordDetails>(Utils.getCacheMemorySize())
 
     fun getFullWordInfo(word: String, listener: RepositoryListener<WordDetails>) {
         val wordDetailsRequest = async { executeCallAsync(restApi.getWordInfo(word), listener) }
@@ -44,7 +47,9 @@ class OxfordDictionaryStorage(val context: Context) {
     }
 
     fun getShortWordInfos(wordList: List<String>, listener: RepositoryListener<List<WordDetails>>) {
-        val results = wordList.map {
+        val pairOfLists = wordList.partition { wordsCache.get(it) == null }
+        val cachedWords = pairOfLists.second.map { wordsCache.get(it) }
+        val loadingWords = pairOfLists.first.map {
             async {
                 executeCallAsync(restApi.getWordInfo(it), object : RepositoryListener<WordDetails> {
                     override fun onError(error: String) {
@@ -55,12 +60,14 @@ class OxfordDictionaryStorage(val context: Context) {
         }
 
         launch(UI) {
-            val wordDetailsList = results.map {
+            val wordDetailsList = loadingWords.map {
                 val response = it.await()
                 if (response?.isSuccessful == true && response.body() != null) {
                     Mapper.fromDto(response.body(), null)
                 } else null
-            }.filterNotNull().filter { it.meanings.isNotEmpty() }
+            }.filterNotNull().filter { it.meanings.isNotEmpty() }.toMutableList()
+            wordDetailsList.forEach { wordsCache.put(it.word, it) }
+            wordDetailsList.addAll(cachedWords)
             listener.onSuccess(wordDetailsList)
         }
 
@@ -86,6 +93,7 @@ class OxfordDictionaryStorage(val context: Context) {
             listener.onError(this@OxfordDictionaryStorage.context.getString(R.string.word_not_found_error))
         } else {
             listener.onSuccess(wordDetails)
+            wordsCache.put(wordDetails.word, wordDetails)
         }
     }
 
@@ -97,7 +105,6 @@ class OxfordDictionaryStorage(val context: Context) {
             null
         }
     }
-
 
     fun searchTheWord(phrase: String, listener: RepositoryListener<SearchResult>) {
         val call = restApi.searchTheWord(phrase, Constants.SEARCH_LIMIT)

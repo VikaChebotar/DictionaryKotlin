@@ -93,13 +93,14 @@ class WordsRepositoryImpl(val factory: WordsStorageFactory) : WordsRepository {
                 val favWordNamesList = favWordsList.map { it.word }
                 factory.oxfordStorage.getShortWordInfos(favWordNamesList, object : RepositoryListener<List<WordDetails>> {
                     override fun onSuccess(wordsList: List<WordDetails>) {
-                        wordsList.map { wordDetails ->
-                            val userWord = favWordsList.find { it.word == wordDetails.word }
-                            wordDetails.meanings.forEach {
-                                it.isFavourite = userWord?.favSenses?.contains(it.definitionId) == true
+                        val finalList = favWordsList.map { favWord ->
+                            val userWord = wordsList.find { it.word == favWord.word }
+                            userWord?.meanings?.forEach {
+                                it.isFavourite = favWord.favSenses.contains(it.definitionId) == true
                             }
-                        }
-                        listener.onSuccess(wordsList)
+                            userWord
+                        }.filterNotNull()
+                        listener.onSuccess(finalList)
                     }
 
                     override fun onError(error: String) {
