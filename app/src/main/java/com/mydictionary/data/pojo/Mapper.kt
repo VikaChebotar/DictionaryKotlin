@@ -24,12 +24,12 @@ class Mapper {
             word.pronunciation = pronunciations.elementAtOrNull(0)
             allEntries.sortBy { it.homographNumber }
             allEntries.forEach { entry ->
-                entry.notes?.forEach { notesList.add(Note(it.text, it.type)) }
+                entry.notes?.forEach { notesList.add(Note(it.text)) }
                 entry.senses?.filter { it.definitions?.isNotEmpty() == true }?.forEach {
                     val meaning = WordMeaning(it.id)
                     meaning.partOfSpeech = entry.lexicalCategory
-                    meaning.definitions.addAll(it.definitions.orEmpty())
-                    it.examples?.map { it.text }?.filterNotNull()?.forEach { meaning.examples.add(it) }
+                    it.definitions?.map { Definition(it) }?.forEach { meaning.definitions.add(it) }
+                    it.examples?.map { it.text }?.filterNotNull()?.forEach { meaning.examples.add(Example(it)) }
                     meanings.add(meaning)
                 }
             }

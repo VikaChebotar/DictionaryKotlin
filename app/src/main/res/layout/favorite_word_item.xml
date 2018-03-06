@@ -1,12 +1,11 @@
 <?xml version="1.0" encoding="utf-8"?>
 <android.support.v7.widget.CardView xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:card_view="http://schemas.android.com/apk/res-auto"
-    android:id="@+id/wordOfTheDayCard"
-    android:layout_width="match_parent"
-    android:layout_height="wrap_content"
-    android:layout_margin="@dimen/activity_horizontal_margin"
-    card_view:cardBackgroundColor="@android:color/white"
-    card_view:cardCornerRadius="3dp">
+                                    xmlns:card_view="http://schemas.android.com/apk/res-auto"
+                                    xmlns:tools="http://schemas.android.com/tools"
+                                    android:layout_width="match_parent"
+                                    android:layout_height="wrap_content"
+                                    card_view:cardBackgroundColor="@android:color/white"
+                                    card_view:cardCornerRadius="3dp">
 
     <RelativeLayout
         android:layout_width="match_parent"
@@ -15,7 +14,7 @@
         android:paddingLeft="@dimen/activity_horizontal_margin">
 
         <TextView
-            android:id="@+id/wordOfTheDay"
+            android:id="@+id/favWordName"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_alignParentLeft="true"
@@ -26,51 +25,29 @@
             android:fontFamily="sans-serif-condensed"
             android:textColor="@color/colorAccent"
             android:textSize="@dimen/fav_word_text_size"
-            android:textStyle="bold" />
-
-        <TextView
-            android:id="@+id/wordPronounce"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_alignParentLeft="true"
-            android:layout_below="@+id/wordOfTheDay"
-            android:layout_toRightOf="@+id/speakerBtn"
-            android:ellipsize="end"
-            android:fontFamily="sans-serif-condensed"
-            android:textColor="@color/textColorGrey"
-            android:textSize="@dimen/text_size" />
-
+            android:textStyle="bold"
+            tools:text="Word"/>
 
         <ImageButton
             android:id="@+id/speakerBtn"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
+            android:layout_alignParentRight="true"
             android:layout_marginRight="@dimen/very_small_margin"
             android:layout_marginTop="@dimen/very_small_margin"
-            android:layout_toLeftOf="@+id/favWord"
             android:background="?android:attr/selectableItemBackground"
-            android:src="@drawable/ic_volume_up_black_24dp" />
-
-        <ImageButton
-            android:id="@+id/favWord"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_alignParentRight="true"
-            android:layout_marginRight="@dimen/small_margin"
-            android:layout_marginTop="@dimen/very_small_margin"
-            android:background="?android:attr/selectableItemBackground"
-            android:src="@drawable/ic_favorite_border_black" />
-
+            android:src="@drawable/ic_volume_up_black_24dp"/>
 
         <TextView
             android:id="@+id/partOfSpeech"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_below="@+id/wordPronounce"
+            android:layout_below="@+id/favWordName"
             android:layout_marginTop="@dimen/small_margin"
             android:textColor="@color/colorPrimary"
+            tools:text = "verb"
             android:textSize="@dimen/small_text_size"
-            android:textStyle="italic|bold" />
+            android:textStyle="italic|bold"/>
 
         <TextView
             android:id="@+id/definition"
@@ -79,7 +56,7 @@
             android:layout_below="@+id/partOfSpeech"
             android:paddingRight="@dimen/activity_horizontal_margin"
             android:textColor="@color/textSecondary"
-            android:textSize="@dimen/medium_text_size" />
+            android:textSize="@dimen/medium_text_size"/>
 
         <TextView
             android:id="@+id/example"
@@ -87,7 +64,7 @@
             android:layout_height="wrap_content"
             android:layout_below="@+id/definition"
             android:textColor="@color/textSecondary"
-            android:textSize="@dimen/medium_text_size" />
+            android:textSize="@dimen/medium_text_size"/>
     </RelativeLayout>
 
 </android.support.v7.widget.CardView>

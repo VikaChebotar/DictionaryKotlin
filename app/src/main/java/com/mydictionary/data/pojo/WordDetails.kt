@@ -14,10 +14,15 @@ data class WordDetails(val word: String) {
 }
 
 data class WordMeaning(val definitionId: String) {
-    val definitions = mutableListOf<String>()
+    val definitions = mutableListOf<Definition>()
     var partOfSpeech: String? = null
-    val examples = mutableListOf<String>()
+    val examples = mutableListOf<Example>()
     var isFavourite = false
 }
 
-data class Note(val text: String, val type: String?)
+//wrapper classes used to distinguish view types in adapter
+data class Note(val text: String)
+
+data class Definition(val text: String)
+
+data class Example(val text: String)

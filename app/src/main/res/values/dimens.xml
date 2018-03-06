@@ -25,7 +25,8 @@
     <dimen name="text_size">14sp</dimen>
     <dimen name="medium_text_size">16sp</dimen>
     <dimen name="big_text_size">18sp</dimen>
-    <dimen name="random_word_text_size">20sp</dimen>
+    <dimen name="fav_word_text_size">20sp</dimen>
     <dimen name="example_source_text_size">12sp</dimen>
     <dimen name="recent_history_btn_padding_left">48dp</dimen>
+    <dimen name="meanings_space_decorator">5dp</dimen>
 </resources>

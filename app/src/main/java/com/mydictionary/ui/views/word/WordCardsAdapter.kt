@@ -1,5 +1,6 @@
 package com.mydictionary.ui.views.word
 
+import android.content.Context
 import android.support.v7.widget.LinearLayoutManager
 import android.support.v7.widget.RecyclerView
 import android.view.View
@@ -19,9 +20,10 @@ import kotlinx.android.synthetic.main.word_notes_list_item.view.*
  * Created by Viktoria Chebotar on 01.07.17.
  */
 
-class WordCardsAdapter(val listener: ViewClickListener) : RecyclerView.Adapter<RecyclerView.ViewHolder>() {
+class WordCardsAdapter(val listener: ViewClickListener, val context: Context) : RecyclerView.Adapter<RecyclerView.ViewHolder>() {
 
     var dataset: List<Any> = emptyList()
+    val meaningItemDecoration by lazy { MeaningSpaceItemDecorator(context.resources.getDimension(R.dimen.meanings_space_decorator).toInt()) }
 
     enum class ViewTypes {
         HEADER, WORD_MEANING, RELATED_WORDS, NOTES
@@ -65,16 +67,15 @@ class WordCardsAdapter(val listener: ViewClickListener) : RecyclerView.Adapter<R
         fun bind(value: WordMeaning) {
             itemView.partOfSpeech.text = value.partOfSpeech?.toLowerCase()
             //todo optimize
-            itemView.definitionsRecyclerView.layoutManager = LinearLayoutManager(itemView.context)
-            itemView.definitionsRecyclerView.adapter = MeaningsAdapter(value.definitions,
-                    MeaningsAdapter.ViewType.DEFINITION)
-            itemView.examplesRecyclerView.layoutManager = LinearLayoutManager(itemView.context)
-            itemView.examplesRecyclerView.adapter = MeaningsAdapter(value.examples,
-                    MeaningsAdapter.ViewType.EXAMPLE)
+            itemView.meaningsRecyclerView.layoutManager = LinearLayoutManager(itemView.context)
+            itemView.meaningsRecyclerView.adapter = MeaningsAdapter(value.definitions.union(value.examples).toList())
+            itemView.meaningsRecyclerView.removeItemDecoration(meaningItemDecoration)
+            itemView.meaningsRecyclerView.addItemDecoration(meaningItemDecoration)
             itemView.favWord.isChecked = value.isFavourite
             itemView.favWord.isEnabled = true
             itemView.favWord.setOnClickListener {
-                listener.onFavouriteBtnClicked(dataset[adapterPosition] as WordMeaning) }
+                listener.onFavouriteBtnClicked(dataset[adapterPosition] as WordMeaning)
+            }
         }
     }
 

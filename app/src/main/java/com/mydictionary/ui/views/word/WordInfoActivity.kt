@@ -26,7 +26,7 @@ import kotlinx.android.synthetic.main.word_info_activity.*
 
 class WordInfoActivity : AppCompatActivity(), WordInfoView, WordCardsAdapter.ViewClickListener {
     val presenter by lazy { WordInfoPresenterImpl(DictionaryApp.getInstance(this).repository, this) }
-    val wordCardsAdapter = WordCardsAdapter(this)
+    val wordCardsAdapter = WordCardsAdapter(this, this)
 
     companion object {
         fun startActivity(context: Context, word: String) {

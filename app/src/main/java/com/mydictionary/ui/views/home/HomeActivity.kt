@@ -78,7 +78,7 @@ class HomeActivity : AppCompatActivity(), HomeView {
 
     override fun showProgress(progress: Boolean) {
         progressBar.visibility = if (progress) View.VISIBLE else View.GONE
-        homeLayout.visibility = if (progress) View.GONE else View.VISIBLE
+        favoriteWordList.visibility = if (progress) View.GONE else View.VISIBLE
     }
 
     override fun showUserLoginState(isLoggedIn: Boolean) {
@@ -87,8 +87,8 @@ class HomeActivity : AppCompatActivity(), HomeView {
     }
 
     override fun showError(message: String) {
-        Snackbar.make(homeScrollContent!!, message, Snackbar.LENGTH_LONG).show()
-        homeLayout.visibility = View.GONE
+        Snackbar.make(favoriteWordList!!, message, Snackbar.LENGTH_LONG).show()
+        favoriteWordList.visibility = View.GONE
     }
 
     override fun startWordInfoActivity(word: WordDetails) {
