@@ -66,8 +66,8 @@ class InternalFirebaseStorage(val context: Context) {
     }
 
     fun logoutFirebaseUser() {
-        firebaseAuth.signOut();
         getUserReference().removeEventListener(valueEventListener)
+        firebaseAuth.signOut();
     }
 
     fun getHistoryWords(listener: RepositoryListener<List<String>>) {
@@ -104,7 +104,7 @@ class InternalFirebaseStorage(val context: Context) {
             return
         }
         val userReferenceQuery = getUserReference()
-        userReferenceQuery.keepSynced(true)
+        //userReferenceQuery.keepSynced(true)
         val userSavedWord = userWordsList.find { it.word == word }
         if (userSavedWord != null) {
             listener.onSuccess(userSavedWord)

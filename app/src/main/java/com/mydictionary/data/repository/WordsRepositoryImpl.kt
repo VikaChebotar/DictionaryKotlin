@@ -91,7 +91,7 @@ class WordsRepositoryImpl(val factory: WordsStorageFactory) : WordsRepository {
         factory.firebaseStorage.getFavoriteWords(offset, pageSize, object : RepositoryListener<List<UserWord>> {
             override fun onSuccess(favWordsList: List<UserWord>) {
                 val favWordNamesList = favWordsList.map { it.word }
-                factory.oxfordStorage.getShortWordInfos(favWordNamesList, object : RepositoryListener<List<WordDetails>> {
+                factory.oxfordStorage.getShortWordInfo(favWordNamesList, object : RepositoryListener<List<WordDetails>> {
                     override fun onSuccess(wordsList: List<WordDetails>) {
                         val finalList = favWordsList.map { favWord ->
                             val userWord = wordsList.find { it.word == favWord.word }

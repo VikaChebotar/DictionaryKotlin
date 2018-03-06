@@ -68,18 +68,21 @@ class HomePresenterImpl(val repository: WordsRepository, val context: Context) :
                         homeView?.onLoginSuccess(userName)
                         homeView?.showProgress(false)
                         homeView?.showUserLoginState(true)
+                        isLoggedIn = true
                     }
 
                     override fun onError(error: String) {
                         Log.e(TAG, error)
                         homeView?.onLoginError(context.getString(R.string.login_error))
                         homeView?.showProgress(false)
+                        isLoggedIn = false
                     }
                 })
             } catch (e: ApiException) {
                 Log.e(TAG, e.message)
                 homeView?.onLoginError(context.getString(R.string.login_error))
                 homeView?.showProgress(false)
+                isLoggedIn = false
             }
         }
     }

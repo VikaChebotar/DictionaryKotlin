@@ -8,8 +8,6 @@ import com.mydictionary.commons.Constants
 import com.mydictionary.commons.NoConnectivityException
 import com.mydictionary.commons.Utils
 import com.mydictionary.data.network.WordApiRetrofit
-import com.mydictionary.data.network.dto.RelatedWordsResponse
-import com.mydictionary.data.network.dto.WordDetailsResponse
 import com.mydictionary.data.pojo.Mapper
 import com.mydictionary.data.pojo.SearchResult
 import com.mydictionary.data.pojo.WordDetails
@@ -29,24 +27,35 @@ class OxfordDictionaryStorage(val context: Context) {
     private val wordsCache = LruCache<String, WordDetails>(Utils.getCacheMemorySize())
 
     fun getFullWordInfo(word: String, listener: RepositoryListener<WordDetails>) {
-        val wordDetailsRequest = async { executeCallAsync(restApi.getWordInfo(word), listener) }
-        val relatedWordsRequest = async { executeCallAsync(restApi.getRelatedWords(word), listener) }
+        var wordDetails = wordsCache.get(word)
+        val needToLoadDetails = wordDetails == null
+        val needToLoadRelatedWords = !(!needToLoadDetails && (wordDetails.synonyms.isNotEmpty() || wordDetails.antonyms.isNotEmpty()))
+
+        val wordDetailsRequest = if (needToLoadDetails) async { executeCallAsync(restApi.getWordInfo(word), listener) } else null
+        val relatedWordsRequest = if (needToLoadRelatedWords) async { executeCallAsync(restApi.getRelatedWords(word), listener) } else null
+
         launch(UI) {
-            val wordDetailsResponse = wordDetailsRequest.await()
-            val relatedWordsResponse = relatedWordsRequest.await()
+            val wordDetailsResponse = wordDetailsRequest?.await()
+            val relatedWordsResponse = relatedWordsRequest?.await()
+
             if (wordDetailsResponse?.isSuccessful == true && wordDetailsResponse.body() != null) {
-                mapFromDto(wordDetailsResponse.body(), relatedWordsResponse?.body(), listener)
-            } else {
+                wordDetails = Mapper.fromDto(wordDetailsResponse.body())
+            } else if (needToLoadDetails) {
                 var message = this@OxfordDictionaryStorage.context.getString(R.string.default_error)
-                if (wordDetailsResponse?.isSuccessful == false) {
-                    message = wordDetailsResponse.raw()?.message() ?: message
-                }
+                message = if (wordDetailsResponse?.isSuccessful == false) wordDetailsResponse.raw()?.message() else message
                 listener.onError(message)
+            }
+            Mapper.setRelatedWords(wordDetails, relatedWordsResponse?.body())
+            if (wordDetails.meanings.isEmpty() && wordDetails.notes.isEmpty() && wordDetails.synonyms.isEmpty() && wordDetails.antonyms.isEmpty()) {
+                listener.onError(this@OxfordDictionaryStorage.context.getString(R.string.word_not_found_error))
+            } else {
+                listener.onSuccess(wordDetails)
+                wordsCache.put(wordDetails.word, wordDetails)
             }
         }
     }
 
-    fun getShortWordInfos(wordList: List<String>, listener: RepositoryListener<List<WordDetails>>) {
+    fun getShortWordInfo(wordList: List<String>, listener: RepositoryListener<List<WordDetails>>) {
         val pairOfLists = wordList.partition { wordsCache.get(it) == null }
         val cachedWords = pairOfLists.second.map { wordsCache.get(it) }
         val loadingWords = pairOfLists.first.map {
@@ -63,37 +72,12 @@ class OxfordDictionaryStorage(val context: Context) {
             val wordDetailsList = loadingWords.map {
                 val response = it.await()
                 if (response?.isSuccessful == true && response.body() != null) {
-                    Mapper.fromDto(response.body(), null)
+                    Mapper.fromDto(response.body())
                 } else null
             }.filterNotNull().filter { it.meanings.isNotEmpty() }.toMutableList()
             wordDetailsList.forEach { wordsCache.put(it.word, it) }
             wordDetailsList.addAll(cachedWords)
             listener.onSuccess(wordDetailsList)
-        }
-
-//        val wordDetailsRequest = restApi.getWordInfo(word)
-//        wordDetailsRequest.enqueue(object : Callback<WordDetailsResponse> {
-//            override fun onResponse(call: Call<WordDetailsResponse>?, response: Response<WordDetailsResponse>?) {
-//                if (response?.isSuccessful == true && response.body() != null) {
-//                    mapFromDto(response.body(), null, listener)
-//                } else {
-//                    listener.onError(response?.raw()?.message() ?: context.getString(R.string.default_error))
-//                }
-//            }
-//
-//            override fun onFailure(call: Call<WordDetailsResponse>?, t: Throwable?) {
-//                onFailure(t, listener)
-//            }
-//        })
-    }
-
-    private fun mapFromDto(wordDetailsResponse: WordDetailsResponse?, relatedWordsResponse: RelatedWordsResponse?, listener: RepositoryListener<WordDetails>) {
-        val wordDetails = Mapper.fromDto(wordDetailsResponse, relatedWordsResponse)
-        if (wordDetails.meanings.isEmpty() && wordDetails.notes.isEmpty() && wordDetails.synonyms.isEmpty() && wordDetails.antonyms.isEmpty()) {
-            listener.onError(this@OxfordDictionaryStorage.context.getString(R.string.word_not_found_error))
-        } else {
-            listener.onSuccess(wordDetails)
-            wordsCache.put(wordDetails.word, wordDetails)
         }
     }
 
