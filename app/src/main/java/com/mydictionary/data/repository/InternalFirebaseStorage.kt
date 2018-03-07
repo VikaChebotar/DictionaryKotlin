@@ -21,6 +21,7 @@ class InternalFirebaseStorage(val context: Context) {
     private val firebaseAuth = FirebaseAuth.getInstance();
     private var firebaseDatabase = FirebaseDatabase.getInstance()
     private val userWordsList = mutableListOf<UserWord>()
+
     private val valueEventListener = object : ValueEventListener {
         override fun onCancelled(p0: DatabaseError?) {
             Log.e(TAG, "failed to get firebase updates: " + p0?.toException()?.message)
@@ -34,10 +35,6 @@ class InternalFirebaseStorage(val context: Context) {
 
     init {
         firebaseDatabase.setPersistenceEnabled(true)
-        if (getCurrentUser() != null) {
-            registerUserWordsListener()
-            //TODO where to remove listener?
-        }
     }
 
     fun getCurrentUser() = firebaseAuth.currentUser
@@ -147,6 +144,38 @@ class InternalFirebaseStorage(val context: Context) {
         val query = getUserReference().orderByChild("accessTime")
         query.keepSynced(true)
         query.addValueEventListener(valueEventListener)
+    }
+
+    private fun unregisterUserWordsListener() {
+        val query = getUserReference().orderByChild("accessTime")
+        query.removeEventListener(valueEventListener)
+    }
+
+    private fun registerConnectionListener() {
+        val firebaseConnectedRef = firebaseDatabase.getReference(".info/connected")
+        firebaseConnectedRef.addValueEventListener(object : ValueEventListener {
+            override fun onDataChange(snapshot: DataSnapshot) {
+                val connected = snapshot.getValue(Boolean::class.java)!!
+                Log.d(TAG, if (connected) "firebase is connected" else "firebase is not connected")
+            }
+
+            override fun onCancelled(error: DatabaseError) {
+                Log.d(TAG, "firebase connection listener on cancelled")
+            }
+        })
+    }
+
+    fun onAppForeground() {
+        firebaseDatabase.goOnline()
+        if (getCurrentUser() != null) {
+            registerUserWordsListener()
+            registerConnectionListener()
+        }
+    }
+
+    fun onAppBackground() {
+        firebaseDatabase.goOffline()
+        unregisterUserWordsListener()
     }
 
 }

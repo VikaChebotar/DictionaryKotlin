@@ -114,4 +114,12 @@ class WordsRepositoryImpl(val factory: WordsStorageFactory) : WordsRepository {
             }
         })
     }
+
+    override fun onAppForeground() {
+        factory.firebaseStorage.onAppForeground()
+    }
+
+    override fun onAppBackground() {
+        factory.firebaseStorage.onAppBackground()
+    }
 }

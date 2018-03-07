@@ -23,6 +23,10 @@ interface WordsRepository {
     fun setWordFavoriteState(word: WordDetails, favMeanings: List<String>, listener: RepositoryListener<WordDetails>)
 
     fun getFavoriteWords(offset: Int, pageSize: Int, listener: RepositoryListener<List<WordDetails>>)
+
+    fun onAppForeground()
+
+    fun onAppBackground()
 }
 
 interface RepositoryListener<T> {
