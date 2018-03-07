@@ -5,6 +5,8 @@ import android.os.Bundle
 import android.support.design.widget.Snackbar
 import android.support.v7.app.AlertDialog
 import android.support.v7.app.AppCompatActivity
+import android.support.v7.widget.LinearLayoutManager
+import android.support.v7.widget.RecyclerView
 import android.view.Menu
 import android.view.MenuItem
 import android.view.MotionEvent
@@ -16,13 +18,16 @@ import com.mydictionary.data.pojo.WordDetails
 import com.mydictionary.ui.DictionaryApp
 import com.mydictionary.ui.presenters.home.HomePresenterImpl
 import com.mydictionary.ui.presenters.home.HomeView
+import com.mydictionary.ui.views.SpaceItemDecorator
 import com.mydictionary.ui.views.mywords.MyWordsActivity
 import com.mydictionary.ui.views.search.SearchActivity
+import com.mydictionary.ui.views.word.WordInfoActivity
 import kotlinx.android.synthetic.main.home_activity.*
 
 
 class HomeActivity : AppCompatActivity(), HomeView {
     val presenter by lazy { HomePresenterImpl(DictionaryApp.getInstance(this).repository, this) }
+    var scrollListener: EndlessRecyclerViewScrollListener? = null
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -31,6 +36,7 @@ class HomeActivity : AppCompatActivity(), HomeView {
         presenter.onStart(this)
         searchField.setOnTouchListener(searchTouchListener)
         loginBtn.setOnClickListener { presenter.onSingInClicked() }
+        initList()
     }
 
     override fun onResume() {
@@ -83,6 +89,7 @@ class HomeActivity : AppCompatActivity(), HomeView {
 
     override fun showUserLoginState(isLoggedIn: Boolean) {
         loginLayout.visibility = if (isLoggedIn) View.GONE else View.VISIBLE
+        favoriteWordList.visibility = if (isLoggedIn) View.VISIBLE else View.GONE
         invalidateOptionsMenu()
     }
 
@@ -92,9 +99,26 @@ class HomeActivity : AppCompatActivity(), HomeView {
     }
 
     override fun startWordInfoActivity(word: WordDetails) {
-//        val intent = Intent(this@HomeActivity, WordInfoActivity::class.java);
-//        intent.putExtra(Constants.SELCTED_WORD_INFO_EXTRA, word)
-//        startActivity(intent)
+        WordInfoActivity.startActivity(this, word.word)
+    }
+
+    private fun initList() {
+        val linearLayoutManager = LinearLayoutManager(this)
+        linearLayoutManager.isAutoMeasureEnabled = true
+        favoriteWordList.layoutManager = linearLayoutManager
+        favoriteWordList.adapter = FavoriteWordsAdapter(this, object : FavoriteWordsAdapter.OnClickListener {
+            override fun onItemClicked(wordDetails: WordDetails) {
+                startWordInfoActivity(wordDetails)
+            }
+        })
+        val margin = resources.getDimension(R.dimen.activity_horizontal_margin).toInt()
+        favoriteWordList.addItemDecoration(SpaceItemDecorator(margin))
+        scrollListener = object : EndlessRecyclerViewScrollListener(linearLayoutManager) {
+            override fun onLoadMore(page: Int, totalItemsCount: Int, view: RecyclerView?) {
+                presenter.onFavListScrolled(page, totalItemsCount)
+            }
+        }
+        favoriteWordList.addOnScrollListener(scrollListener)
     }
 
     private fun startSearchActivity(isVoiceSearchClicked: Boolean = false) {
@@ -119,6 +143,16 @@ class HomeActivity : AppCompatActivity(), HomeView {
     override fun onLoginSuccess(userName: String) {
         Snackbar.make(loginLayout, getString(R.string.login_success, userName),
                 Snackbar.LENGTH_SHORT).show()
+    }
+
+    override fun showFavoriteWords(list: List<WordDetails>, needToReset: Boolean) {
+        if (needToReset) {
+            (favoriteWordList.adapter as FavoriteWordsAdapter).dataset.clear()
+            favoriteWordList.adapter.notifyDataSetChanged();
+            scrollListener?.resetState();
+        }
+        (favoriteWordList.adapter as FavoriteWordsAdapter).dataset.addAll(list)
+        favoriteWordList.adapter.notifyDataSetChanged()
     }
 
     private val searchTouchListener = View.OnTouchListener { _, event ->

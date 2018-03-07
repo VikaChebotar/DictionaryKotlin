@@ -8,6 +8,7 @@ import com.google.android.gms.auth.api.signin.GoogleSignIn
 import com.google.android.gms.auth.api.signin.GoogleSignInOptions
 import com.google.android.gms.common.api.ApiException
 import com.mydictionary.R
+import com.mydictionary.commons.Constants
 import com.mydictionary.data.pojo.WordDetails
 import com.mydictionary.data.repository.RepositoryListener
 import com.mydictionary.data.repository.WordsRepository
@@ -26,6 +27,7 @@ class HomePresenterImpl(val repository: WordsRepository, val context: Context) :
     val googleSignInClient = GoogleSignIn.getClient(context, googleSignInOptions);
     var homeView: HomeView? = null
     var isLoggedIn = false
+    var favWordsOffset = 0
 
     override fun onStart(view: HomeView) {
         this.homeView = view
@@ -42,6 +44,7 @@ class HomePresenterImpl(val repository: WordsRepository, val context: Context) :
     }
 
     override fun onResume() {
+        favWordsOffset = 0
         loadFavoriteWords()
     }
 
@@ -69,6 +72,7 @@ class HomePresenterImpl(val repository: WordsRepository, val context: Context) :
                         homeView?.showProgress(false)
                         homeView?.showUserLoginState(true)
                         isLoggedIn = true
+                        loadFavoriteWords()
                     }
 
                     override fun onError(error: String) {
@@ -85,6 +89,10 @@ class HomePresenterImpl(val repository: WordsRepository, val context: Context) :
                 isLoggedIn = false
             }
         }
+    }
+
+    override fun onFavListScrolled(page: Int, totalItemsCount: Int) {
+        loadFavoriteWords()
     }
 
     private fun checkIfLoggedIn() {
@@ -111,16 +119,21 @@ class HomePresenterImpl(val repository: WordsRepository, val context: Context) :
     private fun loadFavoriteWords() {
         if (isLoggedIn) {
             val time = System.currentTimeMillis()
-            repository.getFavoriteWords(0, 10, object : RepositoryListener<List<WordDetails>> {
+            homeView?.showProgress(favWordsOffset == 0)
+            repository.getFavoriteWords(favWordsOffset, Constants.FAV_WORD_PAGE_SIZE, object : RepositoryListener<List<WordDetails>> {
                 override fun onSuccess(t: List<WordDetails>) {
                     super.onSuccess(t)
                     Log.d(TAG, "time" + (System.currentTimeMillis() - time))
-                    t.forEach { Log.d(TAG, it.word) }
+                    homeView?.showFavoriteWords(t, favWordsOffset == 0)
+                    homeView?.showProgress(false)
+                    favWordsOffset += t.size
                 }
 
                 override fun onError(error: String) {
                     super.onError(error)
                     Log.d(TAG, "error time" + (System.currentTimeMillis() - time))
+                    homeView?.showProgress(false)
+                    Log.e(TAG, error)
                 }
             })
         }

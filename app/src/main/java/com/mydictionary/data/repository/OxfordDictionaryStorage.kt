@@ -44,6 +44,7 @@ class OxfordDictionaryStorage(val context: Context) {
                 var message = this@OxfordDictionaryStorage.context.getString(R.string.default_error)
                 message = if (wordDetailsResponse?.isSuccessful == false) wordDetailsResponse.raw()?.message() else message
                 listener.onError(message)
+                return@launch
             }
             Mapper.setRelatedWords(wordDetails, relatedWordsResponse?.body())
             if (wordDetails.meanings.isEmpty() && wordDetails.notes.isEmpty() && wordDetails.synonyms.isEmpty() && wordDetails.antonyms.isEmpty()) {

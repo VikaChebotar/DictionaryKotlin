@@ -15,6 +15,7 @@ interface HomePresenter : BasePresenter<HomeView> {
     fun onSingInClicked()
     fun onSignOutClicked()
     fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?)
+    fun onFavListScrolled(page: Int, totalItemsCount: Int)
 }
 
 interface HomeView : BaseView {
@@ -24,5 +25,6 @@ interface HomeView : BaseView {
     fun showUserLoginState(isLoggedIn: Boolean)
     fun onLoginError(message: String)
     fun onLoginSuccess(userName: String)
+    fun showFavoriteWords(list: List<WordDetails>, needToReset: Boolean)
 }
 

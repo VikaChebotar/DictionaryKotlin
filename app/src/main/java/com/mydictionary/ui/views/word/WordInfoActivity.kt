@@ -2,7 +2,6 @@ package com.mydictionary.ui.views.word
 
 import android.content.Context
 import android.content.Intent
-import android.graphics.Rect
 import android.os.Bundle
 import android.support.design.widget.Snackbar
 import android.support.v7.app.AppCompatActivity
@@ -17,6 +16,7 @@ import com.mydictionary.data.pojo.WordMeaning
 import com.mydictionary.ui.DictionaryApp
 import com.mydictionary.ui.presenters.word.WordInfoPresenterImpl
 import com.mydictionary.ui.presenters.word.WordInfoView
+import com.mydictionary.ui.views.SpaceItemDecorator
 import kotlinx.android.synthetic.main.word_content_scrolling.*
 import kotlinx.android.synthetic.main.word_info_activity.*
 
@@ -78,12 +78,7 @@ class WordInfoActivity : AppCompatActivity(), WordInfoView, WordCardsAdapter.Vie
         recyclerView.layoutManager = linearLayoutManager
         recyclerView.adapter = adapter
         val margin = resources.getDimension(R.dimen.activity_horizontal_margin).toInt()
-        recyclerView.addItemDecoration(object : RecyclerView.ItemDecoration() {
-            override fun getItemOffsets(outRect: Rect, view: View, parent: RecyclerView, state: RecyclerView.State) {
-                val position = parent.getChildAdapterPosition(view)
-                outRect.set(margin, margin, margin, if (position < state.itemCount - 1) 0 else margin);
-            }
-        })
+        recyclerView.addItemDecoration(SpaceItemDecorator(margin))
     }
 //
 //    override fun showIsFavorite(isFavorite: Boolean) {

@@ -17,7 +17,7 @@ import com.mydictionary.data.entity.UserWord
  * Created by Viktoria_Chebotar on 6/12/2017.
  */
 class InternalFirebaseStorage(val context: Context) {
-    private val TAG = InternalFirebaseStorage::class.java.canonicalName
+    private val TAG = InternalFirebaseStorage::class.java.simpleName
     private val firebaseAuth = FirebaseAuth.getInstance();
     private var firebaseDatabase = FirebaseDatabase.getInstance()
     private val userWordsList = mutableListOf<UserWord>()
@@ -157,6 +157,7 @@ class InternalFirebaseStorage(val context: Context) {
             override fun onDataChange(snapshot: DataSnapshot) {
                 val connected = snapshot.getValue(Boolean::class.java)!!
                 Log.d(TAG, if (connected) "firebase is connected" else "firebase is not connected")
+                if(!connected) firebaseDatabase.goOnline()
             }
 
             override fun onCancelled(error: DatabaseError) {
