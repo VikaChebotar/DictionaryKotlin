@@ -19,6 +19,7 @@ import com.mydictionary.ui.DictionaryApp
 import com.mydictionary.ui.presenters.home.HomePresenterImpl
 import com.mydictionary.ui.presenters.home.HomeView
 import com.mydictionary.ui.views.SpaceItemDecorator
+import com.mydictionary.ui.views.learn.LearnActivity
 import com.mydictionary.ui.views.mywords.MyWordsActivity
 import com.mydictionary.ui.views.search.SearchActivity
 import com.mydictionary.ui.views.word.WordInfoActivity
@@ -36,6 +37,9 @@ class HomeActivity : AppCompatActivity(), HomeView {
         presenter.onStart(this)
         searchField.setOnTouchListener(searchTouchListener)
         loginBtn.setOnClickListener { presenter.onSingInClicked() }
+        fabBtn.setOnClickListener {
+            startLearnActivity()
+        }
         initList()
     }
 
@@ -100,6 +104,11 @@ class HomeActivity : AppCompatActivity(), HomeView {
 
     override fun startWordInfoActivity(word: WordDetails) {
         WordInfoActivity.startActivity(this, word.word)
+    }
+
+    private fun startLearnActivity() {
+        val intent = Intent(this@HomeActivity, LearnActivity::class.java);
+        startActivity(intent)
     }
 
     private fun initList() {

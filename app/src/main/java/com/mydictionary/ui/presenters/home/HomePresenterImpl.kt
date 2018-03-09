@@ -8,8 +8,6 @@ import com.google.android.gms.auth.api.signin.GoogleSignIn
 import com.google.android.gms.auth.api.signin.GoogleSignInOptions
 import com.google.android.gms.common.api.ApiException
 import com.mydictionary.R
-import com.mydictionary.commons.Constants
-import com.mydictionary.data.pojo.WordDetails
 import com.mydictionary.data.repository.RepositoryListener
 import com.mydictionary.data.repository.WordsRepository
 
@@ -117,25 +115,25 @@ class HomePresenterImpl(val repository: WordsRepository, val context: Context) :
     }
 
     private fun loadFavoriteWords() {
-        if (isLoggedIn) {
-            val time = System.currentTimeMillis()
-            homeView?.showProgress(favWordsOffset == 0)
-            repository.getFavoriteWords(favWordsOffset, Constants.FAV_WORD_PAGE_SIZE, object : RepositoryListener<List<WordDetails>> {
-                override fun onSuccess(t: List<WordDetails>) {
-                    super.onSuccess(t)
-                    Log.d(TAG, "time" + (System.currentTimeMillis() - time))
-                    homeView?.showFavoriteWords(t, favWordsOffset == 0)
-                    homeView?.showProgress(false)
-                    favWordsOffset += t.size
-                }
-
-                override fun onError(error: String) {
-                    super.onError(error)
-                    Log.d(TAG, "error time" + (System.currentTimeMillis() - time))
-                    homeView?.showProgress(false)
-                    Log.e(TAG, error)
-                }
-            })
-        }
+//        if (isLoggedIn) {
+//            val time = System.currentTimeMillis()
+//            homeView?.showProgress(favWordsOffset == 0)
+//            repository.getFavoriteWords(favWordsOffset, Constants.FAV_WORD_PAGE_SIZE, object : RepositoryListener<List<WordDetails>> {
+//                override fun onSuccess(t: List<WordDetails>) {
+//                    super.onSuccess(t)
+//                    Log.d(TAG, "time" + (System.currentTimeMillis() - time))
+//                    homeView?.showFavoriteWords(t, favWordsOffset == 0)
+//                    homeView?.showProgress(false)
+//                    favWordsOffset += t.size
+//                }
+//
+//                override fun onError(error: String) {
+//                    super.onError(error)
+//                    Log.d(TAG, "error time" + (System.currentTimeMillis() - time))
+//                    homeView?.showProgress(false)
+//                    Log.e(TAG, error)
+//                }
+//            })
+//        }
     }
 }
