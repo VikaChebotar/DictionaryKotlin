@@ -12,8 +12,10 @@ import com.mydictionary.data.pojo.Example
 /**
  * Created by Viktoria Chebotar on 25.02.18.
  */
-class MeaningsAdapter(private val dataset: List<Any>) :
+class MeaningsAdapter(val dataset: List<Any>, learnMode: Boolean = false) :
         RecyclerView.Adapter<RecyclerView.ViewHolder>() {
+    private val defitionLayoutId = if (learnMode) R.layout.definitions_list_item_learn else R.layout.definitions_list_item
+    private val exampleLayoutId = if (learnMode) R.layout.example_list_item_learn else R.layout.example_list_item
 
     enum class ViewType {
         DEFINITION, EXAMPLE
@@ -29,8 +31,8 @@ class MeaningsAdapter(private val dataset: List<Any>) :
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): RecyclerView.ViewHolder {
         return when (viewType) {
-            ViewType.DEFINITION.ordinal -> DefinitionItemViewHolder(parent.inflate(R.layout.definitions_list_item))
-            else -> ExampleItemViewHolder(parent.inflate(R.layout.example_list_item))
+            ViewType.DEFINITION.ordinal -> DefinitionItemViewHolder(parent.inflate(defitionLayoutId))
+            else -> ExampleItemViewHolder(parent.inflate(exampleLayoutId))
         }
     }
 
@@ -43,14 +45,14 @@ class MeaningsAdapter(private val dataset: List<Any>) :
         }
     }
 
-    class ExampleItemViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
+    inner class ExampleItemViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
         fun bind(value: Example) {
             (itemView as TextView).text = itemView.context.
                     getString(R.string.example_formatted_string, value.text)
         }
     }
 
-    class DefinitionItemViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
+    inner class DefinitionItemViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
         fun bind(value: Definition) {
             (itemView as TextView).text = value.text
         }

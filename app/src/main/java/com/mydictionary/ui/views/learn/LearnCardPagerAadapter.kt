@@ -10,7 +10,7 @@ import com.mydictionary.data.pojo.WordDetails
 class LearnCardPagerAadapter(fm:FragmentManager): FragmentStatePagerAdapter(fm) {
     val list = mutableListOf<WordDetails>()
 
-    override fun getItem(position: Int) = LearnCardItemFragment()
+    override fun getItem(position: Int) = LearnCardItemFragment.getInstance(list[position])
 
     override fun getCount() = list.size
 

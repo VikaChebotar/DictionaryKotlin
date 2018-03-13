@@ -1,8 +1,11 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
               xmlns:app="http://schemas.android.com/apk/res-auto"
+              xmlns:tools="http://schemas.android.com/tools"
               android:layout_width="match_parent"
               android:layout_height="match_parent"
+              android:clickable="true"
+              android:focusable="true"
               android:orientation="vertical">
 
     <android.support.v7.widget.CardView
@@ -11,17 +14,23 @@
         android:layout_height="match_parent"
         app:cardUseCompatPadding="true">
 
-        <LinearLayout
+        <RelativeLayout
             android:layout_width="match_parent"
             android:layout_height="match_parent"
-            android:orientation="vertical">
+            android:orientation="vertical"
+            android:padding="@dimen/activity_horizontal_margin">
 
             <TextView
+                android:id="@+id/favWordName"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_gravity="center"
-                android:text="FRONT"/>
-        </LinearLayout>
+                android:layout_centerInParent="true"
+                android:ellipsize="end"
+                android:fontFamily="sans-serif-condensed"
+                android:textColor="@android:color/black"
+                android:textSize="26sp"
+                tools:text="Word"/>
+        </RelativeLayout>
     </android.support.v7.widget.CardView>
 
     <android.support.v7.widget.CardView
@@ -31,16 +40,19 @@
         android:visibility="gone"
         app:cardUseCompatPadding="true">
 
-        <LinearLayout
+        <RelativeLayout
             android:layout_width="match_parent"
             android:layout_height="match_parent"
-            android:orientation="vertical">
+            android:orientation="vertical"
+            android:padding="25dp">
 
-            <TextView
+            <com.mydictionary.ui.views.learn.ClickableRecyclerView
+                android:id="@+id/favMeaningsRecyclerView"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_gravity="center"
-                android:text="BACK"/>
-        </LinearLayout>
+                android:layout_centerInParent="true"
+                android:overScrollMode="never"
+                android:clipToPadding="false"/>
+        </RelativeLayout>
     </android.support.v7.widget.CardView>
 </LinearLayout>

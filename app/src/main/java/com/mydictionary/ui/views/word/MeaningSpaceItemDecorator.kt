@@ -9,7 +9,7 @@ import android.view.View
 /**
  * Created by Viktoria Chebotar on 25.02.18.
  */
-class MeaningSpaceItemDecorator(val margin: Int) : RecyclerView.ItemDecoration() {
+class MeaningSpaceItemDecorator(val margin: Int, val bigMargin: Int? = null) : RecyclerView.ItemDecoration() {
 
     override fun getItemOffsets(outRect: Rect, view: View, parent: RecyclerView, state: RecyclerView.State) {
         val position = parent.getChildAdapterPosition(view)
@@ -17,7 +17,10 @@ class MeaningSpaceItemDecorator(val margin: Int) : RecyclerView.ItemDecoration()
         val previousPosition = position - 1
         if (previousPosition > NO_POSITION) {
             val previousViewType = parent.adapter.getItemViewType(previousPosition)
-            if (previousViewType != viewType) {
+            if (previousViewType != viewType && previousViewType == MeaningsAdapter.ViewType.EXAMPLE.ordinal) {
+                outRect.set(0, bigMargin ?: margin, 0, 0)
+                return
+            } else if (previousViewType != viewType) {
                 outRect.set(0, margin, 0, 0)
                 return
             }
