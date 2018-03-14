@@ -13,6 +13,7 @@ import com.mydictionary.data.repository.WordsRepository
  * Created by Viktoria_Chebotar on 6/30/2017.
  */
 class WordInfoPresenterImpl(val repository: WordsRepository, val context: Context) : WordInfoPresenter {
+    val TAG = WordInfoPresenterImpl::class.java.simpleName
     var wordInfoView: WordInfoView? = null
     var wordInfo: WordDetails? = null
 
@@ -69,7 +70,7 @@ class WordInfoPresenterImpl(val repository: WordsRepository, val context: Contex
                 }
 
                 override fun onError(error: String) {
-                    Log.e("TAG", "error: " + error)
+                    Log.e(TAG, "error: " + error)
                     wordInfoView?.showError(error)
                     showWord(wordInfo as WordDetails)
                 }

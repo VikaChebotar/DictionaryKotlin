@@ -38,4 +38,10 @@
     <string name="yes">Yes</string>
     <string name="cancel">Cancel</string>
     <string name="sign_in_message">To add words to your favorites please sign in</string>
+    <string name="fav_words_title">My Words</string>
+    <string name="delete">Delete</string>
+    <string name="word_details">Word Details</string>
+    <string name="delete_word_error">Error deleting word</string>
+    <string name="undo">Undo</string>
+    <string name="word_removed">Word %1$s removed from favorites</string>
 </resources>

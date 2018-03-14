@@ -139,7 +139,8 @@ class InternalFirebaseStorage(val context: Context) {
             listener.onError(context.getString(R.string.sign_in_message))
             return
         }
-        val userWord = UserWord(wordName)
+
+        val userWord = userWordsList.find { it.word == wordName } ?: UserWord(wordName)
         userWord.favSenses = favMeanings
         val task = getUserReference().child(userWord.word).setValue(userWord)
         task.addOnSuccessListener { listener.onSuccess(favMeanings) }.

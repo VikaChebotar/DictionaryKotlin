@@ -4,9 +4,15 @@ import android.animation.Animator
 import android.animation.AnimatorListenerAdapter
 import android.animation.AnimatorSet
 import android.animation.ObjectAnimator
+import android.annotation.SuppressLint
+import android.content.Context
 import android.os.Bundle
 import android.support.v4.app.Fragment
+import android.support.v7.view.menu.MenuBuilder
+import android.support.v7.view.menu.MenuPopupHelper
 import android.support.v7.widget.LinearLayoutManager
+import android.support.v7.widget.PopupMenu
+import android.view.Gravity
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -34,7 +40,12 @@ class LearnCardItemFragment : Fragment() {
     private var animatorSet: AnimatorSet? = null
     private var wordDetails: WordDetails? = null
     private var meaningsList: List<Any>? = null
+    private var listener: OnCardItemListener? = null
 
+    interface OnCardItemListener {
+        fun onDetailsClicked(word: WordDetails)
+        fun onDeleteClicked(word: WordDetails)
+    }
 
     companion object {
         fun getInstance(details: WordDetails): LearnCardItemFragment {
@@ -46,6 +57,18 @@ class LearnCardItemFragment : Fragment() {
         }
     }
 
+    override fun onAttach(context: Context?) {
+        super.onAttach(context)
+        if (activity is OnCardItemListener) {
+            listener = activity as OnCardItemListener
+        }
+    }
+
+    override fun onDetach() {
+        super.onDetach()
+        listener = null
+    }
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         wordDetails = arguments?.getParcelable(SELCTED_WORD_INFO_EXTRA)
@@ -55,15 +78,35 @@ class LearnCardItemFragment : Fragment() {
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
         val view = inflater.inflate(R.layout.learn_card_item, container, false)
-        view.setOnClickListener {
-            rotate()
-        }
+        view.setOnClickListener { rotate() }
         return view
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
         showFrontSide()
+        setPopupMenuClickListener()
+    }
+
+    @SuppressLint("RestrictedApi")
+    private fun setPopupMenuClickListener() {
+        if (context == null) return
+        val popup = PopupMenu(context!!, menuWordBtn)
+        popup.menuInflater.inflate(R.menu.my_word_item_menu, popup.menu)
+        popup.setOnMenuItemClickListener { item ->
+            when (item?.itemId) {
+                R.id.action_delete -> wordDetails?.let { listener?.onDeleteClicked(it) }
+                else -> wordDetails?.let { listener?.onDetailsClicked(it) }
+            }
+            true
+        }
+        val menuHelper = MenuPopupHelper(context!!, popup.menu as MenuBuilder, menuWordBtn)
+        menuHelper.setForceShowIcon(true)
+        menuHelper.gravity = Gravity.END
+
+        menuWordBtn.setOnClickListener {
+            menuHelper.show()
+        }
     }
 
     private fun rotate() {

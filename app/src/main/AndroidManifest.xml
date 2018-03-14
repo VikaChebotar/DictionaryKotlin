@@ -34,6 +34,7 @@
             android:screenOrientation="portrait"/>
         <activity
             android:name=".ui.views.learn.LearnActivity"
+            android:label= "@string/fav_words_title"
             android:screenOrientation="portrait"/>
     </application>
 

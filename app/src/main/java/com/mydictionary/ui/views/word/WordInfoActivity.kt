@@ -42,16 +42,6 @@ class WordInfoActivity : AppCompatActivity(), WordInfoView, WordCardsAdapter.Vie
         initList(scrollContent, wordCardsAdapter)
 
         presenter.onStart(this)
-
-//        seeAllDefinitionsBtn.setOnClickListener {
-//            presenter.onSeeAllDefinitionsBtnClicked(wordCardsAdapter.itemCount)
-//        }
-//        seeAllExamplesBtn.setOnClickListener {
-//            presenter.onSeeAllExamplesBtnClicked(examplesAdapter.itemCount)
-//        }
-//        favoriteFab.setOnClickListener {
-//            presenter.onFavoriteClicked()
-//        }
     }
 
     override fun onCreateOptionsMenu(menu: Menu?): Boolean {
