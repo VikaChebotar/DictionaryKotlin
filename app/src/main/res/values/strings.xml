@@ -44,4 +44,5 @@
     <string name="delete_word_error">Error deleting word</string>
     <string name="undo">Undo</string>
     <string name="word_removed">Word %1$s removed from favorites</string>
+    <string name="shuffle">Shuffle</string>
 </resources>

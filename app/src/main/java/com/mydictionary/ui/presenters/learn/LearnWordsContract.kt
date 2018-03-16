@@ -11,6 +11,7 @@ interface LearnWordsPresenter : BasePresenter<LearnWordsView> {
     fun onItemSelected(position: Int)
     fun onItemDeleteClicked(wordDetails: WordDetails)
     fun onUndoDeletionClicked(oldWordDetails: WordDetails, favMeanings: List<String>, position: Int)
+    fun onShuffleClicked()
 }
 
 interface LearnWordsView : BaseView {

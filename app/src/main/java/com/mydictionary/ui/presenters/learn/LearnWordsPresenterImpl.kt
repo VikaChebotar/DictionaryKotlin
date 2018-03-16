@@ -8,6 +8,7 @@ import com.mydictionary.commons.Constants.Companion.FAV_WORD_PAGE_THRESHOLD
 import com.mydictionary.data.pojo.WordDetails
 import com.mydictionary.data.repository.RepositoryListener
 import com.mydictionary.data.repository.WordsRepository
+import java.util.*
 
 /**
  * Created by Viktoria_Chebotar on 3/12/2018.
@@ -79,7 +80,7 @@ class LearnWordsPresenterImpl(val repository: WordsRepository, val context: Cont
         }
     }
 
-    override fun onUndoDeletionClicked(oldWordDetails: WordDetails, favMeanings:List<String>, position: Int) {
+    override fun onUndoDeletionClicked(oldWordDetails: WordDetails, favMeanings: List<String>, position: Int) {
         repository.setWordFavoriteState(oldWordDetails, favMeanings, object : RepositoryListener<WordDetails> {
             override fun onSuccess(t: WordDetails) {
                 super.onSuccess(t)
@@ -98,4 +99,8 @@ class LearnWordsPresenterImpl(val repository: WordsRepository, val context: Cont
         })
     }
 
+    override fun onShuffleClicked() {
+        Collections.shuffle(list)
+        wordsView?.showFavoriteWords(list)
+    }
 }

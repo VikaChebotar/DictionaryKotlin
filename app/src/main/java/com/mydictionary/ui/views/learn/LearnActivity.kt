@@ -4,6 +4,7 @@ import android.os.Bundle
 import android.support.design.widget.Snackbar
 import android.support.v4.view.ViewPager
 import android.support.v7.app.AppCompatActivity
+import android.view.Menu
 import android.view.MenuItem
 import com.mydictionary.R
 import com.mydictionary.data.pojo.WordDetails
@@ -41,6 +42,11 @@ class LearnActivity : AppCompatActivity(), LearnWordsView, LearnCardItemFragment
         })
     }
 
+    override fun onCreateOptionsMenu(menu: Menu?): Boolean {
+        menuInflater.inflate(R.menu.learn_cards_menu, menu)
+        return true
+    }
+
     override fun onDestroy() {
         super.onDestroy()
         presenter.onStop()
@@ -59,9 +65,15 @@ class LearnActivity : AppCompatActivity(), LearnWordsView, LearnCardItemFragment
     }
 
     override fun onOptionsItemSelected(item: MenuItem?): Boolean {
-        if (item?.itemId == android.R.id.home) {
-            onBackPressed()
-            return true
+        when (item?.itemId) {
+            android.R.id.home -> {
+                onBackPressed()
+                return true
+            }
+            R.id.action_shuffle -> {
+                presenter.onShuffleClicked()
+                return true
+            }
         }
         return super.onOptionsItemSelected(item)
     }

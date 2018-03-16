@@ -31,6 +31,7 @@ class Constants {
         val MEMORY_CACHE_PERCENT = 0.125
         val FAV_WORD_PAGE_SIZE = 10
         val FAV_WORD_PAGE_THRESHOLD = 5
+        val SHUFFLE_DOWNLOAD_PAGE_SIZE = 30;
     }
 
     enum class CompoundDrawables {
