@@ -8,8 +8,11 @@ import com.google.android.gms.auth.api.signin.GoogleSignIn
 import com.google.android.gms.auth.api.signin.GoogleSignInOptions
 import com.google.android.gms.common.api.ApiException
 import com.mydictionary.R
-import com.mydictionary.data.repository.RepositoryListener
 import com.mydictionary.data.repository.WordsRepository
+import io.reactivex.Single
+import io.reactivex.android.schedulers.AndroidSchedulers
+import io.reactivex.disposables.CompositeDisposable
+import io.reactivex.schedulers.Schedulers
 
 
 /**
@@ -19,13 +22,14 @@ const val SIGN_IN_REQUEST_CODE = 1
 
 class HomePresenterImpl(val repository: WordsRepository, val context: Context) : HomePresenter {
     val TAG = HomePresenterImpl::class.java.simpleName
-    val googleSignInOptions = GoogleSignInOptions.Builder(GoogleSignInOptions.DEFAULT_SIGN_IN)
+    private val googleSignInOptions = GoogleSignInOptions.Builder(GoogleSignInOptions.DEFAULT_SIGN_IN)
             .requestIdToken(context.getString(R.string.default_web_client_id))
             .requestEmail().build()
-    val googleSignInClient = GoogleSignIn.getClient(context, googleSignInOptions);
-    var homeView: HomeView? = null
-    var isLoggedIn = false
-    var favWordsOffset = 0
+    private val googleSignInClient = GoogleSignIn.getClient(context, googleSignInOptions);
+    private var homeView: HomeView? = null
+    private var isLoggedIn = false
+    private var favWordsOffset = 0
+    private val compositeDisposable = CompositeDisposable()
 
     override fun onStart(view: HomeView) {
         this.homeView = view
@@ -37,7 +41,7 @@ class HomePresenterImpl(val repository: WordsRepository, val context: Context) :
     }
 
     override fun onSingInClicked() {
-        val signInIntent = googleSignInClient.getSignInIntent()
+        val signInIntent = googleSignInClient.signInIntent
         homeView?.startSignInActivity(signInIntent, SIGN_IN_REQUEST_CODE)
     }
 
@@ -48,13 +52,16 @@ class HomePresenterImpl(val repository: WordsRepository, val context: Context) :
 
     override fun onStop() {
         homeView = null
+        compositeDisposable.clear()
     }
 
     override fun onSignOutClicked() {
         googleSignInClient.signOut()
         googleSignInClient.revokeAccess()
-        repository.logoutFirebaseUser()
-        homeView?.showUserLoginState(false)
+        repository.signOut().
+                subscribeOn(Schedulers.io()).
+                observeOn(AndroidSchedulers.mainThread()).
+                subscribe({ homeView?.showUserLoginState(false) })
     }
 
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
@@ -62,30 +69,22 @@ class HomePresenterImpl(val repository: WordsRepository, val context: Context) :
         if (requestCode == SIGN_IN_REQUEST_CODE && resultCode == Activity.RESULT_OK) {
             val task = GoogleSignIn.getSignedInAccountFromIntent(data)
             homeView?.showProgress(true)
-            try {
-                val account = task.getResult(ApiException::class.java)
-                repository.loginFirebaseUser(account.idToken, object : RepositoryListener<String> {
-                    override fun onSuccess(userName: String) {
+            compositeDisposable.add(Single.just(task.getResult(ApiException::class.java)).
+                    flatMap { repository.loginFirebaseUser(it.idToken) }.
+                    subscribeOn(Schedulers.io()).
+                    observeOn(AndroidSchedulers.mainThread()).
+                    subscribe({ userName ->
                         homeView?.onLoginSuccess(userName)
                         homeView?.showProgress(false)
                         homeView?.showUserLoginState(true)
                         isLoggedIn = true
                         loadFavoriteWords()
-                    }
-
-                    override fun onError(error: String) {
-                        Log.e(TAG, error)
+                    }, { error ->
+                        Log.e(TAG, error.message)
                         homeView?.onLoginError(context.getString(R.string.login_error))
                         homeView?.showProgress(false)
                         isLoggedIn = false
-                    }
-                })
-            } catch (e: ApiException) {
-                Log.e(TAG, e.message)
-                homeView?.onLoginError(context.getString(R.string.login_error))
-                homeView?.showProgress(false)
-                isLoggedIn = false
-            }
+                    }))
         }
     }
 
@@ -94,24 +93,16 @@ class HomePresenterImpl(val repository: WordsRepository, val context: Context) :
     }
 
     private fun checkIfLoggedIn() {
-        val firebaseUser = repository.getCurrentUser()
-        if (firebaseUser != null) {
-            homeView?.showUserLoginState(true)
-            isLoggedIn = true
-        } else {
-            val account = GoogleSignIn.getLastSignedInAccount(context)
-            isLoggedIn = account != null
-            homeView?.showUserLoginState(isLoggedIn)
-            if (account != null) {
-                repository.loginFirebaseUser(account.idToken, object : RepositoryListener<String> {
-                    override fun onError(error: String) {
-                        homeView?.showUserLoginState(false)
-                        homeView?.onLoginError(context.getString(R.string.login_error))
-                        isLoggedIn = false
-                    }
+        isLoggedIn = false
+        homeView?.showUserLoginState(isLoggedIn)
+
+        compositeDisposable.add(repository.isSignedIn().
+                subscribeOn(Schedulers.io()).
+                observeOn(AndroidSchedulers.mainThread()).
+                subscribe { isLoggedIn ->
+                    homeView?.showUserLoginState(isLoggedIn)
+                    this.isLoggedIn = isLoggedIn
                 })
-            }
-        }
     }
 
     private fun loadFavoriteWords() {

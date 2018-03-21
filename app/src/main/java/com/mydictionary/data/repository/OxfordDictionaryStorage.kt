@@ -8,12 +8,12 @@ import com.mydictionary.commons.Constants
 import com.mydictionary.commons.NoConnectivityException
 import com.mydictionary.commons.Utils
 import com.mydictionary.data.network.WordApiRetrofit
+import com.mydictionary.data.network.dto.RelatedWordsResponse
+import com.mydictionary.data.network.dto.WordDetailsResponse
 import com.mydictionary.data.pojo.Mapper
-import com.mydictionary.data.pojo.SearchResult
 import com.mydictionary.data.pojo.WordDetails
-import kotlinx.coroutines.experimental.android.UI
-import kotlinx.coroutines.experimental.async
-import kotlinx.coroutines.experimental.launch
+import io.reactivex.Single
+import io.reactivex.functions.BiFunction
 import retrofit2.Call
 import retrofit2.Callback
 import retrofit2.Response
@@ -26,75 +26,51 @@ class OxfordDictionaryStorage(val context: Context) {
     private val restApi = WordApiRetrofit.getInstance(context).wordsApi;
     private val wordsCache = LruCache<String, WordDetails>(Utils.getCacheMemorySize())
 
-    fun getFullWordInfo(word: String, listener: RepositoryListener<WordDetails>) {
-        var wordDetails = wordsCache.get(word)
-        val needToLoadDetails = wordDetails == null
-        val needToLoadRelatedWords = !(!needToLoadDetails && (wordDetails.synonyms.isNotEmpty() || wordDetails.antonyms.isNotEmpty()))
+    fun getFullWordInfo(word: String): Single<WordDetails> =
+            Single.just(word).
+                    flatMap {
+                        val wordDetails = wordsCache.get(word)
+                        val needToLoadDetails = wordDetails == null
+                        val needToLoadRelatedWords = !(!needToLoadDetails && (wordDetails.synonyms.isNotEmpty() || wordDetails.antonyms.isNotEmpty()))
+                        if (!needToLoadDetails) {
+                            Single.just(wordDetails)
+                        } else if (needToLoadDetails && needToLoadRelatedWords) {
+                            Single.zip(restApi.getWordInfo(word), restApi.getRelatedWords(word),
+                                    BiFunction<WordDetailsResponse, RelatedWordsResponse, WordDetails>
+                                    { wordDetailsResponse, relatedWordsResponse ->
+                                        val wordDetails = Mapper.fromDto(wordDetailsResponse)
+                                        Mapper.setRelatedWords(wordDetails, relatedWordsResponse)
+                                        wordDetails
+                                    })
+                        } else Single.zip(Single.just(wordDetails), restApi.getRelatedWords(word),
+                                BiFunction<WordDetails, RelatedWordsResponse, WordDetails>
+                                { wordDetails, relatedWordsResponse ->
+                                    Mapper.setRelatedWords(wordDetails, relatedWordsResponse)
+                                    wordDetails
+                                })
+                    }.
+                    flatMap {
+                        if (it.meanings.isEmpty() && it.notes.isEmpty() && it.synonyms.isEmpty() && it.antonyms.isEmpty())
+                            Single.error(Exception(context.getString(R.string.word_not_found_error)))
+                        else Single.just(it)
+                    }.
+                    doOnSuccess { wordsCache.put(it.word, it) }
 
-        val wordDetailsRequest = if (needToLoadDetails) async { executeCallAsync(restApi.getWordInfo(word), listener) } else null
-        val relatedWordsRequest = if (needToLoadRelatedWords) async { executeCallAsync(restApi.getRelatedWords(word), listener) } else null
 
-        launch(UI) {
-            val wordDetailsResponse = wordDetailsRequest?.await()
-            val relatedWordsResponse = relatedWordsRequest?.await()
+    fun getShortWordInfo(word: String): Single<WordDetails>
+            = Single.just(word).
+            flatMap {
+                val wordDetails = wordsCache.get(word)
+                if (wordDetails == null) {
+                    restApi.getWordInfo(word).map { response -> Mapper.fromDto(response) }
+                } else Single.just(wordDetails)
+            }.
+            filter { it.meanings.isNotEmpty() }.
+            switchIfEmpty(Single.just(null)).doOnSuccess { wordsCache.put(it.word, it) }
 
-            if (wordDetailsResponse?.isSuccessful == true && wordDetailsResponse.body() != null) {
-                wordDetails = Mapper.fromDto(wordDetailsResponse.body())
-            } else if (needToLoadDetails) {
-                var message = this@OxfordDictionaryStorage.context.getString(R.string.default_error)
-                message = if (wordDetailsResponse?.isSuccessful == false) wordDetailsResponse.raw()?.message() else message
-                listener.onError(message)
-                return@launch
-            }
-            Mapper.setRelatedWords(wordDetails, relatedWordsResponse?.body())
-            if (wordDetails.meanings.isEmpty() && wordDetails.notes.isEmpty() && wordDetails.synonyms.isEmpty() && wordDetails.antonyms.isEmpty()) {
-                listener.onError(this@OxfordDictionaryStorage.context.getString(R.string.word_not_found_error))
-            } else {
-                listener.onSuccess(wordDetails)
-                wordsCache.put(wordDetails.word, wordDetails)
-            }
-        }
-    }
 
-    fun getShortWordInfo(wordList: List<String>, listener: RepositoryListener<List<WordDetails>>) {
-        val pairOfLists = wordList.partition { wordsCache.get(it) == null }
-        val cachedWords = pairOfLists.second.map { wordsCache.get(it) }
-        val loadingWords = pairOfLists.first.map {
-            async {
-                executeCallAsync(restApi.getWordInfo(it), object : RepositoryListener<WordDetails> {
-                    override fun onError(error: String) {
-                        listener.onError(error)
-                    }
-                })
-            }
-        }
 
-        launch(UI) {
-            val wordDetailsList = loadingWords.map {
-                val response = it.await()
-                if (response?.isSuccessful == true && response.body() != null) {
-                    Mapper.fromDto(response.body())
-                } else null
-            }.filterNotNull().filter { it.meanings.isNotEmpty() }.toMutableList()
-            wordDetailsList.forEach { wordsCache.put(it.word, it) }
-            wordDetailsList.addAll(cachedWords)
-            listener.onSuccess(wordDetailsList)
-        }
-    }
-
-    private fun <T> executeCallAsync(call: Call<T>, listener: RepositoryListener<WordDetails>): Response<T>? {
-        return try {
-            call.execute()
-        } catch (e: Exception) {
-            onFailure(e, listener)
-            null
-        }
-    }
-
-    fun searchTheWord(phrase: String, listener: RepositoryListener<SearchResult>) {
-        val call = restApi.searchTheWord(phrase, Constants.SEARCH_LIMIT)
-        call.enqueue(MyRetrofitCallback(listener, context))
-    }
+    fun searchTheWord(phrase: String): Single<List<String>> = restApi.searchTheWord(phrase, Constants.SEARCH_LIMIT).map { it.searchResults }
 
     private inner class MyRetrofitCallback<T>(val listener: RepositoryListener<T>,
                                               val context: Context) : Callback<T> {

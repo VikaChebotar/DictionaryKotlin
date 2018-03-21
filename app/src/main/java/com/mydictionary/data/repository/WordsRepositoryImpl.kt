@@ -1,9 +1,9 @@
 package com.mydictionary.data.repository
 
-import android.util.Log
-import com.mydictionary.data.entity.UserWord
-import com.mydictionary.data.pojo.SearchResult
 import com.mydictionary.data.pojo.WordDetails
+import io.reactivex.Completable
+import io.reactivex.Flowable
+import io.reactivex.Single
 
 /**
  * Created by Viktoria_Chebotar on 6/7/2017.
@@ -12,64 +12,36 @@ import com.mydictionary.data.pojo.WordDetails
 class WordsRepositoryImpl(val factory: WordsStorageFactory) : WordsRepository {
     private val TAG = WordsRepositoryImpl::class.java.canonicalName
 
-    override fun loginFirebaseUser(googleToken: String?, listener: RepositoryListener<String>) {
-        factory.firebaseStorage.loginFirebaseUser(googleToken, listener)
-    }
+    override fun loginFirebaseUser(googleToken: String?): Single<String> =
+            factory.firebaseStorage.loginFirebaseUser(googleToken)
 
-    override fun getCurrentUser() = factory.firebaseStorage.getCurrentUser()
 
-    override fun logoutFirebaseUser() {
-        factory.firebaseStorage.logoutFirebaseUser()
-    }
+    override fun isSignedIn() = factory.firebaseStorage.isLoggedIn()
 
-    override fun getWordInfo(wordName: String, listener: RepositoryListener<WordDetails>) {
-        val start = System.currentTimeMillis()
-        factory.oxfordStorage.getFullWordInfo(wordName, object : RepositoryListener<WordDetails> {
-            override fun onSuccess(t: WordDetails) {
-                val getWordTime = System.currentTimeMillis()
-                Log.e(TAG, "get word time: " + (getWordTime - start))
-                if (factory.firebaseStorage.getCurrentUser() != null) {
-                    factory.firebaseStorage.addWordToHistoryAndGet(wordName, object : RepositoryListener<UserWord?> {
-                        override fun onSuccess(userWord: UserWord?) {
-                            t.meanings.forEach {
-                                it.isFavourite = userWord?.favSenses?.contains(it.definitionId) == true
+    override fun signOut(): Completable = factory.firebaseStorage.logoutFirebaseUser()
+
+    override fun getWordInfo(wordName: String) = factory.oxfordStorage.getFullWordInfo(wordName).flatMap { wordDetails ->
+        isSignedIn().flatMap { isSignedIn ->
+            if (isSignedIn) {
+                factory.firebaseStorage.addWordToHistoryAndGet(wordName).
+                        map { userWord ->
+                            wordDetails.meanings.forEach {
+                                it.isFavourite = userWord.favSenses.contains(it.definitionId) == true
                             }
-                            listener.onSuccess(t)
-                            Log.e(TAG, "get history time: " + (System.currentTimeMillis() - getWordTime))
+                            wordDetails
                         }
-
-                        override fun onError(error: String) {
-                            listener.onSuccess(t)
-                            Log.e(TAG, error)
-                        }
-                    })
-                } else listener.onSuccess(t)
+            } else {
+                Single.just(wordDetails)
             }
-
-            override fun onError(error: String) {
-                listener.onError(error)
-            }
-
-        })
+        }
     }
+
 
     override fun getHistoryWords(listener: RepositoryListener<List<String>>) {
-        if (factory.firebaseStorage.getCurrentUser() != null) {
-            factory.firebaseStorage.getHistoryWords(listener)
-        } else listener.onSuccess(emptyList())
+        factory.firebaseStorage.getHistoryWords(listener)
     }
 
-    override fun searchWord(searchPhrase: String, listener: RepositoryListener<List<String>>) {
-        factory.oxfordStorage.searchTheWord(searchPhrase, object : RepositoryListener<SearchResult> {
-            override fun onSuccess(t: SearchResult) {
-                listener.onSuccess(t.searchResults)
-            }
-
-            override fun onError(error: String) {
-                listener.onError(error)
-            }
-        })
-    }
+    override fun searchWord(searchPhrase: String) = factory.oxfordStorage.searchTheWord(searchPhrase)
 
     override fun setWordFavoriteState(word: WordDetails, favMeanings: List<String>, listener: RepositoryListener<WordDetails>) {
         factory.firebaseStorage.setWordFavoriteState(word.word, favMeanings, object : RepositoryListener<List<String>> {
@@ -87,33 +59,17 @@ class WordsRepositoryImpl(val factory: WordsStorageFactory) : WordsRepository {
         })
     }
 
-    override fun getFavoriteWords(offset: Int, pageSize: Int, listener: RepositoryListener<List<WordDetails>>) {
-        factory.firebaseStorage.getFavoriteWords(offset, pageSize, object : RepositoryListener<List<UserWord>> {
-            override fun onSuccess(favWordsList: List<UserWord>) {
-                val favWordNamesList = favWordsList.map { it.word }
-                factory.oxfordStorage.getShortWordInfo(favWordNamesList, object : RepositoryListener<List<WordDetails>> {
-                    override fun onSuccess(wordsList: List<WordDetails>) {
-                        val finalList = favWordsList.map { favWord ->
-                            val userWord = wordsList.find { it.word == favWord.word }
-                            userWord?.meanings?.forEach {
-                                it.isFavourite = favWord.favSenses.contains(it.definitionId) == true
+    override fun getFavoriteWords(offset: Int, pageSize: Int): Flowable<List<WordDetails>> =
+            factory.firebaseStorage.getFavoriteWords(offset, pageSize).
+                    concatMap { userWord ->
+                        factory.oxfordStorage.getShortWordInfo(userWord.word).map {
+                            it.meanings.forEach {
+                                it.isFavourite = userWord.favSenses.contains(it.definitionId) == true
                             }
-                            userWord
-                        }.filterNotNull()
-                        listener.onSuccess(finalList)
-                    }
-
-                    override fun onError(error: String) {
-                        listener.onError(error)
-                    }
-                })
-            }
-
-            override fun onError(error: String) {
-                listener.onError(error)
-            }
-        })
-    }
+                            it
+                        }.toFlowable()
+                    }.
+                    toList().toFlowable()
 
     override fun onAppForeground() {
         factory.firebaseStorage.onAppForeground()

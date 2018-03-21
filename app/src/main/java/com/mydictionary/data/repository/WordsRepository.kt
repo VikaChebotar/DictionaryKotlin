@@ -1,28 +1,30 @@
 package com.mydictionary.data.repository
 
-import com.google.firebase.auth.FirebaseUser
 import com.mydictionary.data.pojo.WordDetails
+import io.reactivex.Completable
+import io.reactivex.Flowable
+import io.reactivex.Single
 
 /**
  * Created by Viktoria_Chebotar on 6/7/2017.
  */
 
 interface WordsRepository {
-    fun loginFirebaseUser(googleToken: String?, listener: RepositoryListener<String>)
+    fun loginFirebaseUser(googleToken: String?): Single<String>
 
-    fun getCurrentUser(): FirebaseUser?
+    fun isSignedIn(): Single<Boolean>
 
-    fun logoutFirebaseUser()
+    fun signOut(): Completable
 
-    fun getWordInfo(wordName: String, listener: RepositoryListener<WordDetails>)
+    fun getWordInfo(wordName: String): Single<WordDetails>
 
     fun getHistoryWords(listener: RepositoryListener<List<String>>)
 
-    fun searchWord(searchPhrase: String, listener: RepositoryListener<List<String>>)
+    fun searchWord(searchPhrase: String): Single<List<String>>
 
     fun setWordFavoriteState(word: WordDetails, favMeanings: List<String>, listener: RepositoryListener<WordDetails>)
 
-    fun getFavoriteWords(offset: Int, pageSize: Int, listener: RepositoryListener<List<WordDetails>>)
+    fun getFavoriteWords(offset: Int, pageSize: Int): Flowable<List<WordDetails>>
 
     fun onAppForeground()
 
@@ -34,6 +36,3 @@ interface RepositoryListener<T> {
 
     fun onError(error: String) {}
 }
-
-open class RepositoryListenerDelegate<T>(listener: RepositoryListener<T>) :
-        RepositoryListener<T> by listener

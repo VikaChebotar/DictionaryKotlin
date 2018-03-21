@@ -3,7 +3,7 @@ package com.mydictionary.data.network
 import com.mydictionary.data.network.dto.RelatedWordsResponse
 import com.mydictionary.data.network.dto.WordDetailsResponse
 import com.mydictionary.data.pojo.SearchResult
-import retrofit2.Call
+import io.reactivex.Single
 import retrofit2.http.GET
 import retrofit2.http.Path
 import retrofit2.http.Query
@@ -14,13 +14,13 @@ import retrofit2.http.Query
 
 interface WordsAPI {
     @GET("https://api.datamuse.com/sug")
-    fun searchTheWord(@Query("s") query: String, @Query("max") max: Int): Call<SearchResult>
+    fun searchTheWord(@Query("s") query: String, @Query("max") max: Int): Single<SearchResult>
 
     @GET("entries/en/{word}")
-    fun getWordInfo(@Path("word") word: String): Call<WordDetailsResponse>
+    fun getWordInfo(@Path("word") word: String): Single<WordDetailsResponse>
 
     @GET("entries/en/{word}/synonyms;antonyms")
-    fun getRelatedWords(@Path("word") word: String): Call<RelatedWordsResponse>
+    fun getRelatedWords(@Path("word") word: String): Single<RelatedWordsResponse>
 //
 //    @GET("words?random=true&frequencyMin=3&frequencyMax=7")
 //    fun getRandomWord(): Call<WordInfo>

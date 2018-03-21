@@ -8,6 +8,8 @@ import com.mydictionary.commons.Constants.Companion.FAV_WORD_PAGE_THRESHOLD
 import com.mydictionary.data.pojo.WordDetails
 import com.mydictionary.data.repository.RepositoryListener
 import com.mydictionary.data.repository.WordsRepository
+import io.reactivex.android.schedulers.AndroidSchedulers
+import io.reactivex.schedulers.Schedulers
 import java.util.*
 
 /**
@@ -18,6 +20,7 @@ class LearnWordsPresenterImpl(val repository: WordsRepository, val context: Cont
     var wordsView: LearnWordsView? = null
     var favWordsOffset = 0
     val list = mutableListOf<WordDetails>()
+
     override fun onStart(view: LearnWordsView) {
         wordsView = view
         loadFavoriteWords()
@@ -57,27 +60,24 @@ class LearnWordsPresenterImpl(val repository: WordsRepository, val context: Cont
     }
 
     private fun loadFavoriteWords() {
-        repository.getCurrentUser()?.let {
-            wordsView?.showProgress(favWordsOffset == 0)
-            repository.getFavoriteWords(favWordsOffset, Constants.FAV_WORD_PAGE_SIZE, object : RepositoryListener<List<WordDetails>> {
-                override fun onSuccess(t: List<WordDetails>) {
-                    super.onSuccess(t)
+        repository.getFavoriteWords(favWordsOffset, Constants.FAV_WORD_PAGE_SIZE).
+                doOnEach { wordsView?.showProgress(favWordsOffset == 0) }.
+                subscribeOn(Schedulers.io()).
+                observeOn(AndroidSchedulers.mainThread()).
+                doOnEach { wordsView?.showProgress(false) }.
+                subscribe({ pageList ->
                     if (favWordsOffset == 0) {
                         list.clear()
                     }
-                    list.addAll(t)
+                    list.addAll(pageList)
                     wordsView?.showFavoriteWords(list)
                     wordsView?.showProgress(false)
-                    favWordsOffset += t.size
-                }
+                    favWordsOffset += pageList.size
+                }, {
+                    Log.e(TAG, it.message)
+                    wordsView?.showError(it.message ?: context.getString(R.string.default_error))
+                })
 
-                override fun onError(error: String) {
-                    super.onError(error)
-                    wordsView?.showProgress(false)
-                    Log.e(TAG, error)
-                }
-            })
-        }
     }
 
     override fun onUndoDeletionClicked(oldWordDetails: WordDetails, favMeanings: List<String>, position: Int) {

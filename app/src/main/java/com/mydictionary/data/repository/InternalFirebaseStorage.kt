@@ -11,6 +11,10 @@ import com.google.firebase.database.ValueEventListener
 import com.mydictionary.R
 import com.mydictionary.commons.Constants.Companion.MAX_HISTORY_LIMIT
 import com.mydictionary.data.entity.UserWord
+import io.reactivex.BackpressureStrategy
+import io.reactivex.Completable
+import io.reactivex.Flowable
+import io.reactivex.Single
 
 
 /**
@@ -48,12 +52,12 @@ class InternalFirebaseStorage(val context: Context) {
         firebaseDatabase.setPersistenceEnabled(true)
     }
 
-    fun getCurrentUser() = firebaseAuth.currentUser
+    fun isLoggedIn(): Single<Boolean> = Single.create { emitter -> emitter.onSuccess(firebaseAuth.currentUser != null) }
 
-    fun loginFirebaseUser(googleToken: String?, listener: RepositoryListener<String>) {
+    fun loginFirebaseUser(googleToken: String?): Single<String> = Single.create { emitter ->
         if (firebaseAuth.currentUser != null) {
-            listener.onError("User is already signedIn")
-            return
+            emitter.onError(Exception("User is already signedIn"))
+            return@create
         }
         val credential = GoogleAuthProvider.getCredential(googleToken, null)
         firebaseAuth.signInWithCredential(credential).
@@ -61,21 +65,22 @@ class InternalFirebaseStorage(val context: Context) {
                     if (task.isSuccessful) {
                         val email = task.result.user.email
                         if (email != null) {
-                            listener.onSuccess(email)
+                            emitter.onSuccess(email)
                             registerUserWordsListener()
                         } else {
-                            listener.onError(context.getString(R.string.login_error))
+                            emitter.onError(Exception(context.getString(R.string.login_error)))
                         }
                     } else {
                         Log.e(TAG, "firebaseAuthWithGoogle:failure", task.getException())
-                        listener.onError(task.exception?.message ?: context.getString(R.string.login_error))
+                        emitter.onError(task.exception ?: Exception(context.getString(R.string.login_error)))
                     }
                 }
     }
 
-    fun logoutFirebaseUser() {
+    fun logoutFirebaseUser(): Completable = Completable.create { emitter ->
         getUserReference().removeEventListener(valueEventListener)
-        firebaseAuth.signOut();
+        firebaseAuth.signOut()
+        emitter.onComplete()
     }
 
     fun getHistoryWords(listener: RepositoryListener<List<String>>) {
@@ -86,50 +91,74 @@ class InternalFirebaseStorage(val context: Context) {
         listener.onSuccess(userWordsList.reversed().take(MAX_HISTORY_LIMIT).map { it.word }.toList())
     }
 
-    fun getFavoriteWords(offset: Int, pageSize: Int, listener: RepositoryListener<List<UserWord>>) {
+    fun getFavoriteWords(offset: Int, pageSize: Int): Flowable<UserWord> = Flowable.create<UserWord>({ emitter ->
         if (firebaseAuth.currentUser == null) {
-            listener.onError(context.getString(R.string.sign_in_message))
-            return
+            emitter.onError(Exception(context.getString(R.string.sign_in_message)))
         }
         getUserReference().orderByChild("accessTime").addListenerForSingleValueEvent(object : ValueEventListener {
             override fun onCancelled(p0: DatabaseError?) {
-                listener.onError(p0?.toException()?.message ?: context.getString(R.string.default_error))
+                emitter.onError(p0?.toException() ?: Exception(context.getString(R.string.default_error)))
             }
 
             override fun onDataChange(p0: DataSnapshot?) {
                 val list = mutableListOf<UserWord>()
                 p0?.children?.mapNotNullTo(list) { it.getValue<UserWord>(UserWord::class.java) }
-                val favPageList = list.filter { it.favSenses.isNotEmpty() }.reversed().drop(offset).take(pageSize)
-                listener.onSuccess(favPageList)
+                //  val favPageList = list.filter { it.favSenses.isNotEmpty() }.reversed().drop(offset).take(pageSize)
+                list.reverse()
+                list.forEach { emitter.onNext(it) }
+                emitter.onComplete()
             }
         })
+    }, BackpressureStrategy.DROP).
+            filter { it.favSenses.isNotEmpty() }.
+            skip(offset.toLong()).
+            take(pageSize.toLong())
 
-    }
+//    {
+//        if (firebaseAuth.currentUser == null) {
+//            listener.onError(context.getString(R.string.sign_in_message))
+//            return
+//        }
+//        getUserReference().orderByChild("accessTime").addListenerForSingleValueEvent(object : ValueEventListener {
+//            override fun onCancelled(p0: DatabaseError?) {
+//                listener.onError(p0?.toException()?.message ?: context.getString(R.string.default_error))
+//            }
+//
+//            override fun onDataChange(p0: DataSnapshot?) {
+//                val list = mutableListOf<UserWord>()
+//                p0?.children?.mapNotNullTo(list) { it.getValue<UserWord>(UserWord::class.java) }
+//                val favPageList = list.filter { it.favSenses.isNotEmpty() }.reversed().drop(offset).take(pageSize)
+//                listener.onSuccess(favPageList)
+//            }
+//        })
+//    }
 
-    fun addWordToHistoryAndGet(word: String, listener: RepositoryListener<UserWord?>) {
+    fun addWordToHistoryAndGet(word: String): Single<UserWord> = Single.create { emitter ->
         if (firebaseAuth.currentUser == null) {
-            listener.onError(context.getString(R.string.sign_in_message))
-            return
+            emitter.onError(Exception(context.getString(R.string.sign_in_message)))
         }
+
         val userReferenceQuery = getUserReference()
         //userReferenceQuery.keepSynced(true)
         val userSavedWord = userWordsList.find { it.word == word }
         if (userSavedWord != null) {
-            listener.onSuccess(userSavedWord)
             userSavedWord.updateAccessTime()
             userReferenceQuery.child(word).setValue(userSavedWord).addOnCompleteListener {
-                if (!it.isSuccessful) {
-                    Log.e(TAG, it.exception?.message ?: "error in addingWordToHistory update time")
+                if (it.isSuccessful) {
+                    emitter.onSuccess(userSavedWord)
+                } else {
+                    emitter.onError(it.exception ?: Exception("error in addingWordToHistory update time"))
                 }
             }
         } else {
             val userWord = UserWord(word)
             userReferenceQuery.child(userWord.word).setValue(userWord).addOnCompleteListener {
-                if (!it.isSuccessful) {
-                    Log.e(TAG, it.exception?.message ?: "error in addingWordToHistory")
+                if (it.isSuccessful) {
+                    emitter.onSuccess(userWord)
+                } else {
+                    emitter.onError(it.exception ?: Exception("error in addingWordToHistory"))
                 }
             }
-            listener.onSuccess(userWord)
         }
     }
 
@@ -175,14 +204,14 @@ class InternalFirebaseStorage(val context: Context) {
 
     fun onAppForeground() {
         FirebaseDatabase.getInstance().goOnline()
-        if (getCurrentUser() != null) {
+        if (firebaseAuth.currentUser != null) {
             registerUserWordsListener()
         }
         registerConnectionListener()
     }
 
     fun onAppBackground() {
-        if (getCurrentUser() != null) {
+        if (firebaseAuth.currentUser != null) {
             unregisterUserWordsListener()
         }
         unregisterConnectionListener()

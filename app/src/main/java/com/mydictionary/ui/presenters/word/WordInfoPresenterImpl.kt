@@ -8,6 +8,10 @@ import com.mydictionary.data.pojo.WordDetails
 import com.mydictionary.data.pojo.WordMeaning
 import com.mydictionary.data.repository.RepositoryListener
 import com.mydictionary.data.repository.WordsRepository
+import io.reactivex.Single
+import io.reactivex.android.schedulers.AndroidSchedulers
+import io.reactivex.disposables.CompositeDisposable
+import io.reactivex.schedulers.Schedulers
 
 /**
  * Created by Viktoria_Chebotar on 6/30/2017.
@@ -16,6 +20,7 @@ class WordInfoPresenterImpl(val repository: WordsRepository, val context: Contex
     val TAG = WordInfoPresenterImpl::class.java.simpleName
     var wordInfoView: WordInfoView? = null
     var wordInfo: WordDetails? = null
+    val compositeDisposable = CompositeDisposable()
 
     override fun onStart(view: WordInfoView) {
         this.wordInfoView = view
@@ -82,24 +87,24 @@ class WordInfoPresenterImpl(val repository: WordsRepository, val context: Contex
 
 
     private fun loadWordInfo(wordName: String) {
-        wordInfoView?.showProgress(true)
-        repository.getWordInfo(wordName,
-                object : RepositoryListener<WordDetails> {
-                    override fun onSuccess(wordInfo: WordDetails) {
-                        this@WordInfoPresenterImpl.wordInfo = wordInfo
-                        wordInfoView?.showProgress(false)
-                        showWord(wordInfo)
-                    }
-
-                    override fun onError(error: String) {
-                        wordInfoView?.showProgress(false)
-                        wordInfoView?.showError(error)
-                    }
-                })
+        compositeDisposable.add(
+                Single.just(wordName).
+                        doOnEvent { t1, t2 ->   wordInfoView?.showProgress(true)}.
+                        flatMap { repository.getWordInfo(it) }.
+                        observeOn(Schedulers.io()).
+                        subscribeOn(AndroidSchedulers.mainThread()).
+                        doOnEvent { t1, t2 -> wordInfoView?.showProgress(false) }.
+                        subscribe({ wordInfo ->
+                            this@WordInfoPresenterImpl.wordInfo = wordInfo
+                            showWord(wordInfo)
+                        }, {
+                            wordInfoView?.showError(it.message ?: context.getString(R.string.default_error))
+                        }))
     }
 
 
     override fun onStop() {
         wordInfoView = null
+        compositeDisposable.clear()
     }
 }

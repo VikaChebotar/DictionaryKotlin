@@ -14,6 +14,7 @@ import okhttp3.OkHttpClient
 import okhttp3.Response
 import okhttp3.logging.HttpLoggingInterceptor
 import retrofit2.Retrofit
+import retrofit2.adapter.rxjava2.RxJava2CallAdapterFactory
 import retrofit2.converter.gson.GsonConverterFactory
 
 /**
@@ -50,6 +51,7 @@ class WordApiRetrofit private constructor(context: Context) {
                 .baseUrl(Constants.OXFORD_API_ENDPOINT)
                 .client(client)
                 .addConverterFactory(GsonConverterFactory.create(gson))
+                .addCallAdapterFactory(RxJava2CallAdapterFactory.create())
                 .build()
 
         wordsApi = retrofit.create(WordsAPI::class.java)

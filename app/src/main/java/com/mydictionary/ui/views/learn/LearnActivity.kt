@@ -57,7 +57,9 @@ class LearnActivity : AppCompatActivity(), LearnWordsView, LearnCardItemFragment
     }
 
     override fun showError(message: String) {
+        Snackbar.make(favWordsList, message, Snackbar.LENGTH_LONG).show()
     }
+
 
     override fun showFavoriteWords(list: List<WordDetails>) {
         adapter.list = list
