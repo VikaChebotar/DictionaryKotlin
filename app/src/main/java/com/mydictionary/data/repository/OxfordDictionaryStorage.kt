@@ -23,6 +23,7 @@ import retrofit2.Response
  */
 
 class OxfordDictionaryStorage(val context: Context) {
+    private val TAG = OxfordDictionaryStorage::class.java.simpleName
     private val restApi = WordApiRetrofit.getInstance(context).wordsApi;
     private val wordsCache = LruCache<String, WordDetails>(Utils.getCacheMemorySize())
 
@@ -65,8 +66,9 @@ class OxfordDictionaryStorage(val context: Context) {
                     restApi.getWordInfo(word).map { response -> Mapper.fromDto(response) }
                 } else Single.just(wordDetails)
             }.
-            filter { it.meanings.isNotEmpty() }.
-            switchIfEmpty(Single.just(null)).doOnSuccess { wordsCache.put(it.word, it) }
+          //  filter { it.meanings.isNotEmpty() }.
+            //switchIfEmpty(Single.just(null)).
+            doOnSuccess { wordsCache.put(it.word, it) }
 
 
 

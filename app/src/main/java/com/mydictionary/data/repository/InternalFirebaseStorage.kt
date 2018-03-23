@@ -15,6 +15,7 @@ import io.reactivex.BackpressureStrategy
 import io.reactivex.Completable
 import io.reactivex.Flowable
 import io.reactivex.Single
+import io.reactivex.schedulers.Schedulers
 
 
 /**
@@ -94,6 +95,7 @@ class InternalFirebaseStorage(val context: Context) {
     fun getFavoriteWords(offset: Int, pageSize: Int): Flowable<UserWord> = Flowable.create<UserWord>({ emitter ->
         if (firebaseAuth.currentUser == null) {
             emitter.onError(Exception(context.getString(R.string.sign_in_message)))
+            return@create
         }
         getUserReference().orderByChild("accessTime").addListenerForSingleValueEvent(object : ValueEventListener {
             override fun onCancelled(p0: DatabaseError?) {
@@ -110,6 +112,7 @@ class InternalFirebaseStorage(val context: Context) {
             }
         })
     }, BackpressureStrategy.DROP).
+            observeOn(Schedulers.io()). //hack to return to background thread, because onDataChange is always called in UI thread
             filter { it.favSenses.isNotEmpty() }.
             skip(offset.toLong()).
             take(pageSize.toLong())

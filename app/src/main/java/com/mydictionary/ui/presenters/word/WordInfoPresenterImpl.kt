@@ -90,8 +90,8 @@ class WordInfoPresenterImpl(val repository: WordsRepository, val context: Contex
         compositeDisposable.add(
                 Single.just(wordName).
                         doOnEvent { t1, t2 ->   wordInfoView?.showProgress(true)}.
-                        flatMap { repository.getWordInfo(it) }.
                         observeOn(Schedulers.io()).
+                        flatMap { repository.getWordInfo(it) }.
                         subscribeOn(AndroidSchedulers.mainThread()).
                         doOnEvent { t1, t2 -> wordInfoView?.showProgress(false) }.
                         subscribe({ wordInfo ->

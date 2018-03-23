@@ -9,6 +9,7 @@ import com.mydictionary.data.pojo.WordDetails
 import com.mydictionary.data.repository.RepositoryListener
 import com.mydictionary.data.repository.WordsRepository
 import io.reactivex.android.schedulers.AndroidSchedulers
+import io.reactivex.processors.PublishProcessor
 import io.reactivex.schedulers.Schedulers
 import java.util.*
 
@@ -20,9 +21,37 @@ class LearnWordsPresenterImpl(val repository: WordsRepository, val context: Cont
     var wordsView: LearnWordsView? = null
     var favWordsOffset = 0
     val list = mutableListOf<WordDetails>()
+    val paginator = PublishProcessor.create<Int>();
+    var requestUnderWay = false
 
     override fun onStart(view: LearnWordsView) {
         wordsView = view
+        paginator.
+                filter { requestUnderWay }.
+                onBackpressureDrop().
+                doOnEach {
+                    wordsView?.showProgress(it.value == 0)
+                    requestUnderWay = true
+                }.
+                subscribeOn(Schedulers.io()).
+                concatMap { repository.getFavoriteWords(it, Constants.FAV_WORD_PAGE_SIZE) }.
+                observeOn(AndroidSchedulers.mainThread()).
+                doOnEach {
+                    wordsView?.showProgress(false)
+                    requestUnderWay = false
+                }.
+                subscribe({ pageList ->
+                    if (favWordsOffset == 0) {
+                        list.clear()
+                    }
+                    list.addAll(pageList)
+                    wordsView?.showFavoriteWords(list)
+                    wordsView?.showProgress(false)
+                    favWordsOffset += pageList.size
+                }, {
+                    Log.e(TAG, it.message ?: context.getString(R.string.default_error))
+                    wordsView?.showError(it.message ?: context.getString(R.string.default_error))
+                })
         loadFavoriteWords()
     }
 
@@ -60,24 +89,7 @@ class LearnWordsPresenterImpl(val repository: WordsRepository, val context: Cont
     }
 
     private fun loadFavoriteWords() {
-        repository.getFavoriteWords(favWordsOffset, Constants.FAV_WORD_PAGE_SIZE).
-                doOnEach { wordsView?.showProgress(favWordsOffset == 0) }.
-                subscribeOn(Schedulers.io()).
-                observeOn(AndroidSchedulers.mainThread()).
-                doOnEach { wordsView?.showProgress(false) }.
-                subscribe({ pageList ->
-                    if (favWordsOffset == 0) {
-                        list.clear()
-                    }
-                    list.addAll(pageList)
-                    wordsView?.showFavoriteWords(list)
-                    wordsView?.showProgress(false)
-                    favWordsOffset += pageList.size
-                }, {
-                    Log.e(TAG, it.message)
-                    wordsView?.showError(it.message ?: context.getString(R.string.default_error))
-                })
-
+        paginator.onNext(favWordsOffset)
     }
 
     override fun onUndoDeletionClicked(oldWordDetails: WordDetails, favMeanings: List<String>, position: Int) {
