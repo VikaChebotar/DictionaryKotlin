@@ -6,6 +6,7 @@ import android.support.v4.view.ViewPager
 import android.support.v7.app.AppCompatActivity
 import android.view.Menu
 import android.view.MenuItem
+import android.view.View
 import com.mydictionary.R
 import com.mydictionary.data.pojo.WordDetails
 import com.mydictionary.ui.DictionaryApp
@@ -53,7 +54,7 @@ class LearnActivity : AppCompatActivity(), LearnWordsView, LearnCardItemFragment
     }
 
     override fun showProgress(progress: Boolean) {
-
+        progressBar.visibility = if (progress) View.VISIBLE else View.GONE
     }
 
     override fun showError(message: String) {

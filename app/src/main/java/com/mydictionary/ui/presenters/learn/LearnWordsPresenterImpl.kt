@@ -10,7 +10,6 @@ import com.mydictionary.data.repository.RepositoryListener
 import com.mydictionary.data.repository.WordsRepository
 import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.processors.PublishProcessor
-import io.reactivex.schedulers.Schedulers
 import java.util.*
 
 /**
@@ -27,16 +26,16 @@ class LearnWordsPresenterImpl(val repository: WordsRepository, val context: Cont
     override fun onStart(view: LearnWordsView) {
         wordsView = view
         paginator.
-                filter { requestUnderWay }.
+                filter { !requestUnderWay }.
                 onBackpressureDrop().
-                doOnEach {
-                    wordsView?.showProgress(it.value == 0)
+                doOnNext {
+                    wordsView?.showProgress(it == 0)
                     requestUnderWay = true
                 }.
-                subscribeOn(Schedulers.io()).
+                //subscribeOn(Schedulers.io()).
                 concatMap { repository.getFavoriteWords(it, Constants.FAV_WORD_PAGE_SIZE) }.
                 observeOn(AndroidSchedulers.mainThread()).
-                doOnEach {
+                doOnNext {
                     wordsView?.showProgress(false)
                     requestUnderWay = false
                 }.
@@ -49,6 +48,8 @@ class LearnWordsPresenterImpl(val repository: WordsRepository, val context: Cont
                     wordsView?.showProgress(false)
                     favWordsOffset += pageList.size
                 }, {
+                    wordsView?.showProgress(false)
+                    requestUnderWay = false
                     Log.e(TAG, it.message ?: context.getString(R.string.default_error))
                     wordsView?.showError(it.message ?: context.getString(R.string.default_error))
                 })
@@ -90,6 +91,7 @@ class LearnWordsPresenterImpl(val repository: WordsRepository, val context: Cont
 
     private fun loadFavoriteWords() {
         paginator.onNext(favWordsOffset)
+        paginator.onComplete()
     }
 
     override fun onUndoDeletionClicked(oldWordDetails: WordDetails, favMeanings: List<String>, position: Int) {
