@@ -1,6 +1,7 @@
 package com.mydictionary.data.repository
 
 import com.google.firebase.auth.FirebaseUser
+import com.mydictionary.data.pojo.PagedResult
 import com.mydictionary.data.pojo.WordDetails
 
 /**
@@ -22,7 +23,7 @@ interface WordsRepository {
 
     fun setWordFavoriteState(word: WordDetails, favMeanings: List<String>, listener: RepositoryListener<WordDetails>)
 
-    fun getFavoriteWords(offset: Int, pageSize: Int, listener: RepositoryListener<List<WordDetails>>)
+    fun getFavoriteWords(offset: Int, pageSize: Int, listener: RepositoryListener<PagedResult<WordDetails>>)
 
     fun onAppForeground()
 

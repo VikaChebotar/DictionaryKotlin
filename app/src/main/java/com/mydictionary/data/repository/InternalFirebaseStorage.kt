@@ -11,6 +11,7 @@ import com.google.firebase.database.ValueEventListener
 import com.mydictionary.R
 import com.mydictionary.commons.Constants.Companion.MAX_HISTORY_LIMIT
 import com.mydictionary.data.entity.UserWord
+import com.mydictionary.data.pojo.PagedResult
 
 
 /**
@@ -86,7 +87,7 @@ class InternalFirebaseStorage(val context: Context) {
         listener.onSuccess(userWordsList.reversed().take(MAX_HISTORY_LIMIT).map { it.word }.toList())
     }
 
-    fun getFavoriteWords(offset: Int, pageSize: Int, listener: RepositoryListener<List<UserWord>>) {
+    fun getFavoriteWords(offset: Int, pageSize: Int, listener: RepositoryListener<PagedResult<UserWord>>) {
         if (firebaseAuth.currentUser == null) {
             listener.onError(context.getString(R.string.sign_in_message))
             return
@@ -99,8 +100,9 @@ class InternalFirebaseStorage(val context: Context) {
             override fun onDataChange(p0: DataSnapshot?) {
                 val list = mutableListOf<UserWord>()
                 p0?.children?.mapNotNullTo(list) { it.getValue<UserWord>(UserWord::class.java) }
-                val favPageList = list.filter { it.favSenses.isNotEmpty() }.reversed().drop(offset).take(pageSize)
-                listener.onSuccess(favPageList)
+                val favListAll = list.filter { it.favSenses.isNotEmpty() }.reversed()
+                val favPageList = favListAll.drop(offset).take(pageSize)
+                listener.onSuccess(PagedResult(favPageList, favListAll.size))
             }
         })
 

@@ -2,6 +2,7 @@ package com.mydictionary.data.repository
 
 import android.util.Log
 import com.mydictionary.data.entity.UserWord
+import com.mydictionary.data.pojo.PagedResult
 import com.mydictionary.data.pojo.SearchResult
 import com.mydictionary.data.pojo.WordDetails
 
@@ -87,20 +88,20 @@ class WordsRepositoryImpl(val factory: WordsStorageFactory) : WordsRepository {
         })
     }
 
-    override fun getFavoriteWords(offset: Int, pageSize: Int, listener: RepositoryListener<List<WordDetails>>) {
-        factory.firebaseStorage.getFavoriteWords(offset, pageSize, object : RepositoryListener<List<UserWord>> {
-            override fun onSuccess(favWordsList: List<UserWord>) {
-                val favWordNamesList = favWordsList.map { it.word }
+    override fun getFavoriteWords(offset: Int, pageSize: Int, listener: RepositoryListener<PagedResult<WordDetails>>) {
+        factory.firebaseStorage.getFavoriteWords(offset, pageSize, object : RepositoryListener<PagedResult<UserWord>> {
+            override fun onSuccess(pagedResult: PagedResult<UserWord>) {
+                val favWordNamesList = pagedResult.list.map { it.word }
                 factory.oxfordStorage.getShortWordInfo(favWordNamesList, object : RepositoryListener<List<WordDetails>> {
                     override fun onSuccess(wordsList: List<WordDetails>) {
-                        val finalList = favWordsList.map { favWord ->
+                        val finalList = pagedResult.list.map { favWord ->
                             val userWord = wordsList.find { it.word == favWord.word }
                             userWord?.meanings?.forEach {
                                 it.isFavourite = favWord.favSenses.contains(it.definitionId) == true
                             }
                             userWord
                         }.filterNotNull()
-                        listener.onSuccess(finalList)
+                        listener.onSuccess(PagedResult(finalList, pagedResult.totalSize))
                     }
 
                     override fun onError(error: String) {
