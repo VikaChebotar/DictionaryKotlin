@@ -44,6 +44,9 @@
     <string name="delete_word_error">Error deleting word</string>
     <string name="undo">Undo</string>
     <string name="word_removed">Word \'%1$s\' removed from favorites</string>
-    <string name="shuffle">Shuffle</string>
     <string name="fav_word_selected">%1$d/%2$d</string>
+    <string name="sort_by_date">By Date</string>
+    <string name="random_order">In Random Order</string>
+    <string name="sort_by_name">By Name</string>
+    <string name="sort">Sort</string>
 </resources>

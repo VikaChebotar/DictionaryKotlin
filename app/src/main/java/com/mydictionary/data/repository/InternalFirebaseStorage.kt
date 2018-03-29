@@ -11,11 +11,13 @@ import com.google.firebase.database.ValueEventListener
 import com.mydictionary.R
 import com.mydictionary.commons.Constants.Companion.MAX_HISTORY_LIMIT
 import com.mydictionary.data.entity.UserWord
+import com.mydictionary.data.pojo.SortingOption
 import io.reactivex.BackpressureStrategy
 import io.reactivex.Completable
 import io.reactivex.Flowable
 import io.reactivex.Single
 import io.reactivex.schedulers.Schedulers
+import java.util.*
 
 
 /**
@@ -92,12 +94,18 @@ class InternalFirebaseStorage(val context: Context) {
         listener.onSuccess(userWordsList.reversed().take(MAX_HISTORY_LIMIT).map { it.word }.toList())
     }
 
-    fun getFavoriteWords(offset: Int, pageSize: Int): Flowable<UserWord> = Flowable.create<UserWord>({ emitter ->
+    fun getFavoriteWords(offset: Int, pageSize: Int, sortingOption: SortingOption): Flowable<UserWord> = Flowable.create<UserWord>({ emitter ->
         if (firebaseAuth.currentUser == null) {
             emitter.onError(Exception(context.getString(R.string.sign_in_message)))
             return@create
         }
-        val query = getUserReference().orderByChild("accessTime")
+        val query = getUserReference()
+        when (sortingOption) {
+            SortingOption.BY_DATE -> query.orderByChild("accessTime")
+            SortingOption.BY_NAME -> query.orderByChild("word")
+            SortingOption.RANDOMLY -> {
+            }
+        }
         query.keepSynced(true)
         query.addListenerForSingleValueEvent(object : ValueEventListener {
             override fun onCancelled(p0: DatabaseError?) {
@@ -108,7 +116,12 @@ class InternalFirebaseStorage(val context: Context) {
                 val list = mutableListOf<UserWord>()
                 p0?.children?.mapNotNullTo(list) { it.getValue<UserWord>(UserWord::class.java) }
                 //  val favPageList = list.filter { it.favSenses.isNotEmpty() }.reversed().drop(offset).take(pageSize)
-                list.reverse()
+                when (sortingOption) {
+                    SortingOption.BY_DATE -> list.reverse()
+                    SortingOption.BY_NAME -> {
+                    }
+                    SortingOption.RANDOMLY -> Collections.shuffle(list)
+                }
                 list.forEach { emitter.onNext(it) }
                 emitter.onComplete()
             }

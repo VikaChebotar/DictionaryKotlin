@@ -4,12 +4,12 @@ import android.util.Log
 import com.mydictionary.R
 import com.mydictionary.commons.Constants
 import com.mydictionary.commons.Constants.Companion.FAV_WORD_PAGE_THRESHOLD
+import com.mydictionary.data.pojo.SortingOption
 import com.mydictionary.data.pojo.WordDetails
 import com.mydictionary.data.repository.RepositoryListener
 import com.mydictionary.data.repository.WordsRepository
 import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.processors.PublishProcessor
-import java.util.*
 
 /**
  * Created by Viktoria_Chebotar on 3/12/2018.
@@ -22,6 +22,7 @@ class LearnWordsPresenterImpl(val repository: WordsRepository) : LearnWordsPrese
     val paginator = PublishProcessor.create<Int>();
     var requestUnderWay = false
     var totalSize: Int = 0
+    var sortingType: SortingOption = SortingOption.BY_DATE
 
     override fun onStart(view: LearnWordsView) {
         wordsView = view
@@ -29,11 +30,11 @@ class LearnWordsPresenterImpl(val repository: WordsRepository) : LearnWordsPrese
                 filter { !requestUnderWay }.
                 onBackpressureDrop().
                 doOnNext {
-                    wordsView?.showProgress(it == 0)
+                    wordsView?.showProgress(list.isEmpty())
                     requestUnderWay = true
                 }.
                 //subscribeOn(Schedulers.io()).
-                concatMap { repository.getFavoriteWords(it, Constants.FAV_WORD_PAGE_SIZE) }.
+                concatMap { repository.getFavoriteWords(it, Constants.FAV_WORD_PAGE_SIZE, sortingType) }.
                 observeOn(AndroidSchedulers.mainThread()).
                 doOnNext {
                     wordsView?.showProgress(false)
@@ -43,7 +44,7 @@ class LearnWordsPresenterImpl(val repository: WordsRepository) : LearnWordsPrese
                     totalSize = pagedResult.totalSize
                     if (favWordsOffset == 0) {
                         list.clear()
-                        if (pagedResult.list.isNotEmpty()) showPositionText(0, totalSize)
+                        if (pagedResult.list.isNotEmpty()) showPositionText(view.getSelectedPosition(), totalSize)
                     }
                     list.addAll(pagedResult.list)
                     wordsView?.showFavoriteWords(list)
@@ -99,7 +100,6 @@ class LearnWordsPresenterImpl(val repository: WordsRepository) : LearnWordsPrese
 
     private fun loadFavoriteWords() {
         paginator.onNext(favWordsOffset)
-        //paginator.onComplete()
     }
 
     override fun onUndoDeletionClicked(oldWordDetails: WordDetails, favMeanings: List<String>, position: Int) {
@@ -121,8 +121,14 @@ class LearnWordsPresenterImpl(val repository: WordsRepository) : LearnWordsPrese
         })
     }
 
-    override fun onShuffleClicked() {
-        Collections.shuffle(list)
-        wordsView?.showFavoriteWords(list)
+    override fun onSortSelected(sortingOption: SortingOption) {
+        if (sortingOption == sortingType && sortingOption != SortingOption.RANDOMLY) return
+        sortingType = sortingOption
+        favWordsOffset = 0
+        loadFavoriteWords()
+    }
+
+    override fun onSortMenuClicked() {
+        wordsView?.showSortingDialog(sortingType)
     }
 }

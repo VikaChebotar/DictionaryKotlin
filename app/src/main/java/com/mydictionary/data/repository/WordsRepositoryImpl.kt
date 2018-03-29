@@ -1,6 +1,7 @@
 package com.mydictionary.data.repository
 
 import com.mydictionary.data.pojo.PagedResult
+import com.mydictionary.data.pojo.SortingOption
 import com.mydictionary.data.pojo.WordDetails
 import io.reactivex.Completable
 import io.reactivex.Flowable
@@ -61,8 +62,8 @@ class WordsRepositoryImpl(val factory: WordsStorageFactory) : WordsRepository {
         })
     }
 
-    override fun getFavoriteWords(offset: Int, pageSize: Int): Flowable<PagedResult<WordDetails>> =
-            Single.zip(factory.firebaseStorage.getFavoriteWords(offset, pageSize).
+    override fun getFavoriteWords(offset: Int, pageSize: Int, sortingOption: SortingOption): Flowable<PagedResult<WordDetails>> =
+            Single.zip(factory.firebaseStorage.getFavoriteWords(offset, pageSize, sortingOption).
                     concatMap { userWord ->
                         factory.oxfordStorage.getShortWordInfo(userWord.word).map {
                             it.meanings.forEach {

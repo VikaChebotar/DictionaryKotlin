@@ -1,6 +1,7 @@
 package com.mydictionary.data.repository
 
 import com.mydictionary.data.pojo.PagedResult
+import com.mydictionary.data.pojo.SortingOption
 import com.mydictionary.data.pojo.WordDetails
 import io.reactivex.Completable
 import io.reactivex.Flowable
@@ -25,7 +26,7 @@ interface WordsRepository {
 
     fun setWordFavoriteState(word: WordDetails, favMeanings: List<String>, listener: RepositoryListener<WordDetails>)
 
-    fun getFavoriteWords(offset: Int, pageSize: Int): Flowable<PagedResult<WordDetails>>
+    fun getFavoriteWords(offset: Int, pageSize: Int, sortingOption: SortingOption = SortingOption.BY_DATE): Flowable<PagedResult<WordDetails>>
 
     fun onAppForeground()
 

@@ -8,6 +8,7 @@ import android.view.Menu
 import android.view.MenuItem
 import android.view.View
 import com.mydictionary.R
+import com.mydictionary.data.pojo.SortingOption
 import com.mydictionary.data.pojo.WordDetails
 import com.mydictionary.ui.DictionaryApp
 import com.mydictionary.ui.presenters.learn.LearnWordsPresenterImpl
@@ -19,7 +20,7 @@ import kotlinx.android.synthetic.main.learn_activity.*
 /**
  * Created by Viktoria_Chebotar on 3/9/2018.
  */
-class LearnActivity : AppCompatActivity(), LearnWordsView, LearnCardItemFragment.OnCardItemListener {
+class LearnActivity : AppCompatActivity(), LearnWordsView, LearnCardItemFragment.OnCardItemListener, Listener {
     val presenter by lazy { LearnWordsPresenterImpl(DictionaryApp.getInstance(this).repository) }
     val space by lazy { resources.getDimension(R.dimen.cards_view_pager_margin).toInt() }
     val adapter = LearnCardPagerAadapter(supportFragmentManager)
@@ -30,12 +31,12 @@ class LearnActivity : AppCompatActivity(), LearnWordsView, LearnCardItemFragment
         setSupportActionBar(toolbar)
         supportActionBar?.setDisplayHomeAsUpEnabled(true)
 
-        favWordsList.adapter = adapter
-        favWordsList.pageMargin = space
+        favWordsPager.adapter = adapter
+        favWordsPager.pageMargin = space
 
         presenter.onStart(this)
 
-        favWordsList.addOnPageChangeListener(object : ViewPager.SimpleOnPageChangeListener() {
+        favWordsPager.addOnPageChangeListener(object : ViewPager.SimpleOnPageChangeListener() {
             override fun onPageSelected(position: Int) {
                 super.onPageSelected(position)
                 presenter.onItemSelected(position)
@@ -58,7 +59,7 @@ class LearnActivity : AppCompatActivity(), LearnWordsView, LearnCardItemFragment
     }
 
     override fun showError(message: String) {
-        Snackbar.make(favWordsList, message, Snackbar.LENGTH_LONG).show()
+        Snackbar.make(favWordsPager, message, Snackbar.LENGTH_LONG).show()
     }
 
     override fun showPositionText(text: String) {
@@ -76,8 +77,8 @@ class LearnActivity : AppCompatActivity(), LearnWordsView, LearnCardItemFragment
                 onBackPressed()
                 return true
             }
-            R.id.action_shuffle -> {
-                presenter.onShuffleClicked()
+            R.id.action_sort -> {
+                presenter.onSortMenuClicked()
                 return true
             }
         }
@@ -93,8 +94,22 @@ class LearnActivity : AppCompatActivity(), LearnWordsView, LearnCardItemFragment
     }
 
     override fun showWordDeletedMessage(oldWordDetails: WordDetails, favMeanings: List<String>, position: Int) {
-        Snackbar.make(favWordsList, getString(R.string.word_removed, oldWordDetails.word), Snackbar.LENGTH_LONG).
+        Snackbar.make(favWordsPager, getString(R.string.word_removed, oldWordDetails.word), Snackbar.LENGTH_LONG).
                 setAction(getString(R.string.undo), { presenter.onUndoDeletionClicked(oldWordDetails, favMeanings, position) }).show();
     }
+
     override fun getContext() = this
+
+    override fun onSortItemSelected(item: SortingOption) {
+        presenter.onSortSelected(item)
+    }
+
+    override fun showSortingDialog(selectedSortingOption: SortingOption) {
+        if (adapter.list.isEmpty()) return
+        val dialog = LearnSortOptionsDialog.getInstance(selectedSortingOption)
+        dialog.show(supportFragmentManager, LearnSortOptionsDialog::class.java.name)
+        dialog.listener = this
+    }
+
+    override fun getSelectedPosition() = favWordsPager.currentItem
 }
