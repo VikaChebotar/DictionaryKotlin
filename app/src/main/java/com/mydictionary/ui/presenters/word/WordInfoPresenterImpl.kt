@@ -1,6 +1,5 @@
 package com.mydictionary.ui.presenters.word
 
-import android.content.Context
 import android.util.Log
 import com.mydictionary.R
 import com.mydictionary.commons.Constants.Companion.SELECTED_WORD_NAME_EXTRA
@@ -16,7 +15,7 @@ import io.reactivex.schedulers.Schedulers
 /**
  * Created by Viktoria_Chebotar on 6/30/2017.
  */
-class WordInfoPresenterImpl(val repository: WordsRepository, val context: Context) : WordInfoPresenter {
+class WordInfoPresenterImpl(val repository: WordsRepository) : WordInfoPresenter {
     val TAG = WordInfoPresenterImpl::class.java.simpleName
     var wordInfoView: WordInfoView? = null
     var wordInfo: WordDetails? = null
@@ -40,24 +39,24 @@ class WordInfoPresenterImpl(val repository: WordsRepository, val context: Contex
     }
 
     private fun showWord(wordInfo: WordDetails) {
-        wordInfo.apply {
-            wordInfoView?.showPronunciation(pronunciation ?: "")
+        wordInfoView?.let {
+            wordInfoView?.showPronunciation(wordInfo.pronunciation ?: "")
             val wordCardsList = mutableListOf<Any>()
-            wordCardsList.add(context.getString(R.string.definitions))
+            wordCardsList.add(it.getContext().getString(R.string.definitions) ?: "")
             wordCardsList.addAll(wordInfo.meanings)
             if (wordInfo.synonyms.isNotEmpty()) {
-                wordCardsList.add(context.getString(R.string.synonyms))
+                wordCardsList.add(it.getContext().getString(R.string.synonyms))
                 wordCardsList.add(wordInfo.synonyms)
             }
             if (wordInfo.antonyms.isNotEmpty()) {
-                wordCardsList.add(context.getString(R.string.antonyms))
+                wordCardsList.add(it.getContext().getString(R.string.antonyms))
                 wordCardsList.add(wordInfo.antonyms)
             }
             if (wordInfo.notes.isNotEmpty()) {
-                wordCardsList.add(context.getString(R.string.notes))
+                wordCardsList.add(it.getContext().getString(R.string.notes))
                 wordCardsList.addAll(wordInfo.notes)
             }
-            wordInfoView?.showWordCards(wordCardsList)
+            it.showWordCards(wordCardsList)
         }
     }
 
@@ -89,7 +88,7 @@ class WordInfoPresenterImpl(val repository: WordsRepository, val context: Contex
     private fun loadWordInfo(wordName: String) {
         compositeDisposable.add(
                 Single.just(wordName).
-                        doOnEvent { t1, t2 ->   wordInfoView?.showProgress(true)}.
+                        doOnEvent { t1, t2 -> wordInfoView?.showProgress(true) }.
                         observeOn(Schedulers.io()).
                         flatMap { repository.getWordInfo(it) }.
                         subscribeOn(AndroidSchedulers.mainThread()).
@@ -97,8 +96,10 @@ class WordInfoPresenterImpl(val repository: WordsRepository, val context: Contex
                         subscribe({ wordInfo ->
                             this@WordInfoPresenterImpl.wordInfo = wordInfo
                             showWord(wordInfo)
-                        }, {
-                            wordInfoView?.showError(it.message ?: context.getString(R.string.default_error))
+                        }, { e ->
+                            wordInfoView?.let {
+                                it.showError(e.message ?: it.getContext().getString(R.string.default_error))
+                            }
                         }))
     }
 

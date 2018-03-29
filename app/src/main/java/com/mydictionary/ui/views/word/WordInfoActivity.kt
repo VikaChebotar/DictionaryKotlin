@@ -25,7 +25,7 @@ import kotlinx.android.synthetic.main.word_info_activity.*
  */
 
 class WordInfoActivity : AppCompatActivity(), WordInfoView, WordCardsAdapter.ViewClickListener {
-    val presenter by lazy { WordInfoPresenterImpl(DictionaryApp.getInstance(this).repository, this) }
+    val presenter by lazy { WordInfoPresenterImpl(DictionaryApp.getInstance(this).repository) }
     val wordCardsAdapter = WordCardsAdapter(this, this)
 
     companion object {
@@ -124,4 +124,6 @@ class WordInfoActivity : AppCompatActivity(), WordInfoView, WordCardsAdapter.Vie
     override fun onFavouriteBtnClicked(item: WordMeaning) {
         presenter.onFavoriteClicked(item)
     }
+
+    override fun getContext() = this
 }

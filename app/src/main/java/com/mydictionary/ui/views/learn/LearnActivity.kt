@@ -20,7 +20,7 @@ import kotlinx.android.synthetic.main.learn_activity.*
  * Created by Viktoria_Chebotar on 3/9/2018.
  */
 class LearnActivity : AppCompatActivity(), LearnWordsView, LearnCardItemFragment.OnCardItemListener {
-    val presenter by lazy { LearnWordsPresenterImpl(DictionaryApp.getInstance(this).repository, this) }
+    val presenter by lazy { LearnWordsPresenterImpl(DictionaryApp.getInstance(this).repository) }
     val space by lazy { resources.getDimension(R.dimen.cards_view_pager_margin).toInt() }
     val adapter = LearnCardPagerAadapter(supportFragmentManager)
 
@@ -61,6 +61,9 @@ class LearnActivity : AppCompatActivity(), LearnWordsView, LearnCardItemFragment
         Snackbar.make(favWordsList, message, Snackbar.LENGTH_LONG).show()
     }
 
+    override fun showPositionText(text: String) {
+        positionLabel.text = text
+    }
 
     override fun showFavoriteWords(list: List<WordDetails>) {
         adapter.list = list
@@ -93,4 +96,5 @@ class LearnActivity : AppCompatActivity(), LearnWordsView, LearnCardItemFragment
         Snackbar.make(favWordsList, getString(R.string.word_removed, oldWordDetails.word), Snackbar.LENGTH_LONG).
                 setAction(getString(R.string.undo), { presenter.onUndoDeletionClicked(oldWordDetails, favMeanings, position) }).show();
     }
+    override fun getContext() = this
 }

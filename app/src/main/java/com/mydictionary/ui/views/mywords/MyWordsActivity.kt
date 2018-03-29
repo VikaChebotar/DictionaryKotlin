@@ -45,4 +45,6 @@ class MyWordsActivity : AppCompatActivity(), MyWordsView{
     override fun startWordInfoActivity(word: WordDetails) {
         TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
     }
+
+    override fun getContext() = this
 }

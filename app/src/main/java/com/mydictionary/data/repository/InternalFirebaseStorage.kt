@@ -97,7 +97,9 @@ class InternalFirebaseStorage(val context: Context) {
             emitter.onError(Exception(context.getString(R.string.sign_in_message)))
             return@create
         }
-        getUserReference().orderByChild("accessTime").addListenerForSingleValueEvent(object : ValueEventListener {
+        val query = getUserReference().orderByChild("accessTime")
+        query.keepSynced(true)
+        query.addListenerForSingleValueEvent(object : ValueEventListener {
             override fun onCancelled(p0: DatabaseError?) {
                 emitter.onError(p0?.toException() ?: Exception(context.getString(R.string.default_error)))
             }
@@ -117,6 +119,26 @@ class InternalFirebaseStorage(val context: Context) {
             skip(offset.toLong()).
             take(pageSize.toLong())
 
+    fun getFavoriteWordsCount(): Single<Int> = Single.create({ emitter ->
+        if (firebaseAuth.currentUser == null) {
+            emitter.onError(Exception(context.getString(R.string.sign_in_message)))
+            return@create
+        }
+        val query = getUserReference().orderByChild("accessTime")
+        query.keepSynced(true)
+        query.addListenerForSingleValueEvent(object : ValueEventListener {
+            override fun onCancelled(p0: DatabaseError?) {
+                emitter.onError(p0?.toException() ?: Exception(context.getString(R.string.default_error)))
+            }
+
+            override fun onDataChange(p0: DataSnapshot?) {
+                val list = mutableListOf<UserWord>()
+                p0?.children?.mapNotNullTo(list) { it.getValue<UserWord>(UserWord::class.java) }
+                val totalSize = list.filter { it.favSenses.isNotEmpty() }.size
+                emitter.onSuccess(totalSize)
+            }
+        })
+    })
 //    {
 //        if (firebaseAuth.currentUser == null) {
 //            listener.onError(context.getString(R.string.sign_in_message))

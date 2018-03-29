@@ -3,6 +3,7 @@
                 xmlns:app="http://schemas.android.com/apk/res-auto"
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
+                xmlns:tools="http://schemas.android.com/tools"
                 android:orientation="vertical">
 
     <android.support.design.widget.AppBarLayout
@@ -19,6 +20,15 @@
             app:theme="@style/ThemeOverlay.AppCompat.Dark.ActionBar"/>
     </android.support.design.widget.AppBarLayout>
 
+    <TextView
+        android:id="@+id/positionLabel"
+        android:layout_width="wrap_content"
+        android:layout_height="@dimen/cards_view_pager_space_top"
+        android:layout_below="@+id/appBarLayout"
+        android:gravity="center_vertical"
+        android:layout_marginRight="15dp"
+        android:layout_alignParentRight="true"
+        tools:text="10/110"/>
 
     <android.support.v4.view.ViewPager
         android:id="@+id/favWordsList"
@@ -26,8 +36,11 @@
         android:layout_height="match_parent"
         android:layout_below="@+id/appBarLayout"
         android:clipToPadding="false"
-        android:padding="@dimen/cards_view_pager_space"
-        android:overScrollMode="never"/>
+        android:overScrollMode="never"
+        android:paddingTop="@dimen/cards_view_pager_space_top"
+        android:paddingLeft="@dimen/cards_view_pager_space"
+        android:paddingRight="@dimen/cards_view_pager_space"
+        android:paddingBottom="@dimen/cards_view_pager_space"/>
 
     <ProgressBar
         android:id="@+id/progressBar"

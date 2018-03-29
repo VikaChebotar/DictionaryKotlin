@@ -102,4 +102,5 @@ class SearchActivity : AppCompatActivity(), SearchView, SearchEditText.VoiceButt
             }
         }
     }
+    override fun getContext() = this
 }

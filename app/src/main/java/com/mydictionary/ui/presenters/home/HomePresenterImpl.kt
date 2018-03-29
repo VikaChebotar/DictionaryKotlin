@@ -1,10 +1,10 @@
 package com.mydictionary.ui.presenters.home
 
 import android.app.Activity
-import android.content.Context
 import android.content.Intent
 import android.util.Log
 import com.google.android.gms.auth.api.signin.GoogleSignIn
+import com.google.android.gms.auth.api.signin.GoogleSignInClient
 import com.google.android.gms.auth.api.signin.GoogleSignInOptions
 import com.google.android.gms.common.api.ApiException
 import com.mydictionary.R
@@ -20,12 +20,10 @@ import io.reactivex.schedulers.Schedulers
  */
 const val SIGN_IN_REQUEST_CODE = 1
 
-class HomePresenterImpl(val repository: WordsRepository, val context: Context) : HomePresenter {
+class HomePresenterImpl(val repository: WordsRepository) : HomePresenter {
     val TAG = HomePresenterImpl::class.java.simpleName
-    private val googleSignInOptions = GoogleSignInOptions.Builder(GoogleSignInOptions.DEFAULT_SIGN_IN)
-            .requestIdToken(context.getString(R.string.default_web_client_id))
-            .requestEmail().build()
-    private val googleSignInClient = GoogleSignIn.getClient(context, googleSignInOptions);
+    private var googleSignInOptions: GoogleSignInOptions? = null
+    private var googleSignInClient: GoogleSignInClient? = null
     private var homeView: HomeView? = null
     private var isLoggedIn = false
     private var favWordsOffset = 0
@@ -33,6 +31,10 @@ class HomePresenterImpl(val repository: WordsRepository, val context: Context) :
 
     override fun onStart(view: HomeView) {
         this.homeView = view
+        googleSignInOptions = GoogleSignInOptions.Builder(GoogleSignInOptions.DEFAULT_SIGN_IN)
+                .requestIdToken(view.getContext().getString(R.string.default_web_client_id))
+                .requestEmail().build()
+        googleSignInClient = GoogleSignIn.getClient(view.getContext(), googleSignInOptions!!);
         checkIfLoggedIn()
     }
 
@@ -41,8 +43,10 @@ class HomePresenterImpl(val repository: WordsRepository, val context: Context) :
     }
 
     override fun onSingInClicked() {
-        val signInIntent = googleSignInClient.signInIntent
-        homeView?.startSignInActivity(signInIntent, SIGN_IN_REQUEST_CODE)
+        val signInIntent = googleSignInClient?.signInIntent
+        if (signInIntent != null) {
+            homeView?.startSignInActivity(signInIntent, SIGN_IN_REQUEST_CODE)
+        }
     }
 
     override fun onResume() {
@@ -56,8 +60,8 @@ class HomePresenterImpl(val repository: WordsRepository, val context: Context) :
     }
 
     override fun onSignOutClicked() {
-        googleSignInClient.signOut()
-        googleSignInClient.revokeAccess()
+        googleSignInClient?.signOut()
+        googleSignInClient?.revokeAccess()
         repository.signOut().
                 subscribeOn(Schedulers.io()).
                 observeOn(AndroidSchedulers.mainThread()).
@@ -81,7 +85,7 @@ class HomePresenterImpl(val repository: WordsRepository, val context: Context) :
                         loadFavoriteWords()
                     }, { error ->
                         Log.e(TAG, error.message)
-                        homeView?.onLoginError(context.getString(R.string.login_error))
+                        homeView?.onLoginError(homeView?.getContext()?.getString(R.string.login_error) ?: "")
                         homeView?.showProgress(false)
                         isLoggedIn = false
                     }))

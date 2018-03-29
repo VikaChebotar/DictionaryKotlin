@@ -1,6 +1,5 @@
 package com.mydictionary.ui.presenters.learn
 
-import android.content.Context
 import android.util.Log
 import com.mydictionary.R
 import com.mydictionary.commons.Constants
@@ -15,13 +14,14 @@ import java.util.*
 /**
  * Created by Viktoria_Chebotar on 3/12/2018.
  */
-class LearnWordsPresenterImpl(val repository: WordsRepository, val context: Context) : LearnWordsPresenter {
+class LearnWordsPresenterImpl(val repository: WordsRepository) : LearnWordsPresenter {
     val TAG = LearnWordsPresenterImpl::class.java.simpleName
     var wordsView: LearnWordsView? = null
     var favWordsOffset = 0
     val list = mutableListOf<WordDetails>()
     val paginator = PublishProcessor.create<Int>();
     var requestUnderWay = false
+    var totalSize: Int = 0
 
     override fun onStart(view: LearnWordsView) {
         wordsView = view
@@ -39,31 +39,39 @@ class LearnWordsPresenterImpl(val repository: WordsRepository, val context: Cont
                     wordsView?.showProgress(false)
                     requestUnderWay = false
                 }.
-                subscribe({ pageList ->
+                subscribe({ pagedResult ->
+                    totalSize = pagedResult.totalSize
                     if (favWordsOffset == 0) {
                         list.clear()
+                        if (pagedResult.list.isNotEmpty()) showPositionText(0, totalSize)
                     }
-                    list.addAll(pageList)
+                    list.addAll(pagedResult.list)
                     wordsView?.showFavoriteWords(list)
                     wordsView?.showProgress(false)
-                    favWordsOffset += pageList.size
+                    favWordsOffset += pagedResult.list.size
                 }, {
                     wordsView?.showProgress(false)
                     requestUnderWay = false
-                    Log.e(TAG, it.message ?: context.getString(R.string.default_error))
-                    wordsView?.showError(it.message ?: context.getString(R.string.default_error))
+                    Log.e(TAG, it.message ?: view.getContext().getString(R.string.default_error))
+                    wordsView?.showError(it.message ?: view.getContext().getString(R.string.default_error))
                 })
         loadFavoriteWords()
     }
 
     override fun onStop() {
-
+        wordsView = null
     }
 
     override fun onItemSelected(position: Int) {
         if (position + FAV_WORD_PAGE_THRESHOLD >= favWordsOffset) {
             loadFavoriteWords()
         }
+        showPositionText(position, totalSize)
+    }
+
+    private fun showPositionText(position: Int, totalSize: Int) {
+        wordsView?.showPositionText(wordsView?.getContext()?.getString(R.string.fav_word_selected,
+                position + 1, totalSize) ?: "")
     }
 
     override fun onItemDeleteClicked(wordDetails: WordDetails) {
@@ -77,7 +85,7 @@ class LearnWordsPresenterImpl(val repository: WordsRepository, val context: Cont
                     wordsView?.showFavoriteWords(list)
                     wordsView?.showWordDeletedMessage(wordDetails, oldFavMeanings, position)
                 } else {
-                    wordsView?.showError(context.getString(R.string.delete_word_error))
+                    wordsView?.showError(wordsView?.getContext()?.getString(R.string.delete_word_error) ?: "")
                 }
             }
 
@@ -91,7 +99,7 @@ class LearnWordsPresenterImpl(val repository: WordsRepository, val context: Cont
 
     private fun loadFavoriteWords() {
         paginator.onNext(favWordsOffset)
-        paginator.onComplete()
+        //paginator.onComplete()
     }
 
     override fun onUndoDeletionClicked(oldWordDetails: WordDetails, favMeanings: List<String>, position: Int) {

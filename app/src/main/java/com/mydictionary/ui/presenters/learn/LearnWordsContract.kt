@@ -17,4 +17,5 @@ interface LearnWordsPresenter : BasePresenter<LearnWordsView> {
 interface LearnWordsView : BaseView {
     fun showFavoriteWords(list: List<WordDetails>)
     fun showWordDeletedMessage(oldWordDetails: WordDetails, favMeanings: List<String>, position: Int)
+    fun showPositionText(text: String)
 }

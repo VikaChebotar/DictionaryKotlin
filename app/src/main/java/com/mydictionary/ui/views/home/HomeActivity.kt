@@ -27,7 +27,7 @@ import kotlinx.android.synthetic.main.home_activity.*
 
 
 class HomeActivity : AppCompatActivity(), HomeView {
-    val presenter by lazy { HomePresenterImpl(DictionaryApp.getInstance(this).repository, this) }
+    val presenter by lazy { HomePresenterImpl(DictionaryApp.getInstance(this).repository) }
     var scrollListener: EndlessRecyclerViewScrollListener? = null
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -174,4 +174,6 @@ class HomeActivity : AppCompatActivity(), HomeView {
         }
         false
     }
+
+    override fun getContext() = this
 }
