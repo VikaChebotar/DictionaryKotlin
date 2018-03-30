@@ -4,10 +4,7 @@ import android.content.Context
 import android.util.Log
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.auth.GoogleAuthProvider
-import com.google.firebase.database.DataSnapshot
-import com.google.firebase.database.DatabaseError
-import com.google.firebase.database.FirebaseDatabase
-import com.google.firebase.database.ValueEventListener
+import com.google.firebase.database.*
 import com.mydictionary.R
 import com.mydictionary.commons.Constants.Companion.MAX_HISTORY_LIMIT
 import com.mydictionary.data.entity.UserWord
@@ -99,12 +96,11 @@ class InternalFirebaseStorage(val context: Context) {
             emitter.onError(Exception(context.getString(R.string.sign_in_message)))
             return@create
         }
-        val query = getUserReference()
+        var query: Query = getUserReference()
         when (sortingOption) {
-            SortingOption.BY_DATE -> query.orderByChild("accessTime")
-            SortingOption.BY_NAME -> query.orderByChild("word")
-            SortingOption.RANDOMLY -> {
-            }
+            SortingOption.BY_DATE ->  query = query.orderByChild("accessTime")
+            SortingOption.BY_NAME -> query = query.orderByChild("word")
+            SortingOption.RANDOMLY -> {}
         }
         query.keepSynced(true)
         query.addListenerForSingleValueEvent(object : ValueEventListener {
