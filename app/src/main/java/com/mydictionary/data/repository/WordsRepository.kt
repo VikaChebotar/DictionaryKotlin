@@ -20,11 +20,11 @@ interface WordsRepository {
 
     fun getWordInfo(wordName: String): Single<WordDetails>
 
-    fun getHistoryWords(listener: RepositoryListener<List<String>>)
+    fun getHistoryWords(): Flowable<List<String>>
 
     fun searchWord(searchPhrase: String): Single<List<String>>
 
-    fun setWordFavoriteState(word: WordDetails, favMeanings: List<String>, listener: RepositoryListener<WordDetails>)
+    fun setWordFavoriteState(word: WordDetails, favMeanings: List<String>):Single<WordDetails>
 
     fun getFavoriteWords(offset: Int, pageSize: Int, sortingOption: SortingOption = SortingOption.BY_DATE): Flowable<PagedResult<WordDetails>>
 

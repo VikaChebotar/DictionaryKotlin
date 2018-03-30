@@ -1,5 +1,6 @@
 package com.mydictionary.data.repository
 
+import com.mydictionary.data.entity.UserWord
 import com.mydictionary.data.pojo.PagedResult
 import com.mydictionary.data.pojo.SortingOption
 import com.mydictionary.data.pojo.WordDetails
@@ -40,27 +41,17 @@ class WordsRepositoryImpl(val factory: WordsStorageFactory) : WordsRepository {
     }
 
 
-    override fun getHistoryWords(listener: RepositoryListener<List<String>>) {
-        factory.firebaseStorage.getHistoryWords(listener)
-    }
+    override fun getHistoryWords() = factory.firebaseStorage.getHistoryWords()
 
     override fun searchWord(searchPhrase: String) = factory.oxfordStorage.searchTheWord(searchPhrase)
 
-    override fun setWordFavoriteState(word: WordDetails, favMeanings: List<String>, listener: RepositoryListener<WordDetails>) {
-        factory.firebaseStorage.setWordFavoriteState(word.word, favMeanings, object : RepositoryListener<List<String>> {
-            override fun onSuccess(t: List<String>) {
+    override fun setWordFavoriteState(word: WordDetails, favMeanings: List<String>): Single<WordDetails> =
+            factory.firebaseStorage.setWordFavoriteState(word.word, favMeanings).map { userWord: UserWord ->
                 word.meanings.forEach {
-                    it.isFavourite = t.contains(it.definitionId)
+                    it.isFavourite = userWord.favSenses.contains(it.definitionId)
                 }
-                listener.onSuccess(word)
+                word
             }
-
-            override fun onError(error: String) {
-                listener.onError(error)
-            }
-
-        })
-    }
 
     override fun getFavoriteWords(offset: Int, pageSize: Int, sortingOption: SortingOption): Flowable<PagedResult<WordDetails>> =
             Single.zip(factory.firebaseStorage.getFavoriteWords(offset, pageSize, sortingOption).

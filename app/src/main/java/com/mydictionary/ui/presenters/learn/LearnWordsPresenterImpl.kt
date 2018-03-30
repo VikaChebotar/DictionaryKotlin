@@ -6,10 +6,11 @@ import com.mydictionary.commons.Constants
 import com.mydictionary.commons.Constants.Companion.FAV_WORD_PAGE_THRESHOLD
 import com.mydictionary.data.pojo.SortingOption
 import com.mydictionary.data.pojo.WordDetails
-import com.mydictionary.data.repository.RepositoryListener
 import com.mydictionary.data.repository.WordsRepository
 import io.reactivex.android.schedulers.AndroidSchedulers
+import io.reactivex.disposables.CompositeDisposable
 import io.reactivex.processors.PublishProcessor
+import io.reactivex.schedulers.Schedulers
 
 /**
  * Created by Viktoria_Chebotar on 3/12/2018.
@@ -23,10 +24,11 @@ class LearnWordsPresenterImpl(val repository: WordsRepository) : LearnWordsPrese
     var requestUnderWay = false
     var totalSize: Int = 0
     var sortingType: SortingOption = SortingOption.BY_DATE
+    private val compositeDisposable = CompositeDisposable()
 
     override fun onStart(view: LearnWordsView) {
         wordsView = view
-        paginator.
+        val disposable = paginator.
                 filter { !requestUnderWay }.
                 onBackpressureDrop().
                 doOnNext {
@@ -56,11 +58,13 @@ class LearnWordsPresenterImpl(val repository: WordsRepository) : LearnWordsPrese
                     Log.e(TAG, it.message ?: view.getContext().getString(R.string.default_error))
                     wordsView?.showError(it.message ?: view.getContext().getString(R.string.default_error))
                 })
+        compositeDisposable.add(disposable)
         loadFavoriteWords()
     }
 
     override fun onStop() {
         wordsView = null
+        compositeDisposable.clear()
     }
 
     override fun onItemSelected(position: Int) {
@@ -78,24 +82,23 @@ class LearnWordsPresenterImpl(val repository: WordsRepository) : LearnWordsPrese
     override fun onItemDeleteClicked(wordDetails: WordDetails) {
         val favMeanings = emptyList<String>()
         val oldFavMeanings = wordDetails.meanings.filter { it.isFavourite }.map { it.definitionId }
-        repository.setWordFavoriteState(wordDetails, favMeanings, object : RepositoryListener<WordDetails> {
-            override fun onSuccess(t: WordDetails) {
-                if (t.meanings.none { it.isFavourite }) {
-                    val position = list.indexOf(wordDetails)
-                    list.remove(wordDetails)
-                    wordsView?.showFavoriteWords(list)
-                    wordsView?.showWordDeletedMessage(wordDetails, oldFavMeanings, position)
-                } else {
-                    wordsView?.showError(wordsView?.getContext()?.getString(R.string.delete_word_error) ?: "")
-                }
-            }
-
-            override fun onError(error: String) {
-                Log.e(TAG, "error: " + error)
-                wordsView?.showError(error)
-            }
-
-        })
+        val disposable = repository.setWordFavoriteState(wordDetails, favMeanings).
+                subscribeOn(Schedulers.io()).
+                observeOn(AndroidSchedulers.mainThread()).
+                subscribe({ wordDetails ->
+                    if (wordDetails.meanings.none { it.isFavourite }) {
+                        val position = list.indexOf(wordDetails)
+                        list.remove(wordDetails)
+                        wordsView?.showFavoriteWords(list)
+                        wordsView?.showWordDeletedMessage(wordDetails, oldFavMeanings, position)
+                    } else {
+                        wordsView?.showError(wordsView?.getContext()?.getString(R.string.delete_word_error) ?: "")
+                    }
+                }, { exception ->
+                    Log.e(TAG, "error: " + exception)
+                    wordsView?.showError(exception.message ?: "")
+                })
+        compositeDisposable.add(disposable)
     }
 
     private fun loadFavoriteWords() {
@@ -103,22 +106,20 @@ class LearnWordsPresenterImpl(val repository: WordsRepository) : LearnWordsPrese
     }
 
     override fun onUndoDeletionClicked(oldWordDetails: WordDetails, favMeanings: List<String>, position: Int) {
-        repository.setWordFavoriteState(oldWordDetails, favMeanings, object : RepositoryListener<WordDetails> {
-            override fun onSuccess(t: WordDetails) {
-                super.onSuccess(t)
-                if (t.meanings.any { it.isFavourite }) {
-                    list.add(position, t)
-                    wordsView?.showFavoriteWords(list)
-                } else {
+        val disposable = repository.setWordFavoriteState(oldWordDetails, favMeanings).
+                subscribeOn(Schedulers.io()).
+                observeOn(AndroidSchedulers.mainThread()).
+                subscribe({ t ->
+                    if (t.meanings.any { it.isFavourite }) {
+                        list.add(position, t)
+                        wordsView?.showFavoriteWords(list)
+                    } else {
+                        //TODO
+                    }
+                }, {
                     //TODO
-                }
-            }
-
-            override fun onError(error: String) {
-                super.onError(error)
-                //TODO
-            }
-        })
+                })
+        compositeDisposable.add(disposable)
     }
 
     override fun onSortSelected(sortingOption: SortingOption) {

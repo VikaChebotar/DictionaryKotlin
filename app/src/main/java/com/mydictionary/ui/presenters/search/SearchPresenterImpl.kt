@@ -1,10 +1,10 @@
 package com.mydictionary.ui.presenters.search
 
 import com.mydictionary.commons.Constants
-import com.mydictionary.data.repository.RepositoryListener
 import com.mydictionary.data.repository.WordsRepository
 import com.mydictionary.ui.views.search.SearchEditText
 import io.reactivex.android.schedulers.AndroidSchedulers
+import io.reactivex.disposables.CompositeDisposable
 import io.reactivex.schedulers.Schedulers
 
 /**
@@ -12,7 +12,7 @@ import io.reactivex.schedulers.Schedulers
  */
 
 class SearchPresenterImpl(val repository: WordsRepository) : SearchPresenter, SearchEditText.ContentChangedListener {
-
+    val compositeDisposable = CompositeDisposable()
     var searchView: SearchView? = null
 
     override fun onStart(view: SearchView) {
@@ -22,29 +22,36 @@ class SearchPresenterImpl(val repository: WordsRepository) : SearchPresenter, Se
     }
 
     private fun loadHistoryWords() {
-        repository.getHistoryWords(object : RepositoryListener<List<String>> {
-            override fun onSuccess(result: List<String>) {
-                searchView?.showHistoryWords(result)
-            }
-
-            override fun onError(error: String) {
-                searchView?.showError(error)
-            }
-        })
+        val disposable = repository.getHistoryWords().
+                subscribeOn(Schedulers.io()).
+                observeOn(AndroidSchedulers.mainThread()).
+                subscribe({ list -> searchView?.showHistoryWords(list) }, { e -> searchView?.showError(e.message ?: "") })
+        compositeDisposable.add(disposable)
     }
+//    repository.getHistoryWords(object : RepositoryListener<List<String>> {
+//        override fun onSuccess(result: List<String>) {
+//            searchView?.showHistoryWords(result)
+//        }
+//
+//        override fun onError(error: String) {
+//            searchView?.showError(error)
+//        }
+//    })
 
 
     override fun onStop() {
         searchView = null
+        compositeDisposable.clear()
     }
 
     override fun onSearchLetterEntered(phrase: String) {
         if (phrase.length >= Constants.MIN_WORD_LENGTH_TO_SEARCH) {
-            repository.searchWord(phrase).
+           val disposable = repository.searchWord(phrase).
                     subscribeOn(Schedulers.io()).
                     observeOn(AndroidSchedulers.mainThread()).
                     subscribe({ searchView?.showSearchResult(it) },
                             { searchView?.showError(it.message ?: "") })
+            compositeDisposable.add(disposable)
         } else {
             onSearchCleared()
         }

@@ -5,7 +5,6 @@ import com.mydictionary.R
 import com.mydictionary.commons.Constants.Companion.SELECTED_WORD_NAME_EXTRA
 import com.mydictionary.data.pojo.WordDetails
 import com.mydictionary.data.pojo.WordMeaning
-import com.mydictionary.data.repository.RepositoryListener
 import com.mydictionary.data.repository.WordsRepository
 import io.reactivex.Single
 import io.reactivex.android.schedulers.AndroidSchedulers
@@ -61,27 +60,21 @@ class WordInfoPresenterImpl(val repository: WordsRepository) : WordInfoPresenter
     }
 
     override fun onFavoriteClicked(item: WordMeaning) {
-
         wordInfo?.let {
             val favMeanings = mutableListOf<String>()
             it.meanings.filter { it.isFavourite }.forEach { favMeanings.add(it.definitionId) }
             if (favMeanings.contains(item.definitionId)) {
                 favMeanings.remove(item.definitionId)
             } else favMeanings.add(item.definitionId)
-            repository.setWordFavoriteState(it, favMeanings, object : RepositoryListener<WordDetails> {
-                override fun onSuccess(t: WordDetails) {
-                    wordInfo = t
-                }
-
-                override fun onError(error: String) {
-                    Log.e(TAG, "error: " + error)
-                    wordInfoView?.showError(error)
-                    showWord(wordInfo as WordDetails)
-                }
-
-            })
+            compositeDisposable.add(repository.setWordFavoriteState(it, favMeanings).
+                    subscribeOn(Schedulers.io()).
+                    observeOn(AndroidSchedulers.mainThread()).
+                    subscribe({ t -> wordInfo = t }, { error ->
+                        Log.e(TAG, "error: " + error)
+                        wordInfoView?.showError(error.message ?: "")
+                        showWord(wordInfo as WordDetails)
+                    }))
         }
-
     }
 
 
