@@ -5,9 +5,7 @@ import android.net.ConnectivityManager
 import com.google.gson.GsonBuilder
 import com.google.gson.reflect.TypeToken
 import com.mydictionary.R
-import com.mydictionary.commons.Constants
-import com.mydictionary.commons.NoConnectivityException
-import com.mydictionary.commons.isOnline
+import com.mydictionary.commons.*
 import com.mydictionary.data.pojo.SearchResult
 import okhttp3.Interceptor
 import okhttp3.OkHttpClient
@@ -48,7 +46,7 @@ class WordApiRetrofit private constructor(context: Context) {
                 addInterceptor(ConnectivityInterceptor(context)).build();
 
         val retrofit = Retrofit.Builder()
-                .baseUrl(Constants.OXFORD_API_ENDPOINT)
+                .baseUrl(OXFORD_API_ENDPOINT)
                 .client(client)
                 .addConverterFactory(GsonConverterFactory.create(gson))
                 .addCallAdapterFactory(RxJava2CallAdapterFactory.create())
@@ -61,9 +59,9 @@ class WordApiRetrofit private constructor(context: Context) {
         override fun intercept(chain: Interceptor.Chain?): Response {
             val request = chain!!.request().
                     newBuilder().
-                    addHeader(Constants.OXFORD_API_APP_KEY_HEADER,
+                    addHeader(OXFORD_API_APP_KEY_HEADER,
                             context.getString(R.string.oxford_app_key)).
-                    addHeader(Constants.OXFORD_API_APP_ID_HEADER,
+                    addHeader(OXFORD_API_APP_ID_HEADER,
                             context.getString(R.string.oxford_app_id)).
                     build()
             return chain.proceed(request)

@@ -1,6 +1,6 @@
 package com.mydictionary.ui.presenters.search
 
-import com.mydictionary.commons.Constants
+import com.mydictionary.commons.MIN_WORD_LENGTH_TO_SEARCH
 import com.mydictionary.data.repository.WordsRepository
 import com.mydictionary.ui.views.search.SearchEditText
 import io.reactivex.android.schedulers.AndroidSchedulers
@@ -45,7 +45,7 @@ class SearchPresenterImpl(val repository: WordsRepository) : SearchPresenter, Se
     }
 
     override fun onSearchLetterEntered(phrase: String) {
-        if (phrase.length >= Constants.MIN_WORD_LENGTH_TO_SEARCH) {
+        if (phrase.length >= MIN_WORD_LENGTH_TO_SEARCH) {
            val disposable = repository.searchWord(phrase).
                     subscribeOn(Schedulers.io()).
                     observeOn(AndroidSchedulers.mainThread()).

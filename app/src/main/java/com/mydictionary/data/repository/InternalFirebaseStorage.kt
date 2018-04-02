@@ -7,7 +7,7 @@ import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.auth.GoogleAuthProvider
 import com.google.firebase.database.*
 import com.mydictionary.R
-import com.mydictionary.commons.Constants.Companion.MAX_HISTORY_LIMIT
+import com.mydictionary.commons.MAX_HISTORY_LIMIT
 import com.mydictionary.data.entity.UserWord
 import com.mydictionary.data.pojo.SortingOption
 import io.reactivex.BackpressureStrategy
@@ -51,20 +51,20 @@ class InternalFirebaseStorage(val context: Context) {
             return@create
         }
         val credential = GoogleAuthProvider.getCredential(googleToken, null)
-        firebaseAuth.signInWithCredential(credential).
-                addOnCompleteListener { task ->
-                    if (task.isSuccessful) {
-                        val email = task.result.user.email
-                        if (email != null) {
-                            emitter.onSuccess(email)
-                        } else {
-                            emitter.onError(Exception(context.getString(R.string.login_error)))
-                        }
-                    } else {
-                        Log.e(TAG, "firebaseAuthWithGoogle:failure", task.getException())
-                        emitter.onError(task.exception ?: Exception(context.getString(R.string.login_error)))
-                    }
+        firebaseAuth.signInWithCredential(credential).addOnCompleteListener { task ->
+            if (task.isSuccessful) {
+                val email = task.result.user.email
+                if (email != null) {
+                    emitter.onSuccess(email)
+                } else {
+                    emitter.onError(Exception(context.getString(R.string.login_error)))
                 }
+            } else {
+                Log.e(TAG, "firebaseAuthWithGoogle:failure", task.getException())
+                emitter.onError(task.exception
+                        ?: Exception(context.getString(R.string.login_error)))
+            }
+        }
     }
 
     fun logoutFirebaseUser(): Completable = Completable.create { emitter ->
@@ -92,43 +92,43 @@ class InternalFirebaseStorage(val context: Context) {
         })
     }, BackpressureStrategy.DROP)
 
-    fun getFavoriteWords(offset: Int, pageSize: Int, sortingOption: SortingOption): Flowable<UserWord> = Flowable.create<UserWord>({ emitter ->
-        if (firebaseAuth.currentUser == null) {
-            emitter.onError(Exception(context.getString(R.string.sign_in_message)))
-            return@create
-        }
-        var query: Query = getUserReference()
-        when (sortingOption) {
-            SortingOption.BY_DATE -> query = query.orderByChild("accessTime")
-            SortingOption.BY_NAME -> query = query.orderByChild("word")
-            SortingOption.RANDOMLY -> {
-            }
-        }
-        query.keepSynced(true)
-        query.addListenerForSingleValueEvent(object : ValueEventListener {
-            override fun onCancelled(p0: DatabaseError?) {
-                emitter.onError(p0?.toException() ?: Exception(context.getString(R.string.default_error)))
-            }
-
-            override fun onDataChange(p0: DataSnapshot?) {
-                val list = mutableListOf<UserWord>()
-                p0?.children?.mapNotNullTo(list) { it.getValue<UserWord>(UserWord::class.java) }
-                //  val favPageList = list.filter { it.favSenses.isNotEmpty() }.reversed().drop(offset).take(pageSize)
-                when (sortingOption) {
-                    SortingOption.BY_DATE -> list.reverse()
-                    SortingOption.BY_NAME -> {
-                    }
-                    SortingOption.RANDOMLY -> Collections.shuffle(list)
+    fun getFavoriteWords(offset: Int, pageSize: Int, sortingOption: SortingOption): Flowable<UserWord> =
+            Flowable.create<UserWord>({ emitter ->
+                if (firebaseAuth.currentUser == null) {
+                    emitter.onError(Exception(context.getString(R.string.sign_in_message)))
+                    return@create
                 }
-                list.forEach { emitter.onNext(it) }
-                emitter.onComplete()
-            }
-        })
-    }, BackpressureStrategy.DROP).
-            observeOn(Schedulers.io()). //hack to return to background thread, because onDataChange is always called in UI thread
-            filter { it.favSenses.isNotEmpty() }.
-            skip(offset.toLong()).
-            take(pageSize.toLong())
+                var query: Query = getUserReference()
+                when (sortingOption) {
+                    SortingOption.BY_DATE -> query = query.orderByChild("accessTime")
+                    SortingOption.BY_NAME -> query = query.orderByChild("word")
+                    SortingOption.RANDOMLY -> {
+                    }
+                }
+                query.keepSynced(true)
+                query.addListenerForSingleValueEvent(object : ValueEventListener {
+                    override fun onCancelled(p0: DatabaseError?) {
+                        emitter.onError(p0?.toException()
+                                ?: Exception(context.getString(R.string.default_error)))
+                    }
+
+                    override fun onDataChange(p0: DataSnapshot?) {
+                        val list = mutableListOf<UserWord>()
+                        p0?.children?.mapNotNullTo(list) { it.getValue<UserWord>(UserWord::class.java) }
+                        when (sortingOption) {
+                            SortingOption.BY_DATE -> list.reverse()
+                            SortingOption.BY_NAME -> {
+                            }
+                            SortingOption.RANDOMLY -> Collections.shuffle(list)
+                        }
+                        list.forEach { emitter.onNext(it) }
+                        emitter.onComplete()
+                    }
+                })
+            }, BackpressureStrategy.DROP).
+                    //hack to return to background thread, because onDataChange is always called in UI thread
+                    observeOn(Schedulers.io()).
+                    filter { it.favSenses.isNotEmpty() }.skip(offset.toLong()).take(pageSize.toLong())
 
     fun getFavoriteWordsCount(): Single<Int> = create({ emitter ->
         if (firebaseAuth.currentUser == null) {
@@ -139,7 +139,8 @@ class InternalFirebaseStorage(val context: Context) {
         query.keepSynced(true)
         query.addListenerForSingleValueEvent(object : ValueEventListener {
             override fun onCancelled(p0: DatabaseError?) {
-                emitter.onError(p0?.toException() ?: Exception(context.getString(R.string.default_error)))
+                emitter.onError(p0?.toException()
+                        ?: Exception(context.getString(R.string.default_error)))
             }
 
             override fun onDataChange(p0: DataSnapshot?) {
@@ -150,24 +151,6 @@ class InternalFirebaseStorage(val context: Context) {
             }
         })
     })
-//    {
-//        if (firebaseAuth.currentUser == null) {
-//            listener.onError(context.getString(R.string.sign_in_message))
-//            return
-//        }
-//        getUserReference().orderByChild("accessTime").addListenerForSingleValueEvent(object : ValueEventListener {
-//            override fun onCancelled(p0: DatabaseError?) {
-//                listener.onError(p0?.toException()?.message ?: context.getString(R.string.default_error))
-//            }
-//
-//            override fun onDataChange(p0: DataSnapshot?) {
-//                val list = mutableListOf<UserWord>()
-//                p0?.children?.mapNotNullTo(list) { it.getValue<UserWord>(UserWord::class.java) }
-//                val favPageList = list.filter { it.favSenses.isNotEmpty() }.reversed().drop(offset).take(pageSize)
-//                listener.onSuccess(favPageList)
-//            }
-//        })
-//    }
 
     fun addWordToHistoryAndGet(word: String): Single<UserWord> = create { emitter ->
         if (firebaseAuth.currentUser == null) {
@@ -218,10 +201,7 @@ class InternalFirebaseStorage(val context: Context) {
         }
     }
 
-    private fun getUserReference() = firebaseDatabase.
-            reference.
-            child("users").
-            child(firebaseAuth.currentUser?.uid)
+    private fun getUserReference() = firebaseDatabase.reference.child("users").child(firebaseAuth.currentUser?.uid)
 
 
     private fun registerConnectionListener() {

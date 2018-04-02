@@ -12,8 +12,8 @@ import android.view.MenuItem
 import android.view.MotionEvent
 import android.view.View
 import com.mydictionary.R
-import com.mydictionary.commons.Constants
-import com.mydictionary.commons.Constants.CompoundDrawables.RIGHT
+import com.mydictionary.commons.CompoundDrawables.RIGHT
+import com.mydictionary.commons.VOICE_SEARCH_EXTRA
 import com.mydictionary.data.pojo.WordDetails
 import com.mydictionary.ui.DictionaryApp
 import com.mydictionary.ui.presenters.home.HomePresenterImpl
@@ -132,7 +132,7 @@ class HomeActivity : AppCompatActivity(), HomeView {
 
     private fun startSearchActivity(isVoiceSearchClicked: Boolean = false) {
         val intent = Intent(this@HomeActivity, SearchActivity::class.java);
-        intent.putExtra(Constants.VOICE_SEARCH_EXTRA, isVoiceSearchClicked)
+        intent.putExtra(VOICE_SEARCH_EXTRA, isVoiceSearchClicked)
         startActivity(intent)
     }
 

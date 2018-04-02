@@ -2,7 +2,7 @@ package com.mydictionary.ui.presenters.word
 
 import android.util.Log
 import com.mydictionary.R
-import com.mydictionary.commons.Constants.Companion.SELECTED_WORD_NAME_EXTRA
+import com.mydictionary.commons.SELECTED_WORD_NAME_EXTRA
 import com.mydictionary.data.pojo.WordDetails
 import com.mydictionary.data.pojo.WordMeaning
 import com.mydictionary.data.repository.WordsRepository

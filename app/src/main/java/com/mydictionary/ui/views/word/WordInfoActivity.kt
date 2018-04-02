@@ -11,7 +11,7 @@ import android.view.Menu
 import android.view.MenuItem
 import android.view.View
 import com.mydictionary.R
-import com.mydictionary.commons.Constants
+import com.mydictionary.commons.SELECTED_WORD_NAME_EXTRA
 import com.mydictionary.data.pojo.WordMeaning
 import com.mydictionary.ui.DictionaryApp
 import com.mydictionary.ui.presenters.word.WordInfoPresenterImpl
@@ -31,7 +31,7 @@ class WordInfoActivity : AppCompatActivity(), WordInfoView, WordCardsAdapter.Vie
     companion object {
         fun startActivity(context: Context, word: String) {
             val intent = Intent(context, WordInfoActivity::class.java)
-            intent.putExtra(Constants.SELECTED_WORD_NAME_EXTRA, word)
+            intent.putExtra(SELECTED_WORD_NAME_EXTRA, word)
             context.startActivity(intent)
         }
     }

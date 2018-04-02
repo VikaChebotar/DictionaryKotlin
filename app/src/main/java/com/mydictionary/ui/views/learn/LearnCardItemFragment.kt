@@ -17,7 +17,7 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import com.mydictionary.R
-import com.mydictionary.commons.Constants.Companion.SELCTED_WORD_INFO_EXTRA
+import com.mydictionary.commons.SELCTED_WORD_INFO_EXTRA
 import com.mydictionary.data.pojo.WordDetails
 import com.mydictionary.ui.views.word.MeaningSpaceItemDecorator
 import com.mydictionary.ui.views.word.MeaningsAdapter

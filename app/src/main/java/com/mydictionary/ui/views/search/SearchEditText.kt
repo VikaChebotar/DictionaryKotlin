@@ -16,12 +16,7 @@ import android.view.View
 import android.view.inputmethod.EditorInfo
 import android.widget.TextView
 import com.mydictionary.R
-import com.mydictionary.commons.Constants.Companion.AUTOCOMPLETE_DELAY
-import com.mydictionary.commons.Constants.Companion.MESSAGE_TEXT_CHANGED
-import com.mydictionary.commons.Constants.CompoundDrawables.LEFT
-import com.mydictionary.commons.Constants.CompoundDrawables.RIGHT
-import com.mydictionary.commons.hideKeyboard
-import com.mydictionary.commons.isIntentAvailable
+import com.mydictionary.commons.*
 import java.lang.ref.WeakReference
 
 
@@ -63,9 +58,9 @@ class SearchEditText : AppCompatEditText {
 
     private val touchListener = View.OnTouchListener { _, event ->
         if (event?.action == MotionEvent.ACTION_UP) {
-            val leftBound = compoundDrawables[LEFT.ordinal].bounds.width() +
+            val leftBound = compoundDrawables[CompoundDrawables.LEFT.ordinal].bounds.width() +
                     compoundDrawablePadding + paddingLeft
-            val rightBound = right - compoundDrawables[RIGHT.ordinal].bounds.width() -
+            val rightBound = right - compoundDrawables[CompoundDrawables.RIGHT.ordinal].bounds.width() -
                     compoundDrawablePadding - paddingRight
             if (mIsSearchActive && event.rawX <= leftBound) {
                 closeSearch()

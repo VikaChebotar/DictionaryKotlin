@@ -1,12 +1,10 @@
 package com.mydictionary.data.repository
 
 import android.content.Context
-import android.util.Log
 import android.util.LruCache
 import com.mydictionary.R
-import com.mydictionary.commons.Constants
-import com.mydictionary.commons.NoConnectivityException
-import com.mydictionary.commons.Utils
+import com.mydictionary.commons.SEARCH_LIMIT
+import com.mydictionary.commons.getCacheMemorySize
 import com.mydictionary.data.network.WordApiRetrofit
 import com.mydictionary.data.network.dto.RelatedWordsResponse
 import com.mydictionary.data.network.dto.WordDetailsResponse
@@ -14,9 +12,6 @@ import com.mydictionary.data.pojo.Mapper
 import com.mydictionary.data.pojo.WordDetails
 import io.reactivex.Single
 import io.reactivex.functions.BiFunction
-import retrofit2.Call
-import retrofit2.Callback
-import retrofit2.Response
 
 /**
  * Created by Viktoria_Chebotar on 6/7/2017.
@@ -25,7 +20,7 @@ import retrofit2.Response
 class OxfordDictionaryStorage(val context: Context) {
     private val TAG = OxfordDictionaryStorage::class.java.simpleName
     private val restApi = WordApiRetrofit.getInstance(context).wordsApi;
-    private val wordsCache = LruCache<String, WordDetails>(Utils.getCacheMemorySize())
+    private val wordsCache = LruCache<String, WordDetails>(getCacheMemorySize())
 
     fun getFullWordInfo(word: String): Single<WordDetails> =
             Single.just(word).
@@ -72,32 +67,6 @@ class OxfordDictionaryStorage(val context: Context) {
 
 
 
-    fun searchTheWord(phrase: String): Single<List<String>> = restApi.searchTheWord(phrase, Constants.SEARCH_LIMIT).map { it.searchResults }
-
-    private inner class MyRetrofitCallback<T>(val listener: RepositoryListener<T>,
-                                              val context: Context) : Callback<T> {
-        override fun onResponse(call: Call<T>?, response: Response<T>?) {
-            if (response?.isSuccessful == true && response.body() != null) {
-                listener.onSuccess(response.body() as T)
-            } else {
-                listener.onError(response?.raw()?.message() ?: context.getString(R.string.default_error))
-            }
-        }
-
-        override fun onFailure(call: Call<T>?, t: Throwable?) {
-            onFailure(t, listener)
-        }
-    }
-
-    private fun <T> onFailure(t: Throwable?, listener: RepositoryListener<T>) {
-        val errorMes: String
-        if (t is NoConnectivityException) {
-            errorMes = context.getString(R.string.networkError)
-        } else {
-            errorMes = t?.message ?: context.getString(R.string.default_error)
-        }
-        listener.onError(errorMes)
-        Log.e(OxfordDictionaryStorage::class.java.simpleName, errorMes)
-    }
-
+    fun searchTheWord(phrase: String): Single<List<String>> =
+            restApi.searchTheWord(phrase, SEARCH_LIMIT).map { it.searchResults }
 }

@@ -1,6 +1,6 @@
 package com.mydictionary.data.pojo
 
-import com.mydictionary.commons.Constants.Companion.TOP_RELATED_WORDS_LIMIT
+import com.mydictionary.commons.TOP_RELATED_WORDS_LIMIT
 import com.mydictionary.data.network.dto.RelatedWordsResponse
 import com.mydictionary.data.network.dto.WordDetailsResponse
 

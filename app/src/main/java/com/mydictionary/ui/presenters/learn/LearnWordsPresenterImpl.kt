@@ -2,8 +2,8 @@ package com.mydictionary.ui.presenters.learn
 
 import android.util.Log
 import com.mydictionary.R
-import com.mydictionary.commons.Constants
-import com.mydictionary.commons.Constants.Companion.FAV_WORD_PAGE_THRESHOLD
+import com.mydictionary.commons.FAV_WORD_PAGE_SIZE
+import com.mydictionary.commons.FAV_WORD_PAGE_THRESHOLD
 import com.mydictionary.data.pojo.SortingOption
 import com.mydictionary.data.pojo.WordDetails
 import com.mydictionary.data.repository.WordsRepository
@@ -36,7 +36,7 @@ class LearnWordsPresenterImpl(val repository: WordsRepository) : LearnWordsPrese
                     requestUnderWay = true
                 }.
                 //subscribeOn(Schedulers.io()).
-                concatMap { repository.getFavoriteWords(it, Constants.FAV_WORD_PAGE_SIZE, sortingType) }.
+                concatMap { repository.getFavoriteWords(it, FAV_WORD_PAGE_SIZE, sortingType) }.
                 observeOn(AndroidSchedulers.mainThread()).
                 doOnNext {
                     wordsView?.showProgress(false)

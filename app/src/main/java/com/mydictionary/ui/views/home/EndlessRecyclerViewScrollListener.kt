@@ -2,7 +2,7 @@ package com.mydictionary.ui.views.home
 
 import android.support.v7.widget.LinearLayoutManager
 import android.support.v7.widget.RecyclerView
-import com.mydictionary.commons.Constants
+import com.mydictionary.commons.FAV_WORD_PAGE_THRESHOLD
 
 
 /**
@@ -11,7 +11,7 @@ import com.mydictionary.commons.Constants
 abstract class EndlessRecyclerViewScrollListener(val layoutManager: LinearLayoutManager) : RecyclerView.OnScrollListener() {
     // The minimum amount of items to have below your current scroll position
     // before loading more.
-    private var visibleThreshold = Constants.FAV_WORD_PAGE_THRESHOLD
+    private var visibleThreshold = FAV_WORD_PAGE_THRESHOLD
     // The current offset index of data you have loaded
     private var currentPage = 0
     // The total number of items in the dataset after the last load

@@ -12,9 +12,9 @@ import android.support.v7.widget.LinearLayoutManager
 import android.support.v7.widget.RecyclerView
 import android.view.View
 import com.mydictionary.R
-import com.mydictionary.commons.Constants
-import com.mydictionary.commons.Constants.Companion.VOICE_RECOGNITION_CODE
-import com.mydictionary.commons.Constants.Companion.VOICE_SEARCH_PAUSE_MILLIS
+import com.mydictionary.commons.VOICE_RECOGNITION_CODE
+import com.mydictionary.commons.VOICE_SEARCH_EXTRA
+import com.mydictionary.commons.VOICE_SEARCH_PAUSE_MILLIS
 import com.mydictionary.ui.DictionaryApp
 import com.mydictionary.ui.presenters.search.SearchPresenterImpl
 import com.mydictionary.ui.presenters.search.SearchView
@@ -45,7 +45,7 @@ class SearchActivity : AppCompatActivity(), SearchView, SearchEditText.VoiceButt
             isNestedScrollingEnabled = false
         }
         presenter.onStart(this)
-        if (intent.extras.getBoolean(Constants.VOICE_SEARCH_EXTRA)) {
+        if (intent.extras.getBoolean(VOICE_SEARCH_EXTRA)) {
             startVoiceRecognition()
         }
     }
@@ -96,8 +96,8 @@ class SearchActivity : AppCompatActivity(), SearchView, SearchEditText.VoiceButt
         super.onActivityResult(requestCode, resultCode, data)
         if (requestCode == VOICE_RECOGNITION_CODE && resultCode == Activity.RESULT_OK) {
             val matches = data?.getStringArrayListExtra(RecognizerIntent.EXTRA_RESULTS)
-            if (matches?.isNotEmpty() ?: false) {
-                searchField.setText(matches!![0])
+            if (matches?.isNotEmpty() == true) {
+                searchField.setText(matches[0])
                 searchField.setSelection(matches[0].length)
             }
         }

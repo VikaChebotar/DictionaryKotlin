@@ -63,7 +63,8 @@ class WordsRepositoryImpl(val factory: WordsStorageFactory) : WordsRepository {
                             it
                         }.toFlowable()
                     }.
-                    toList(), factory.firebaseStorage.getFavoriteWordsCount(), BiFunction<List<WordDetails>, Int, PagedResult<WordDetails>> { list, size ->
+                    toList(), factory.firebaseStorage.getFavoriteWordsCount(),
+                    BiFunction<List<WordDetails>, Int, PagedResult<WordDetails>> { list, size ->
                 PagedResult(list, size)
             }).toFlowable()
 
