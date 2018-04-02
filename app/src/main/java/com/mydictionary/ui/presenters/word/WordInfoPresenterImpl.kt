@@ -82,14 +82,16 @@ class WordInfoPresenterImpl(val repository: WordsRepository) : WordInfoPresenter
         compositeDisposable.add(
                 Single.just(wordName).
                         doOnEvent { t1, t2 -> wordInfoView?.showProgress(true) }.
-                        observeOn(Schedulers.io()).
+                        subscribeOn(Schedulers.io()).
                         flatMap { repository.getWordInfo(it) }.
-                        subscribeOn(AndroidSchedulers.mainThread()).
+                        observeOn(AndroidSchedulers.mainThread()).
                         doOnEvent { t1, t2 -> wordInfoView?.showProgress(false) }.
                         subscribe({ wordInfo ->
+                            Log.e(TAG, "onnext:"+Thread.currentThread().toString())
                             this@WordInfoPresenterImpl.wordInfo = wordInfo
                             showWord(wordInfo)
                         }, { e ->
+                            Log.e(TAG, "error:"+Thread.currentThread().toString())
                             wordInfoView?.let {
                                 it.showError(e.message ?: it.getContext().getString(R.string.default_error))
                             }

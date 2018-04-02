@@ -3,13 +3,13 @@ package com.mydictionary.ui.views.word
 import android.content.Context
 import android.content.Intent
 import android.os.Bundle
-import android.support.design.widget.Snackbar
 import android.support.v7.app.AppCompatActivity
 import android.support.v7.widget.LinearLayoutManager
 import android.support.v7.widget.RecyclerView
 import android.view.Menu
 import android.view.MenuItem
 import android.view.View
+import android.widget.Toast
 import com.mydictionary.R
 import com.mydictionary.commons.SELECTED_WORD_NAME_EXTRA
 import com.mydictionary.data.pojo.WordMeaning
@@ -39,7 +39,7 @@ class WordInfoActivity : AppCompatActivity(), WordInfoView, WordCardsAdapter.Vie
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.word_info_activity);
-        initList(scrollContent, wordCardsAdapter)
+        initList(scrollContentRecyclerView, wordCardsAdapter)
 
         presenter.onStart(this)
     }
@@ -110,7 +110,7 @@ class WordInfoActivity : AppCompatActivity(), WordInfoView, WordCardsAdapter.Vie
     }
 
     override fun showError(message: String) {
-        Snackbar.make(findViewById(android.R.id.content), message, Snackbar.LENGTH_LONG).show()
+        Toast.makeText(this, message, Toast.LENGTH_LONG).show()
     }
 
     override fun getExtras(): Bundle {
