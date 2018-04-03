@@ -36,7 +36,7 @@ class LearnWordsPresenterImpl(val repository: WordsRepository) : LearnWordsPrese
                     requestUnderWay = true
                 }.
                 //subscribeOn(Schedulers.io()).
-                concatMap { repository.getFavoriteWords(it, FAV_WORD_PAGE_SIZE, sortingType) }.
+                concatMap { repository.getFavoriteWordsInfo(it, FAV_WORD_PAGE_SIZE, sortingType) }.
                 observeOn(AndroidSchedulers.mainThread()).
                 doOnNext {
                     wordsView?.showProgress(false)

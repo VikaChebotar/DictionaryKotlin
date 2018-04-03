@@ -1,8 +1,8 @@
 package com.mydictionary.data.pojo
 
 import com.mydictionary.commons.TOP_RELATED_WORDS_LIMIT
-import com.mydictionary.data.network.dto.RelatedWordsResponse
-import com.mydictionary.data.network.dto.WordDetailsResponse
+import com.mydictionary.data.oxfordapi.dto.RelatedWordsResponse
+import com.mydictionary.data.oxfordapi.dto.WordDetailsResponse
 
 /**
  * Created by Viktoria_Chebotar on 2/22/2018.

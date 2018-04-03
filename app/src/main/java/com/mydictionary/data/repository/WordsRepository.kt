@@ -1,5 +1,6 @@
 package com.mydictionary.data.repository
 
+import com.mydictionary.data.firebasestorage.dto.WordList
 import com.mydictionary.data.pojo.PagedResult
 import com.mydictionary.data.pojo.SortingOption
 import com.mydictionary.data.pojo.WordDetails
@@ -24,17 +25,11 @@ interface WordsRepository {
 
     fun searchWord(searchPhrase: String): Single<List<String>>
 
-    fun setWordFavoriteState(word: WordDetails, favMeanings: List<String>):Single<WordDetails>
+    fun setWordFavoriteState(word: WordDetails, favMeanings: List<String>): Single<WordDetails>
 
-    fun getFavoriteWords(offset: Int, pageSize: Int, sortingOption: SortingOption = SortingOption.BY_DATE): Flowable<PagedResult<WordDetails>>
+    fun getFavoriteWordsInfo(offset: Int, pageSize: Int, sortingOption: SortingOption = SortingOption.BY_DATE): Flowable<PagedResult<WordDetails>>
 
-    fun onAppForeground()
+    fun getFavoriteWords(): Single<List<String>>
 
-    fun onAppBackground()
-}
-
-interface RepositoryListener<T> {
-    fun onSuccess(t: T) {}
-
-    fun onError(error: String) {}
+    fun getWordList(): Single<List<WordList>>
 }

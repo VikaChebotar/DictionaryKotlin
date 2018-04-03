@@ -1,4 +1,4 @@
-package com.mydictionary.data.network
+package com.mydictionary.data.oxfordapi
 
 import com.mydictionary.data.pojo.SearchResult
 

@@ -4,7 +4,7 @@ import android.os.Bundle
 import android.support.v7.app.AppCompatActivity
 import android.view.MenuItem
 import com.mydictionary.R
-import com.mydictionary.data.entity.UserWord
+import com.mydictionary.data.firebasestorage.dto.UserWord
 import com.mydictionary.data.pojo.WordDetails
 import com.mydictionary.ui.presenters.mywords.MyWordsView
 import kotlinx.android.synthetic.main.my_words_activity.*

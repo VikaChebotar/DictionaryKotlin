@@ -1,7 +1,7 @@
 package com.mydictionary.data.repository
 
 import android.util.Log
-import com.mydictionary.data.entity.UserWord
+import com.mydictionary.data.firebasestorage.dto.UserWord
 import com.mydictionary.data.pojo.PagedResult
 import com.mydictionary.data.pojo.SortingOption
 import com.mydictionary.data.pojo.WordDetails
@@ -28,15 +28,16 @@ class WordsRepositoryImpl(val factory: WordsStorageFactory) : WordsRepository {
     override fun getWordInfo(wordName: String) =
             factory.oxfordStorage.getFullWordInfo(wordName)
                     .flatMap { wordDetails ->
-                        Log.e(TAG, "getWordInfo:"+Thread.currentThread().toString())
+                        Log.e(TAG, "getWordInfo:" + Thread.currentThread().toString())
                         isSignedIn().flatMap { isSignedIn ->
                             if (isSignedIn) {
-                                factory.firebaseStorage.addWordToHistoryAndGet(wordName).map { userWord ->
-                                    wordDetails.meanings.forEach {
-                                        it.isFavourite = userWord.favSenses.contains(it.definitionId) == true
-                                    }
-                                    wordDetails
-                                }
+                                factory.firebaseStorage.addWordToHistoryAndGet(wordName)
+                                        .map { userWord ->
+                                            wordDetails.meanings.forEach {
+                                                it.isFavourite = userWord.favSenses.contains(it.definitionId) == true
+                                            }
+                                            wordDetails
+                                        }
                             } else {
                                 Single.just(wordDetails)
                             }
@@ -56,24 +57,24 @@ class WordsRepositoryImpl(val factory: WordsStorageFactory) : WordsRepository {
                 word
             }
 
-    override fun getFavoriteWords(offset: Int, pageSize: Int, sortingOption: SortingOption): Flowable<PagedResult<WordDetails>> =
+    override fun getFavoriteWordsInfo(offset: Int, pageSize: Int, sortingOption: SortingOption): Flowable<PagedResult<WordDetails>> =
             Single.zip(factory.firebaseStorage.getFavoriteWords(offset, pageSize, sortingOption).concatMap { userWord ->
-                factory.oxfordStorage.getShortWordInfo(userWord.word).map {
-                    it.meanings.forEach {
-                        it.isFavourite = userWord.favSenses.contains(it.definitionId) == true
-                    }
-                    it
-                }.toFlowable()
+                factory.oxfordStorage.getShortWordInfo(userWord.word)
+                        .map {
+                            it.meanings.forEach {
+                                it.isFavourite = userWord.favSenses.contains(it.definitionId) == true
+                            }
+                            it
+                        }
+                        .toFlowable()
             }.toList(), factory.firebaseStorage.getFavoriteWordsCount(),
                     BiFunction<List<WordDetails>, Int, PagedResult<WordDetails>> { list, size ->
                         PagedResult(list, size)
                     }).toFlowable()
 
-    override fun onAppForeground() {
-        factory.firebaseStorage.onAppForeground()
-    }
+    override fun getFavoriteWords(): Single<List<String>> =
+            factory.firebaseStorage.getFavoriteWords(0, Int.MAX_VALUE, SortingOption.BY_DATE).
+                    map { it.word }.toList()
 
-    override fun onAppBackground() {
-        factory.firebaseStorage.onAppBackground()
-    }
+    override fun getWordList() = factory.firebaseStorage.getWordLists()
 }

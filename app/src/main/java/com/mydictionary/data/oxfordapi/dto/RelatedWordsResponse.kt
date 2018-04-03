@@ -1,4 +1,4 @@
-package com.mydictionary.data.network.dto
+package com.mydictionary.data.oxfordapi.dto
 
 import com.google.gson.annotations.Expose
 import com.google.gson.annotations.SerializedName

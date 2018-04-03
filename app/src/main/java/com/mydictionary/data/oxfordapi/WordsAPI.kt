@@ -1,7 +1,7 @@
-package com.mydictionary.data.network
+package com.mydictionary.data.oxfordapi
 
-import com.mydictionary.data.network.dto.RelatedWordsResponse
-import com.mydictionary.data.network.dto.WordDetailsResponse
+import com.mydictionary.data.oxfordapi.dto.RelatedWordsResponse
+import com.mydictionary.data.oxfordapi.dto.WordDetailsResponse
 import com.mydictionary.data.pojo.SearchResult
 import io.reactivex.Single
 import retrofit2.http.GET

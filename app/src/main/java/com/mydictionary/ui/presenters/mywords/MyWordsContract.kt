@@ -1,6 +1,6 @@
 package com.mydictionary.ui.presenters.mywords
 
-import com.mydictionary.data.entity.UserWord
+import com.mydictionary.data.firebasestorage.dto.UserWord
 import com.mydictionary.data.pojo.WordDetails
 import com.mydictionary.ui.presenters.BasePresenter
 import com.mydictionary.ui.presenters.BaseView

@@ -1,4 +1,4 @@
-package com.mydictionary.data.repository
+package com.mydictionary.data.oxfordapi
 
 import android.content.Context
 import android.util.Log
@@ -6,9 +6,8 @@ import android.util.LruCache
 import com.mydictionary.R
 import com.mydictionary.commons.SEARCH_LIMIT
 import com.mydictionary.commons.getCacheMemorySize
-import com.mydictionary.data.network.WordApiRetrofit
-import com.mydictionary.data.network.dto.RelatedWordsResponse
-import com.mydictionary.data.network.dto.WordDetailsResponse
+import com.mydictionary.data.oxfordapi.dto.RelatedWordsResponse
+import com.mydictionary.data.oxfordapi.dto.WordDetailsResponse
 import com.mydictionary.data.pojo.Mapper
 import com.mydictionary.data.pojo.WordDetails
 import io.reactivex.Single

@@ -5,8 +5,8 @@ import android.os.Bundle
 import android.support.design.widget.Snackbar
 import android.support.v7.app.AlertDialog
 import android.support.v7.app.AppCompatActivity
+import android.support.v7.widget.DividerItemDecoration
 import android.support.v7.widget.LinearLayoutManager
-import android.support.v7.widget.RecyclerView
 import android.view.Menu
 import android.view.MenuItem
 import android.view.MotionEvent
@@ -18,7 +18,6 @@ import com.mydictionary.data.pojo.WordDetails
 import com.mydictionary.ui.DictionaryApp
 import com.mydictionary.ui.presenters.home.HomePresenterImpl
 import com.mydictionary.ui.presenters.home.HomeView
-import com.mydictionary.ui.views.SpaceItemDecorator
 import com.mydictionary.ui.views.learn.LearnActivity
 import com.mydictionary.ui.views.mywords.MyWordsActivity
 import com.mydictionary.ui.views.search.SearchActivity
@@ -28,7 +27,6 @@ import kotlinx.android.synthetic.main.home_activity.*
 
 class HomeActivity : AppCompatActivity(), HomeView {
     val presenter by lazy { HomePresenterImpl(DictionaryApp.getInstance(this).repository) }
-    var scrollListener: EndlessRecyclerViewScrollListener? = null
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -61,10 +59,6 @@ class HomeActivity : AppCompatActivity(), HomeView {
 
     override fun onOptionsItemSelected(item: MenuItem?): Boolean {
         when (item?.itemId) {
-            R.id.action_my_words -> {
-                presenter.onMyWordsBtnClicked()
-                return true
-            }
             R.id.action_signout -> {
                 showSignOutConfirmDialog()
                 return true
@@ -74,11 +68,10 @@ class HomeActivity : AppCompatActivity(), HomeView {
     }
 
     private fun showSignOutConfirmDialog() {
-        AlertDialog.Builder(this).
-                setTitle(getString(R.string.sign_out)).
-                setMessage(getString(R.string.sign_out_confirm_question)).
-                setPositiveButton(getString(R.string.yes), { _, _ -> presenter.onSignOutClicked() }).
-                setNegativeButton(getString(R.string.cancel), { _, _ -> }).show()
+        AlertDialog.Builder(this).setTitle(getString(R.string.sign_out))
+            .setMessage(getString(R.string.sign_out_confirm_question))
+            .setPositiveButton(getString(R.string.yes), { _, _ -> presenter.onSignOutClicked() })
+            .setNegativeButton(getString(R.string.cancel), { _, _ -> }).show()
     }
 
     override fun startMyWordsActivity() {
@@ -88,18 +81,18 @@ class HomeActivity : AppCompatActivity(), HomeView {
 
     override fun showProgress(progress: Boolean) {
         progressBar.visibility = if (progress) View.VISIBLE else View.GONE
-        favoriteWordList.visibility = if (progress) View.GONE else View.VISIBLE
+        wordList.visibility = if (progress) View.GONE else View.VISIBLE
     }
 
     override fun showUserLoginState(isLoggedIn: Boolean) {
         loginLayout.visibility = if (isLoggedIn) View.GONE else View.VISIBLE
-        favoriteWordList.visibility = if (isLoggedIn) View.VISIBLE else View.GONE
+        wordList.visibility = if (isLoggedIn) View.VISIBLE else View.GONE
         invalidateOptionsMenu()
     }
 
     override fun showError(message: String) {
-        Snackbar.make(favoriteWordList!!, message, Snackbar.LENGTH_LONG).show()
-        favoriteWordList.visibility = View.GONE
+        Snackbar.make(wordList!!, message, Snackbar.LENGTH_LONG).show()
+        wordList.visibility = View.GONE
     }
 
     override fun startWordInfoActivity(word: WordDetails) {
@@ -114,20 +107,15 @@ class HomeActivity : AppCompatActivity(), HomeView {
     private fun initList() {
         val linearLayoutManager = LinearLayoutManager(this)
         linearLayoutManager.isAutoMeasureEnabled = true
-        favoriteWordList.layoutManager = linearLayoutManager
-        favoriteWordList.adapter = FavoriteWordsAdapter(this, object : FavoriteWordsAdapter.OnClickListener {
-            override fun onItemClicked(wordDetails: WordDetails) {
-                startWordInfoActivity(wordDetails)
-            }
-        })
-        val margin = resources.getDimension(R.dimen.activity_horizontal_margin).toInt()
-        favoriteWordList.addItemDecoration(SpaceItemDecorator(margin))
-        scrollListener = object : EndlessRecyclerViewScrollListener(linearLayoutManager) {
-            override fun onLoadMore(page: Int, totalItemsCount: Int, view: RecyclerView?) {
-                presenter.onFavListScrolled(page, totalItemsCount)
-            }
-        }
-        favoriteWordList.addOnScrollListener(scrollListener)
+        wordList.layoutManager = linearLayoutManager
+        wordList.adapter = WordListAdapter()
+        //wordLists.adapter = WordListAdapter(this, object : FavoriteWordsAdapter.OnClickListener {
+//            override fun onItemClicked(wordDetails: WordDetails) {
+//                startWordInfoActivity(wordDetails)
+//            }
+//        })
+//        val margin = resources.getDimension(R.dimen.activity_horizontal_margin).toInt()
+        wordList.addItemDecoration(DividerItemDecoration(this, linearLayoutManager.orientation))
     }
 
     private fun startSearchActivity(isVoiceSearchClicked: Boolean = false) {
@@ -150,18 +138,10 @@ class HomeActivity : AppCompatActivity(), HomeView {
     }
 
     override fun onLoginSuccess(userName: String) {
-        Snackbar.make(loginLayout, getString(R.string.login_success, userName),
-                Snackbar.LENGTH_SHORT).show()
-    }
-
-    override fun showFavoriteWords(list: List<WordDetails>, needToReset: Boolean) {
-        if (needToReset) {
-            (favoriteWordList.adapter as FavoriteWordsAdapter).dataset.clear()
-            favoriteWordList.adapter.notifyDataSetChanged();
-            scrollListener?.resetState();
-        }
-        (favoriteWordList.adapter as FavoriteWordsAdapter).dataset.addAll(list)
-        favoriteWordList.adapter.notifyDataSetChanged()
+        Snackbar.make(
+            loginLayout, getString(R.string.login_success, userName),
+            Snackbar.LENGTH_SHORT
+        ).show()
     }
 
     private val searchTouchListener = View.OnTouchListener { _, event ->
@@ -173,6 +153,10 @@ class HomeActivity : AppCompatActivity(), HomeView {
             }
         }
         false
+    }
+
+    override fun showMyWordsList(list: List<String>) {
+        (wordList.adapter as WordListAdapter).setData(list)
     }
 
     override fun getContext() = this

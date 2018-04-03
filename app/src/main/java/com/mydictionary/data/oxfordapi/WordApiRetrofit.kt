@@ -1,4 +1,4 @@
-package com.mydictionary.data.network
+package com.mydictionary.data.oxfordapi
 
 import android.content.Context
 import android.net.ConnectivityManager

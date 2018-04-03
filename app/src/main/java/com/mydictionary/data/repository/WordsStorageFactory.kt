@@ -1,6 +1,8 @@
 package com.mydictionary.data.repository
 
 import android.content.Context
+import com.mydictionary.data.firebasestorage.InternalFirebaseStorage
+import com.mydictionary.data.oxfordapi.OxfordDictionaryStorage
 
 /**
  * Created by Viktoria_Chebotar on 6/12/2017.

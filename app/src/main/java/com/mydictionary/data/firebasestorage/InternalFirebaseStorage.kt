@@ -1,4 +1,4 @@
-package com.mydictionary.data.repository
+package com.mydictionary.data.firebasestorage
 
 import android.content.Context
 import android.util.Log
@@ -8,13 +8,13 @@ import com.google.firebase.auth.GoogleAuthProvider
 import com.google.firebase.database.*
 import com.mydictionary.R
 import com.mydictionary.commons.MAX_HISTORY_LIMIT
-import com.mydictionary.data.entity.UserWord
+import com.mydictionary.data.firebasestorage.dto.UserWord
+import com.mydictionary.data.firebasestorage.dto.WordList
 import com.mydictionary.data.pojo.SortingOption
 import io.reactivex.BackpressureStrategy
 import io.reactivex.Completable
 import io.reactivex.Flowable
 import io.reactivex.Single
-import io.reactivex.Single.create
 import io.reactivex.schedulers.Schedulers
 import java.util.*
 
@@ -27,25 +27,13 @@ class InternalFirebaseStorage(val context: Context) {
     private val firebaseAuth = FirebaseAuth.getInstance();
     private var firebaseDatabase = FirebaseDatabase.getInstance()
 
-
-    private val connectionListener = object : ValueEventListener {
-        override fun onDataChange(snapshot: DataSnapshot) {
-            val connected = snapshot.getValue(Boolean::class.java)!!
-            Log.d(TAG, if (connected) "firebase is connected" else "firebase is not connected")
-        }
-
-        override fun onCancelled(error: DatabaseError) {
-            Log.d(TAG, "firebase connection listener on cancelled")
-        }
-    };
-
     init {
         firebaseDatabase.setPersistenceEnabled(true)
     }
 
-    fun isLoggedIn(): Single<Boolean> = create { emitter -> emitter.onSuccess(firebaseAuth.currentUser != null) }
+    fun isLoggedIn(): Single<Boolean> = Single.create { emitter -> emitter.onSuccess(firebaseAuth.currentUser != null) }
 
-    fun loginFirebaseUser(googleToken: String?): Single<String> = create { emitter ->
+    fun loginFirebaseUser(googleToken: String?): Single<String> = Single.create { emitter ->
         if (firebaseAuth.currentUser != null) {
             emitter.onError(Exception("User is already signedIn"))
             return@create
@@ -117,8 +105,7 @@ class InternalFirebaseStorage(val context: Context) {
                         p0?.children?.mapNotNullTo(list) { it.getValue<UserWord>(UserWord::class.java) }
                         when (sortingOption) {
                             SortingOption.BY_DATE -> list.reverse()
-                            SortingOption.BY_NAME -> {
-                            }
+                            SortingOption.BY_NAME -> { }
                             SortingOption.RANDOMLY -> Collections.shuffle(list)
                         }
                         list.forEach { emitter.onNext(it) }
@@ -128,9 +115,11 @@ class InternalFirebaseStorage(val context: Context) {
             }, BackpressureStrategy.DROP).
                     //hack to return to background thread, because onDataChange is always called in UI thread
                     observeOn(Schedulers.io()).
-                    filter { it.favSenses.isNotEmpty() }.skip(offset.toLong()).take(pageSize.toLong())
+                    filter { it.favSenses.isNotEmpty() }.
+                    skip(offset.toLong()).
+                    take(pageSize.toLong())
 
-    fun getFavoriteWordsCount(): Single<Int> = create({ emitter ->
+    fun getFavoriteWordsCount(): Single<Int> = Single.create({ emitter ->
         if (firebaseAuth.currentUser == null) {
             emitter.onError(Exception(context.getString(R.string.sign_in_message)))
             return@create
@@ -152,7 +141,7 @@ class InternalFirebaseStorage(val context: Context) {
         })
     })
 
-    fun addWordToHistoryAndGet(word: String): Single<UserWord> = create { emitter ->
+    fun addWordToHistoryAndGet(word: String): Single<UserWord> = Single.create { emitter ->
         if (firebaseAuth.currentUser == null) {
             emitter.onError(Exception(context.getString(R.string.sign_in_message)))
         }
@@ -186,7 +175,7 @@ class InternalFirebaseStorage(val context: Context) {
         })
     }
 
-    fun setWordFavoriteState(wordName: String, favMeanings: List<String>): Single<UserWord> = create<UserWord> { emitter ->
+    fun setWordFavoriteState(wordName: String, favMeanings: List<String>): Single<UserWord> = Single.create<UserWord> { emitter ->
         if (firebaseAuth.currentUser == null) {
             emitter.onError(Exception(context.getString(R.string.sign_in_message)))
             return@create
@@ -201,27 +190,23 @@ class InternalFirebaseStorage(val context: Context) {
         }
     }
 
+    fun getWordLists(): Single<List<WordList>> = Single.create<List<WordList>> { emitter ->
+        val query = getWordListReference()
+        query.keepSynced(true)
+        query.addListenerForSingleValueEvent(object : ValueEventListener {
+            override fun onCancelled(p0: DatabaseError?) {
+                emitter.onError(p0?.toException() ?: Exception("error in getWordLists"))
+            }
+
+            override fun onDataChange(p0: DataSnapshot?) {
+                val list = mutableListOf<WordList>()
+                p0?.children?.mapNotNullTo(list) { it.getValue<WordList>(WordList::class.java) }
+                emitter.onSuccess(list)
+            }
+        })
+    }
+
     private fun getUserReference() = firebaseDatabase.reference.child("users").child(firebaseAuth.currentUser?.uid)
 
-
-    private fun registerConnectionListener() {
-        val firebaseConnectedRef = firebaseDatabase.getReference(".info/connected")
-        firebaseConnectedRef.addValueEventListener(connectionListener)
-    }
-
-    private fun unregisterConnectionListener() {
-        val firebaseConnectedRef = firebaseDatabase.getReference(".info/connected")
-        firebaseConnectedRef.removeEventListener(connectionListener)
-    }
-
-    fun onAppForeground() {
-        FirebaseDatabase.getInstance().goOnline()
-        registerConnectionListener()
-    }
-
-    fun onAppBackground() {
-        unregisterConnectionListener()
-        FirebaseDatabase.getInstance().goOffline()
-    }
-
+    private fun getWordListReference() = firebaseDatabase.reference.child("wordlist")
 }
