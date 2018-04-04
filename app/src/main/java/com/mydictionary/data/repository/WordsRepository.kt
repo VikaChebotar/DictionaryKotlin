@@ -31,5 +31,7 @@ interface WordsRepository {
 
     fun getFavoriteWords(): Single<List<String>>
 
-    fun getWordList(): Single<List<WordList>>
+    fun getAllWordLists(): Single<List<WordList>>
+
+    fun getWordList(wordListName: String): Single<List<String>>
 }

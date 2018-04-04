@@ -76,5 +76,7 @@ class WordsRepositoryImpl(val factory: WordsStorageFactory) : WordsRepository {
             factory.firebaseStorage.getFavoriteWords(0, Int.MAX_VALUE, SortingOption.BY_DATE).
                     map { it.word }.toList()
 
-    override fun getWordList() = factory.firebaseStorage.getWordLists()
+    override fun getAllWordLists() = factory.firebaseStorage.getAllWordLists()
+
+    override fun getWordList(wordListName: String) = factory.firebaseStorage.getWordList(wordListName)
 }

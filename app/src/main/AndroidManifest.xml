@@ -29,7 +29,7 @@
             android:name=".ui.views.word.WordInfoActivity"
             android:screenOrientation="portrait"/>
         <activity
-            android:name=".ui.views.mywords.MyWordsActivity"
+            android:name=".ui.views.mywords.WordsActivity"
             android:label="@string/my_words"
             android:screenOrientation="portrait"/>
         <activity

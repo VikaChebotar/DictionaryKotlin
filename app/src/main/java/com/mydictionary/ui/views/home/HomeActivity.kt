@@ -18,8 +18,9 @@ import com.mydictionary.data.pojo.WordDetails
 import com.mydictionary.ui.DictionaryApp
 import com.mydictionary.ui.presenters.home.HomePresenterImpl
 import com.mydictionary.ui.presenters.home.HomeView
+import com.mydictionary.ui.presenters.home.WordListItem
 import com.mydictionary.ui.views.learn.LearnActivity
-import com.mydictionary.ui.views.mywords.MyWordsActivity
+import com.mydictionary.ui.views.mywords.WordsActivity
 import com.mydictionary.ui.views.search.SearchActivity
 import com.mydictionary.ui.views.word.WordInfoActivity
 import kotlinx.android.synthetic.main.home_activity.*
@@ -75,7 +76,7 @@ class HomeActivity : AppCompatActivity(), HomeView {
     }
 
     override fun startMyWordsActivity() {
-        val intent = Intent(this@HomeActivity, MyWordsActivity::class.java);
+        val intent = Intent(this@HomeActivity, WordsActivity::class.java);
         startActivity(intent)
     }
 
@@ -105,17 +106,11 @@ class HomeActivity : AppCompatActivity(), HomeView {
     }
 
     private fun initList() {
-        val linearLayoutManager = LinearLayoutManager(this)
-        linearLayoutManager.isAutoMeasureEnabled = true
-        wordList.layoutManager = linearLayoutManager
-        wordList.adapter = WordListAdapter()
-        //wordLists.adapter = WordListAdapter(this, object : FavoriteWordsAdapter.OnClickListener {
-//            override fun onItemClicked(wordDetails: WordDetails) {
-//                startWordInfoActivity(wordDetails)
-//            }
-//        })
-//        val margin = resources.getDimension(R.dimen.activity_horizontal_margin).toInt()
-        wordList.addItemDecoration(DividerItemDecoration(this, linearLayoutManager.orientation))
+        wordList.layoutManager = LinearLayoutManager(this)
+        wordList.adapter = WordListAdapter({ it1, it2 -> onWordListClick(it1, it2) })
+        val divider = DividerItemDecoration(this, LinearLayoutManager.VERTICAL)
+        divider.setDrawable(getDrawable(R.drawable.divider))
+        wordList.addItemDecoration(divider)
     }
 
     private fun startSearchActivity(isVoiceSearchClicked: Boolean = false) {
@@ -155,9 +150,13 @@ class HomeActivity : AppCompatActivity(), HomeView {
         false
     }
 
-    override fun showMyWordsList(list: List<String>) {
+    override fun showWordLists(list: List<WordListItem>) {
         (wordList.adapter as WordListAdapter).setData(list)
     }
 
     override fun getContext() = this
+
+    private fun onWordListClick(position: Int, wordListName: String) {
+        WordsActivity.startActivity(this, wordListName)
+    }
 }

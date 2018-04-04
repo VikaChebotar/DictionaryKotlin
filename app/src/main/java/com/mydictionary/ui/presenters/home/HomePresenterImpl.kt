@@ -9,6 +9,7 @@ import com.google.android.gms.auth.api.signin.GoogleSignInOptions
 import com.google.android.gms.common.api.ApiException
 import com.mydictionary.R
 import com.mydictionary.data.repository.WordsRepository
+import io.reactivex.Observable
 import io.reactivex.Single
 import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.disposables.CompositeDisposable
@@ -31,9 +32,9 @@ class HomePresenterImpl(val repository: WordsRepository) : HomePresenter {
     override fun onStart(view: HomeView) {
         this.homeView = view
         googleSignInOptions = GoogleSignInOptions.Builder(GoogleSignInOptions.DEFAULT_SIGN_IN)
-                .requestIdToken(view.getContext().getString(R.string.default_web_client_id))
-                .requestEmail()
-                .build()
+            .requestIdToken(view.getContext().getString(R.string.default_web_client_id))
+            .requestEmail()
+            .build()
         googleSignInClient = GoogleSignIn.getClient(view.getContext(), googleSignInOptions!!);
         checkIfLoggedIn()
     }
@@ -62,11 +63,11 @@ class HomePresenterImpl(val repository: WordsRepository) : HomePresenter {
         googleSignInClient?.signOut()
         googleSignInClient?.revokeAccess()
         repository.signOut()
-                .subscribeOn(Schedulers.io())
-                .observeOn(AndroidSchedulers.mainThread())
-                .subscribe({
-                    homeView?.showUserLoginState(false)
-                })
+            .subscribeOn(Schedulers.io())
+            .observeOn(AndroidSchedulers.mainThread())
+            .subscribe({
+                homeView?.showUserLoginState(false)
+            })
     }
 
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
@@ -84,8 +85,10 @@ class HomePresenterImpl(val repository: WordsRepository) : HomePresenter {
                 loadWordLists()
             }, { error ->
                 Log.e(TAG, error.message)
-                homeView?.onLoginError(homeView?.getContext()?.getString(R.string.login_error)
-                        ?: "")
+                homeView?.onLoginError(
+                    homeView?.getContext()?.getString(R.string.login_error)
+                            ?: ""
+                )
                 homeView?.showProgress(false)
                 isLoggedIn = false
             }))
@@ -97,31 +100,41 @@ class HomePresenterImpl(val repository: WordsRepository) : HomePresenter {
         homeView?.showUserLoginState(isLoggedIn)
 
         compositeDisposable.add(
-                repository.isSignedIn().
-                        subscribeOn(Schedulers.io()).
-                        observeOn(AndroidSchedulers.mainThread()).
-                        subscribe { isLoggedIn ->
-                    homeView?.showUserLoginState(isLoggedIn)
-                    this.isLoggedIn = isLoggedIn
-                })
+            repository.isSignedIn().subscribeOn(Schedulers.io()).observeOn(AndroidSchedulers.mainThread()).subscribe { isLoggedIn ->
+                homeView?.showUserLoginState(isLoggedIn)
+                this.isLoggedIn = isLoggedIn
+            })
     }
 
     private fun loadWordLists() {
+        homeView?.showProgress(true)
         compositeDisposable.add(
-                Single.just("").
-                        map { homeView?.showProgress(true) }.
-                        flatMap { repository.getFavoriteWords() }.
-                        subscribeOn(Schedulers.io()).
-                        observeOn(AndroidSchedulers.mainThread()).
-                        doOnEvent { t1, t2 -> homeView?.showProgress(false) }.
-                        subscribe(
-                        { homeView?.showMyWordsList(it) },
-                        { throwable ->
-                            homeView?.let {
-                                it.showError(throwable.message
-                                        ?: it.getContext().getString(R.string.default_error))
-                            }
-                        }))
-
+            repository.getAllWordLists()
+                .toObservable()
+                .flatMapIterable { it -> it }
+                .groupBy { it.type }
+                .flatMap {
+                    if (it.key != null) {
+                        val observable = it.map { WordListItem.WordList(it.name, it.type, it.list) }
+                        Observable.merge(
+                            Observable.just(WordListItem.ListCategory(it.key!!)),
+                            observable
+                        )
+                    } else
+                        Observable.empty<WordListItem>()
+                }.toList()
+                .subscribeOn(Schedulers.io())
+                .observeOn(AndroidSchedulers.mainThread())
+                .doOnEvent { t1, t2 -> homeView?.showProgress(false) }
+                .subscribe({ homeView?.showWordLists(it) }, { throwable ->
+                    throwable.printStackTrace()
+                    homeView?.let {
+                        it.showError(
+                            throwable.message
+                                    ?: it.getContext().getString(R.string.default_error)
+                        )
+                    }
+                })
+        )
     }
 }

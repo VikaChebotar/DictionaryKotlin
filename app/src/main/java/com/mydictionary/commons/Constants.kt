@@ -31,6 +31,7 @@ val MEMORY_CACHE_PERCENT = 0.125
 val FAV_WORD_PAGE_SIZE = 10
 val FAV_WORD_PAGE_THRESHOLD = 5
 val SHUFFLE_DOWNLOAD_PAGE_SIZE = 30
+val WORD_LIST_NAME = "word_list_name_extra"
 
 enum class CompoundDrawables {
     LEFT, TOP, RIGHT, BOTTOM

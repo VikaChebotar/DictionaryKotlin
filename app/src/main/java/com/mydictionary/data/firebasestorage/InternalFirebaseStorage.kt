@@ -31,7 +31,8 @@ class InternalFirebaseStorage(val context: Context) {
         firebaseDatabase.setPersistenceEnabled(true)
     }
 
-    fun isLoggedIn(): Single<Boolean> = Single.create { emitter -> emitter.onSuccess(firebaseAuth.currentUser != null) }
+    fun isLoggedIn(): Single<Boolean> =
+        Single.create { emitter -> emitter.onSuccess(firebaseAuth.currentUser != null) }
 
     fun loginFirebaseUser(googleToken: String?): Single<String> = Single.create { emitter ->
         if (firebaseAuth.currentUser != null) {
@@ -49,8 +50,10 @@ class InternalFirebaseStorage(val context: Context) {
                 }
             } else {
                 Log.e(TAG, "firebaseAuthWithGoogle:failure", task.getException())
-                emitter.onError(task.exception
-                        ?: Exception(context.getString(R.string.login_error)))
+                emitter.onError(
+                    task.exception
+                            ?: Exception(context.getString(R.string.login_error))
+                )
             }
         }
     }
@@ -74,50 +77,58 @@ class InternalFirebaseStorage(val context: Context) {
 
             override fun onDataChange(p0: DataSnapshot?) {
                 val list = mutableListOf<String>()
-                p0?.children?.mapNotNullTo(list) { it.getValue<UserWord>(UserWord::class.java)?.word }
+                p0?.children?.mapNotNullTo(list) {
+                    it.getValue<UserWord>(UserWord::class.java)?.word
+                }
                 emitter.onNext(list.reversed())
             }
         })
     }, BackpressureStrategy.DROP)
 
-    fun getFavoriteWords(offset: Int, pageSize: Int, sortingOption: SortingOption): Flowable<UserWord> =
-            Flowable.create<UserWord>({ emitter ->
-                if (firebaseAuth.currentUser == null) {
-                    emitter.onError(Exception(context.getString(R.string.sign_in_message)))
-                    return@create
+    fun getFavoriteWords(
+        offset: Int,
+        pageSize: Int,
+        sortingOption: SortingOption
+    ): Flowable<UserWord> =
+        Flowable.create<UserWord>({ emitter ->
+            if (firebaseAuth.currentUser == null) {
+                emitter.onError(Exception(context.getString(R.string.sign_in_message)))
+                return@create
+            }
+            var query: Query = getUserReference()
+            when (sortingOption) {
+                SortingOption.BY_DATE -> query = query.orderByChild("accessTime")
+                SortingOption.BY_NAME -> query = query.orderByChild("word")
+                SortingOption.RANDOMLY -> {
                 }
-                var query: Query = getUserReference()
-                when (sortingOption) {
-                    SortingOption.BY_DATE -> query = query.orderByChild("accessTime")
-                    SortingOption.BY_NAME -> query = query.orderByChild("word")
-                    SortingOption.RANDOMLY -> {
-                    }
+            }
+            query.keepSynced(true)
+            query.addListenerForSingleValueEvent(object : ValueEventListener {
+                override fun onCancelled(p0: DatabaseError?) {
+                    emitter.onError(
+                        p0?.toException()
+                                ?: Exception(context.getString(R.string.default_error))
+                    )
                 }
-                query.keepSynced(true)
-                query.addListenerForSingleValueEvent(object : ValueEventListener {
-                    override fun onCancelled(p0: DatabaseError?) {
-                        emitter.onError(p0?.toException()
-                                ?: Exception(context.getString(R.string.default_error)))
-                    }
 
-                    override fun onDataChange(p0: DataSnapshot?) {
-                        val list = mutableListOf<UserWord>()
-                        p0?.children?.mapNotNullTo(list) { it.getValue<UserWord>(UserWord::class.java) }
-                        when (sortingOption) {
-                            SortingOption.BY_DATE -> list.reverse()
-                            SortingOption.BY_NAME -> { }
-                            SortingOption.RANDOMLY -> Collections.shuffle(list)
+                override fun onDataChange(p0: DataSnapshot?) {
+                    val list = mutableListOf<UserWord>()
+                    p0?.children?.mapNotNullTo(list) { it.getValue<UserWord>(UserWord::class.java) }
+                    when (sortingOption) {
+                        SortingOption.BY_DATE -> list.reverse()
+                        SortingOption.BY_NAME -> {
                         }
-                        list.forEach { emitter.onNext(it) }
-                        emitter.onComplete()
+                        SortingOption.RANDOMLY -> Collections.shuffle(list)
                     }
-                })
-            }, BackpressureStrategy.DROP).
-                    //hack to return to background thread, because onDataChange is always called in UI thread
-                    observeOn(Schedulers.io()).
-                    filter { it.favSenses.isNotEmpty() }.
-                    skip(offset.toLong()).
-                    take(pageSize.toLong())
+                    list.forEach { emitter.onNext(it) }
+                    emitter.onComplete()
+                }
+            })
+        }, BackpressureStrategy.DROP).
+            //hack to return to background thread, because onDataChange is always called in UI thread
+            observeOn(Schedulers.io()).filter { it.favSenses.isNotEmpty() }.skip(offset.toLong()).take(
+            pageSize.toLong()
+        )
 
     fun getFavoriteWordsCount(): Single<Int> = Single.create({ emitter ->
         if (firebaseAuth.currentUser == null) {
@@ -128,8 +139,10 @@ class InternalFirebaseStorage(val context: Context) {
         query.keepSynced(true)
         query.addListenerForSingleValueEvent(object : ValueEventListener {
             override fun onCancelled(p0: DatabaseError?) {
-                emitter.onError(p0?.toException()
-                        ?: Exception(context.getString(R.string.default_error)))
+                emitter.onError(
+                    p0?.toException()
+                            ?: Exception(context.getString(R.string.default_error))
+                )
             }
 
             override fun onDataChange(p0: DataSnapshot?) {
@@ -147,55 +160,61 @@ class InternalFirebaseStorage(val context: Context) {
         }
 
         val userReferenceQuery = getUserReference()
-        userReferenceQuery.orderByChild("word").equalTo(word).addListenerForSingleValueEvent(object : ValueEventListener {
-            override fun onCancelled(p0: DatabaseError?) {
-                emitter.onError(p0?.toException() ?: Exception("error in addingWordToHistory"))
-            }
+        userReferenceQuery.orderByChild("word").equalTo(word)
+            .addListenerForSingleValueEvent(object : ValueEventListener {
+                override fun onCancelled(p0: DatabaseError?) {
+                    emitter.onError(p0?.toException() ?: Exception("error in addingWordToHistory"))
+                }
 
-            override fun onDataChange(p0: DataSnapshot?) {
-                val list = mutableListOf<UserWord>()
-                p0?.children?.mapNotNullTo(list) { it.getValue<UserWord>(UserWord::class.java) }
-                var userWord = UserWord(word)
+                override fun onDataChange(p0: DataSnapshot?) {
+                    val list = mutableListOf<UserWord>()
+                    p0?.children?.mapNotNullTo(list) { it.getValue<UserWord>(UserWord::class.java) }
+                    var userWord = UserWord(word)
 
-                val saveCompleteListener = OnCompleteListener<Void> { it ->
-                    if (it.isSuccessful) {
-                        emitter.onSuccess(userWord)
+                    val saveCompleteListener = OnCompleteListener<Void> { it ->
+                        if (it.isSuccessful) {
+                            emitter.onSuccess(userWord)
+                        } else {
+                            emitter.onError(
+                                it.exception ?: Exception("error in addingWordToHistory")
+                            )
+                        }
+                    }
+                    if (list.isNotEmpty()) {
+                        userWord = list[0]
+                        userWord.updateAccessTime()
+                        userReferenceQuery.child(word).setValue(userWord)
+                            .addOnCompleteListener(saveCompleteListener)
                     } else {
-                        emitter.onError(it.exception ?: Exception("error in addingWordToHistory"))
+                        userReferenceQuery.child(userWord.word).setValue(userWord)
+                            .addOnCompleteListener(saveCompleteListener)
                     }
                 }
-                if (list.isNotEmpty()) {
-                    userWord = list[0]
-                    userWord.updateAccessTime()
-                    userReferenceQuery.child(word).setValue(userWord).addOnCompleteListener(saveCompleteListener)
-                } else {
-                    userReferenceQuery.child(userWord.word).setValue(userWord).addOnCompleteListener(saveCompleteListener)
-                }
+            })
+    }
+
+    fun setWordFavoriteState(wordName: String, favMeanings: List<String>): Single<UserWord> =
+        Single.create<UserWord> { emitter ->
+            if (firebaseAuth.currentUser == null) {
+                emitter.onError(Exception(context.getString(R.string.sign_in_message)))
+                return@create
             }
-        })
-    }
-
-    fun setWordFavoriteState(wordName: String, favMeanings: List<String>): Single<UserWord> = Single.create<UserWord> { emitter ->
-        if (firebaseAuth.currentUser == null) {
-            emitter.onError(Exception(context.getString(R.string.sign_in_message)))
-            return@create
+            val userWord = UserWord(wordName)
+            userWord.favSenses = favMeanings
+            val task = getUserReference().child(wordName).setValue(userWord)
+            task.addOnSuccessListener {
+                emitter.onSuccess(userWord)
+            }.addOnFailureListener { e ->
+                emitter.onError(e)
+            }
         }
-        val userWord = UserWord(wordName)
-        userWord.favSenses = favMeanings
-        val task = getUserReference().child(wordName).setValue(userWord)
-        task.addOnSuccessListener {
-            emitter.onSuccess(userWord)
-        }.addOnFailureListener { e ->
-            emitter.onError(e)
-        }
-    }
 
-    fun getWordLists(): Single<List<WordList>> = Single.create<List<WordList>> { emitter ->
+    fun getAllWordLists(): Single<List<WordList>> = Single.create<List<WordList>> { emitter ->
         val query = getWordListReference()
         query.keepSynced(true)
         query.addListenerForSingleValueEvent(object : ValueEventListener {
             override fun onCancelled(p0: DatabaseError?) {
-                emitter.onError(p0?.toException() ?: Exception("error in getWordLists"))
+                emitter.onError(p0?.toException() ?: Exception("error in getAllWordLists"))
             }
 
             override fun onDataChange(p0: DataSnapshot?) {
@@ -206,7 +225,29 @@ class InternalFirebaseStorage(val context: Context) {
         })
     }
 
-    private fun getUserReference() = firebaseDatabase.reference.child("users").child(firebaseAuth.currentUser?.uid)
+    fun getWordList(wordListName: String): Single<List<String>> =
+        Single.create<List<String>> { emitter ->
+            val query = getWordListReference().orderByChild("name").equalTo(wordListName)
+            query.keepSynced(true)
+            query.addListenerForSingleValueEvent(object : ValueEventListener {
+                override fun onCancelled(p0: DatabaseError?) {
+                    emitter.onError(p0?.toException() ?: Exception("error in getAllWordLists"))
+                }
+
+                override fun onDataChange(p0: DataSnapshot?) {
+                    val wordList = mutableListOf<WordList>()
+                    p0?.children?.mapNotNullTo(wordList) { it.getValue<WordList>(WordList::class.java) }
+                    if (wordList.isNotEmpty()) {
+                        emitter.onSuccess(wordList[0].list)
+                    } else {
+                        emitter.onError(Exception("No such list"))
+                    }
+                }
+            })
+        }
+
+    private fun getUserReference() =
+        firebaseDatabase.reference.child("users").child(firebaseAuth.currentUser?.uid)
 
     private fun getWordListReference() = firebaseDatabase.reference.child("wordlist")
 }

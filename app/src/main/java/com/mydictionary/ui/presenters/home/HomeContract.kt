@@ -24,6 +24,6 @@ interface HomeView : BaseView {
     fun showUserLoginState(isLoggedIn: Boolean)
     fun onLoginError(message: String)
     fun onLoginSuccess(userName: String)
-    fun showMyWordsList(list: List<String>)
+    fun showWordLists(list: List<WordListItem>)
 }
 
