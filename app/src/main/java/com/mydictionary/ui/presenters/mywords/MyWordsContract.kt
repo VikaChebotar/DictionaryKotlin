@@ -7,6 +7,7 @@ import com.mydictionary.ui.presenters.BaseView
  * Created by Viktoria Chebotar on 09.07.17.
  */
 interface WordsPresenter : BasePresenter<WordsView> {
+    fun onSortMenuClicked()
 }
 
 interface WordsView : BaseView {

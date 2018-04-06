@@ -45,7 +45,7 @@ class WordInfoActivity : AppCompatActivity(), WordInfoView, WordCardsAdapter.Vie
     }
 
     override fun onCreateOptionsMenu(menu: Menu?): Boolean {
-        menuInflater.inflate(R.menu.word_menu, menu)
+        menuInflater.inflate(R.menu.word_info_menu, menu)
         return true
     }
 
@@ -106,6 +106,7 @@ class WordInfoActivity : AppCompatActivity(), WordInfoView, WordCardsAdapter.Vie
 
     override fun onRelatedWordClicked(item: String) {
         WordInfoActivity.startActivity(this, item)
+        finish()
     }
 
     override fun onFavouriteBtnClicked(item: WordMeaning) {

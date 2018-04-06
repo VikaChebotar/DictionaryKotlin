@@ -7,6 +7,7 @@ import android.support.design.widget.Snackbar
 import android.support.v7.app.AppCompatActivity
 import android.support.v7.widget.DividerItemDecoration
 import android.support.v7.widget.LinearLayoutManager
+import android.view.Menu
 import android.view.MenuItem
 import android.view.View
 import com.mydictionary.R
@@ -31,6 +32,11 @@ class WordsActivity : AppCompatActivity(), WordsView {
         }
     }
 
+    override fun onCreateOptionsMenu(menu: Menu?): Boolean {
+        menuInflater.inflate(R.menu.learn_cards_menu, menu)
+        return true
+    }
+
     override fun getWordListName() = intent.getStringExtra(WORD_LIST_NAME)
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -47,11 +53,17 @@ class WordsActivity : AppCompatActivity(), WordsView {
     }
 
     override fun onOptionsItemSelected(item: MenuItem?): Boolean {
-        if (item?.itemId == android.R.id.home) {
-            onBackPressed()
-            return true
+        when (item?.itemId) {
+            android.R.id.home -> {
+                onBackPressed()
+                return true
+            }
+            R.id.action_sort -> {
+                presenter.onSortMenuClicked()
+                return true
+            }
         }
-        return false
+        return super.onOptionsItemSelected(item)
     }
 
     override fun showWords(words: List<String>) {

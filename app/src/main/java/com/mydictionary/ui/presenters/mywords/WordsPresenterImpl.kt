@@ -10,6 +10,7 @@ import io.reactivex.schedulers.Schedulers
  */
 class WordsPresenterImpl(val repository: WordsRepository) : WordsPresenter {
     var wordsView: WordsView? = null
+    private val wordList = mutableListOf<String>()
 
     override fun onStart(view: WordsView) {
         wordsView = view
@@ -26,7 +27,11 @@ class WordsPresenterImpl(val repository: WordsRepository) : WordsPresenter {
             .subscribeOn(Schedulers.io())
             .observeOn(AndroidSchedulers.mainThread())
             .doOnEvent { t1, t2 -> wordsView?.showProgress(false) }
-            .subscribe({ wordsView?.showWords(it) }, { throwable ->
+            .subscribe({
+                wordList.clear()
+                wordList.addAll(it)
+                wordsView?.showWords(wordList)
+            }, { throwable ->
                 throwable.printStackTrace()
                 wordsView?.let {
                     it.showError(
@@ -35,5 +40,12 @@ class WordsPresenterImpl(val repository: WordsRepository) : WordsPresenter {
                     )
                 }
             })
+    }
+
+    override fun onSortMenuClicked() {
+        if (wordList.isNotEmpty()){
+                wordList.reverse()
+                wordsView?.showWords(wordList)
+        }
     }
 }
