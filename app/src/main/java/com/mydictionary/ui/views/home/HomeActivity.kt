@@ -3,13 +3,11 @@ package com.mydictionary.ui.views.home
 import android.content.Intent
 import android.os.Bundle
 import android.support.design.widget.Snackbar
+import android.support.v4.app.ActivityOptionsCompat
 import android.support.v7.app.AppCompatActivity
 import android.support.v7.widget.DividerItemDecoration
 import android.support.v7.widget.LinearLayoutManager
-import android.view.Menu
-import android.view.MenuItem
-import android.view.MotionEvent
-import android.view.View
+import android.view.*
 import com.mydictionary.R
 import com.mydictionary.commons.CompoundDrawables.RIGHT
 import com.mydictionary.commons.VOICE_SEARCH_EXTRA
@@ -101,7 +99,19 @@ class HomeActivity : AppCompatActivity(), HomeView {
     private fun startSearchActivity(isVoiceSearchClicked: Boolean = false) {
         val intent = Intent(this@HomeActivity, SearchActivity::class.java);
         intent.putExtra(VOICE_SEARCH_EXTRA, isVoiceSearchClicked)
-        startActivity(intent)
+        val p1 = android.support.v4.util.Pair<View, String>(
+            searchField,
+            getString(R.string.search_field_transition_name)
+        )
+        val p2 = android.support.v4.util.Pair<View, String>(
+            appBarLayout,
+            getString(R.string.search_appbar_transition_name)
+        )
+        val statusBar = findViewById<View>(android.R.id.statusBarBackground)
+        val p3 = android.support.v4.util.Pair<View, String>(statusBar, Window.STATUS_BAR_BACKGROUND_TRANSITION_NAME)
+        val options = ActivityOptionsCompat
+            .makeSceneTransitionAnimation(this, p1, p2, p3)
+        startActivity(intent, options.toBundle())
     }
 
     private val searchTouchListener = View.OnTouchListener { _, event ->

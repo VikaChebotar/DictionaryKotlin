@@ -52,4 +52,6 @@
     <string name="my_account">My Account</string>
     <string name="sign_out">Sign Out</string>
     <string name="user_account_info">You are signed in as %1$s</string>
+    <string name="search_field_transition_name">search_field_transition_name</string>
+    <string name="search_appbar_transition_name">search_appbar_transition_name</string>
 </resources>

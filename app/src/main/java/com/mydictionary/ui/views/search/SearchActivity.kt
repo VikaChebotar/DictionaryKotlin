@@ -11,6 +11,8 @@ import android.support.v7.app.AppCompatActivity
 import android.support.v7.widget.LinearLayoutManager
 import android.support.v7.widget.RecyclerView
 import android.view.View
+import android.view.ViewTreeObserver
+import android.view.animation.AnimationUtils
 import com.mydictionary.R
 import com.mydictionary.commons.VOICE_RECOGNITION_CODE
 import com.mydictionary.commons.VOICE_SEARCH_EXTRA
@@ -23,6 +25,8 @@ import kotlinx.android.synthetic.main.search_activity.*
 import java.util.*
 
 
+
+
 /**
  * Created by Viktoria_Chebotar on 6/20/2017.
  */
@@ -33,13 +37,18 @@ class SearchActivity : AppCompatActivity(), SearchView, SearchEditText.VoiceButt
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.search_activity)
+        fixSharedElementTransitionForStatusBar()
         searchField.contentChangedListener = presenter
         searchField.voiceRecognitionListener = this
         searchField.requestFocus()
         with(searchRecyclerView) {
             layoutManager = LinearLayoutManager(context) as RecyclerView.LayoutManager?
-            val dividerDecoration = DividerItemDecoration(context, ContextCompat.getDrawable(context,
-                    R.drawable.divider_with_padding)!!)
+            val dividerDecoration = DividerItemDecoration(
+                context, ContextCompat.getDrawable(
+                    context,
+                    R.drawable.divider_with_padding
+                )!!
+            )
             addItemDecoration(dividerDecoration)
             adapter = SearchResultsAdapter({ value -> onItemClick(value) })
             isNestedScrollingEnabled = false
@@ -69,18 +78,23 @@ class SearchActivity : AppCompatActivity(), SearchView, SearchEditText.VoiceButt
         Snackbar.make(searchScrollContent!!, message, Snackbar.LENGTH_LONG).show()
     }
 
-    override fun showHistoryWords(list: List<String>) {
+    override fun showHistoryWords(list: List<String>, shouldAnimate: Boolean) {
+        if(shouldAnimate){
+            searchScrollContent.visibility = View.VISIBLE
+            val animation = AnimationUtils.loadAnimation(this, R.anim.slide_up)
+            searchScrollContent.startAnimation(animation)
+        }
         (searchRecyclerView.adapter as SearchResultsAdapter).setList(list, true)
-        moreHistoryBtn.visibility = if (list.isNotEmpty()) View.VISIBLE else View.GONE
+     //   moreHistoryBtn.visibility = if (list.isNotEmpty()) View.VISIBLE else View.GONE
     }
 
     override fun showSearchResult(list: List<String>) {
         (searchRecyclerView.adapter as SearchResultsAdapter).setList(list, false)
-        moreHistoryBtn.visibility = View.GONE
+      //  moreHistoryBtn.visibility = View.GONE
     }
 
     override fun finishView() {
-        onBackPressed()
+        supportFinishAfterTransition();
     }
 
     override fun startVoiceRecognition() {
@@ -88,7 +102,10 @@ class SearchActivity : AppCompatActivity(), SearchView, SearchEditText.VoiceButt
         intent.putExtra(EXTRA_LANGUAGE_MODEL, LANGUAGE_MODEL_WEB_SEARCH)
         intent.putExtra(EXTRA_PROMPT, getString(R.string.speak_now))
         intent.putExtra(EXTRA_LANGUAGE, Locale.US)
-        intent.putExtra(EXTRA_SPEECH_INPUT_COMPLETE_SILENCE_LENGTH_MILLIS, VOICE_SEARCH_PAUSE_MILLIS);
+        intent.putExtra(
+            EXTRA_SPEECH_INPUT_COMPLETE_SILENCE_LENGTH_MILLIS,
+            VOICE_SEARCH_PAUSE_MILLIS
+        );
         startActivityForResult(intent, VOICE_RECOGNITION_CODE)
     }
 
@@ -102,5 +119,21 @@ class SearchActivity : AppCompatActivity(), SearchView, SearchEditText.VoiceButt
             }
         }
     }
+
     override fun getContext() = this
+
+    private fun fixSharedElementTransitionForStatusBar() {
+        // Postpone the transition until the window's decor view has
+        // finished its layout.
+        postponeEnterTransition()
+
+        val decor = window.decorView
+        decor.viewTreeObserver.addOnPreDrawListener(object : ViewTreeObserver.OnPreDrawListener {
+            override fun onPreDraw(): Boolean {
+                decor.viewTreeObserver.removeOnPreDrawListener(this)
+                startPostponedEnterTransition()
+                return true
+            }
+        })
+    }
 }

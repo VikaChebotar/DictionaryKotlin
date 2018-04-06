@@ -18,17 +18,17 @@ class SearchPresenterImpl(val repository: WordsRepository) : SearchPresenter,
 
     override fun onStart(view: SearchView) {
         searchView = view;
-        loadHistoryWords()
+        loadHistoryWords(true)
 
     }
 
-    private fun loadHistoryWords() {
+    private fun loadHistoryWords(shouldAnimate: Boolean) {
         val disposable = repository.getHistoryWords()
             .onErrorReturn { emptyList()}
             .subscribeOn(Schedulers.io())
             .observeOn(AndroidSchedulers.mainThread())
             .subscribe({ list ->
-                searchView?.showHistoryWords(list)
+                searchView?.showHistoryWords(list, shouldAnimate)
             }, { e -> searchView?.showError(e.message ?: "") })
         compositeDisposable.add(disposable)
     }
@@ -52,7 +52,7 @@ class SearchPresenterImpl(val repository: WordsRepository) : SearchPresenter,
     }
 
     override fun onSearchCleared() {
-        loadHistoryWords()
+        loadHistoryWords(false)
     }
 
     override fun onSearchClosed() {

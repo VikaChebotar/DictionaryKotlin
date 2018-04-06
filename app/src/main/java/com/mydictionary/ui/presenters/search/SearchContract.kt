@@ -11,7 +11,7 @@ interface SearchPresenter : BasePresenter<SearchView> {
 }
 
 interface SearchView : BaseView {
-    fun showHistoryWords(list: List<String>)
+    fun showHistoryWords(list: List<String>, shouldAnimate: Boolean)
     fun showSearchResult(list: List<String>)
     fun finishView()
 }
