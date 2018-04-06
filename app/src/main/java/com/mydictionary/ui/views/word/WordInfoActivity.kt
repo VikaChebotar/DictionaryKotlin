@@ -56,13 +56,17 @@ class WordInfoActivity : AppCompatActivity(), WordInfoView, WordCardsAdapter.Vie
                 return true
             }
             R.id.pronounce -> {
+                presenter.onPronounceClicked()
                 return true
             }
         }
         return false
     }
 
-    private fun initList(recyclerView: RecyclerView, adapter: RecyclerView.Adapter<out RecyclerView.ViewHolder>) {
+    private fun initList(
+        recyclerView: RecyclerView,
+        adapter: RecyclerView.Adapter<out RecyclerView.ViewHolder>
+    ) {
         val linearLayoutManager = LinearLayoutManager(this)
         linearLayoutManager.isAutoMeasureEnabled = true
         recyclerView.layoutManager = linearLayoutManager

@@ -11,6 +11,7 @@ import com.mydictionary.ui.presenters.BaseView
 
 interface WordInfoPresenter : BasePresenter<WordInfoView> {
     fun onFavoriteClicked(item: WordMeaning)
+    fun onPronounceClicked()
 }
 
 interface WordInfoView : BaseView {

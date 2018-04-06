@@ -1,8 +1,10 @@
 package com.mydictionary.ui.presenters.word
 
+import android.speech.tts.TextToSpeech
 import android.util.Log
 import com.mydictionary.R
 import com.mydictionary.commons.SELECTED_WORD_NAME_EXTRA
+import com.mydictionary.commons.SPEECH_RATE
 import com.mydictionary.data.pojo.WordDetails
 import com.mydictionary.data.pojo.WordMeaning
 import com.mydictionary.data.repository.WordsRepository
@@ -10,20 +12,23 @@ import io.reactivex.Single
 import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.disposables.CompositeDisposable
 import io.reactivex.schedulers.Schedulers
+import java.util.*
 
 /**
  * Created by Viktoria_Chebotar on 6/30/2017.
  */
 class WordInfoPresenterImpl(val repository: WordsRepository) : WordInfoPresenter {
     val TAG = WordInfoPresenterImpl::class.java.simpleName
+    private var textToSpeech: TextToSpeech? = null
     var wordInfoView: WordInfoView? = null
     var wordInfo: WordDetails? = null
     val compositeDisposable = CompositeDisposable()
 
     override fun onStart(view: WordInfoView) {
         this.wordInfoView = view
+
         val extras = wordInfoView?.getExtras()
-        // wordInfo = extras?.getParcelable<WordDetails>(Constants.SELCTED_WORD_INFO_EXTRA) todo
+        initTextToSpeech()
 
         if (wordInfo != null) {
             wordInfoView?.initToolbar(wordInfo!!.word)
@@ -35,6 +40,15 @@ class WordInfoPresenterImpl(val repository: WordsRepository) : WordInfoPresenter
                 loadWordInfo(it)
             }
         }
+    }
+
+    private fun initTextToSpeech() {
+        textToSpeech = TextToSpeech(wordInfoView?.getContext(), { status ->
+            if (status != TextToSpeech.ERROR) {
+                textToSpeech?.setLanguage(Locale.UK)
+                textToSpeech?.setSpeechRate(SPEECH_RATE)
+            }
+        })
     }
 
     private fun showWord(wordInfo: WordDetails) {
@@ -116,5 +130,18 @@ class WordInfoPresenterImpl(val repository: WordsRepository) : WordInfoPresenter
     override fun onStop() {
         wordInfoView = null
         compositeDisposable.clear()
+        textToSpeech?.stop()
+        textToSpeech?.shutdown()
+    }
+
+    override fun onPronounceClicked() {
+        wordInfo?.word?.let {
+            textToSpeech?.speak(
+                it,
+                TextToSpeech.QUEUE_FLUSH,
+                null,
+                UUID.randomUUID().toString()
+            )
+        }
     }
 }
