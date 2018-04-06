@@ -3,7 +3,6 @@ package com.mydictionary.ui.views.home
 import android.content.Intent
 import android.os.Bundle
 import android.support.design.widget.Snackbar
-import android.support.v7.app.AlertDialog
 import android.support.v7.app.AppCompatActivity
 import android.support.v7.widget.DividerItemDecoration
 import android.support.v7.widget.LinearLayoutManager
@@ -19,6 +18,7 @@ import com.mydictionary.ui.DictionaryApp
 import com.mydictionary.ui.presenters.home.HomePresenterImpl
 import com.mydictionary.ui.presenters.home.HomeView
 import com.mydictionary.ui.presenters.home.WordListItem
+import com.mydictionary.ui.views.account.AccountActivity
 import com.mydictionary.ui.views.learn.LearnActivity
 import com.mydictionary.ui.views.mywords.WordsActivity
 import com.mydictionary.ui.views.search.SearchActivity
@@ -35,16 +35,10 @@ class HomeActivity : AppCompatActivity(), HomeView {
         setSupportActionBar(toolbar)
         presenter.onStart(this)
         searchField.setOnTouchListener(searchTouchListener)
-        loginBtn.setOnClickListener { presenter.onSingInClicked() }
         fabBtn.setOnClickListener {
             startLearnActivity()
         }
         initList()
-    }
-
-    override fun onResume() {
-        super.onResume()
-        presenter.onResume()
     }
 
     override fun onDestroy() {
@@ -54,25 +48,17 @@ class HomeActivity : AppCompatActivity(), HomeView {
 
     override fun onCreateOptionsMenu(menu: Menu?): Boolean {
         menuInflater.inflate(R.menu.home_menu, menu)
-        menu?.findItem(R.id.action_signout)?.isVisible = loginLayout.visibility == View.GONE
         return true
     }
 
     override fun onOptionsItemSelected(item: MenuItem?): Boolean {
         when (item?.itemId) {
-            R.id.action_signout -> {
-                showSignOutConfirmDialog()
+            R.id.action_account -> {
+                startAccountActivity()
                 return true
             }
         }
         return false
-    }
-
-    private fun showSignOutConfirmDialog() {
-        AlertDialog.Builder(this).setTitle(getString(R.string.sign_out))
-            .setMessage(getString(R.string.sign_out_confirm_question))
-            .setPositiveButton(getString(R.string.yes), { _, _ -> presenter.onSignOutClicked() })
-            .setNegativeButton(getString(R.string.cancel), { _, _ -> }).show()
     }
 
     override fun startMyWordsActivity() {
@@ -83,12 +69,6 @@ class HomeActivity : AppCompatActivity(), HomeView {
     override fun showProgress(progress: Boolean) {
         progressBar.visibility = if (progress) View.VISIBLE else View.GONE
         wordList.visibility = if (progress) View.GONE else View.VISIBLE
-    }
-
-    override fun showUserLoginState(isLoggedIn: Boolean) {
-        loginLayout.visibility = if (isLoggedIn) View.GONE else View.VISIBLE
-        wordList.visibility = if (isLoggedIn) View.VISIBLE else View.GONE
-        invalidateOptionsMenu()
     }
 
     override fun showError(message: String) {
@@ -105,6 +85,11 @@ class HomeActivity : AppCompatActivity(), HomeView {
         startActivity(intent)
     }
 
+    private fun startAccountActivity() {
+        val intent = Intent(this@HomeActivity, AccountActivity::class.java);
+        startActivity(intent)
+    }
+
     private fun initList() {
         wordList.layoutManager = LinearLayoutManager(this)
         wordList.adapter = WordListAdapter({ it1, it2 -> onWordListClick(it1, it2) })
@@ -117,26 +102,6 @@ class HomeActivity : AppCompatActivity(), HomeView {
         val intent = Intent(this@HomeActivity, SearchActivity::class.java);
         intent.putExtra(VOICE_SEARCH_EXTRA, isVoiceSearchClicked)
         startActivity(intent)
-    }
-
-    override fun startSignInActivity(intent: Intent, requestCode: Int) {
-        startActivityForResult(intent, requestCode);
-    }
-
-    override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
-        super.onActivityResult(requestCode, resultCode, data)
-        presenter.onActivityResult(requestCode, resultCode, data)
-    }
-
-    override fun onLoginError(message: String) {
-        Snackbar.make(loginLayout, message, Snackbar.LENGTH_SHORT).show()
-    }
-
-    override fun onLoginSuccess(userName: String) {
-        Snackbar.make(
-            loginLayout, getString(R.string.login_success, userName),
-            Snackbar.LENGTH_SHORT
-        ).show()
     }
 
     private val searchTouchListener = View.OnTouchListener { _, event ->

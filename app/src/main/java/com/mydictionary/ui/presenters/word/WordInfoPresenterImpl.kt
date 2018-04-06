@@ -61,41 +61,55 @@ class WordInfoPresenterImpl(val repository: WordsRepository) : WordInfoPresenter
 
     override fun onFavoriteClicked(item: WordMeaning) {
         wordInfo?.let {
-            val favMeanings = mutableListOf<String>()
-            it.meanings.filter { it.isFavourite }.forEach { favMeanings.add(it.definitionId) }
-            if (favMeanings.contains(item.definitionId)) {
-                favMeanings.remove(item.definitionId)
-            } else favMeanings.add(item.definitionId)
-            compositeDisposable.add(repository.setWordFavoriteState(it, favMeanings).
-                    subscribeOn(Schedulers.io()).
-                    observeOn(AndroidSchedulers.mainThread()).
-                    subscribe({ t -> wordInfo = t }, { error ->
-                        Log.e(TAG, "error: " + error)
-                        wordInfoView?.showError(error.message ?: "")
-                        showWord(wordInfo as WordDetails)
-                    }))
+            compositeDisposable.add(
+                Single.just(it)
+                    .map {
+                        val favMeanings = mutableListOf<String>()
+                        it.meanings.filter { it.isFavourite }
+                            .forEach { favMeanings.add(it.definitionId) }
+                        if (favMeanings.contains(item.definitionId)) {
+                            favMeanings.remove(item.definitionId)
+                        } else favMeanings.add(item.definitionId)
+                        favMeanings
+                    }
+                    .flatMap { favMeanings ->
+                        repository.setWordFavoriteState(it, favMeanings)
+                    }
+                    .subscribeOn(Schedulers.io())
+                    .observeOn(AndroidSchedulers.mainThread())
+                    .subscribe(
+                        { t ->
+                            wordInfo = t
+                        },
+                        { error ->
+                            Log.e(TAG, "error: " + error)
+                            wordInfoView?.showError(error.message ?: "")
+                            showWord(wordInfo as WordDetails)
+                        })
+            )
         }
     }
 
 
     private fun loadWordInfo(wordName: String) {
         compositeDisposable.add(
-                Single.just(wordName).
-                        doOnEvent { t1, t2 -> wordInfoView?.showProgress(true) }.
-                        subscribeOn(Schedulers.io()).
-                        flatMap { repository.getWordInfo(it) }.
-                        observeOn(AndroidSchedulers.mainThread()).
-                        doOnEvent { t1, t2 -> wordInfoView?.showProgress(false) }.
-                        subscribe({ wordInfo ->
-                            Log.e(TAG, "onnext:"+Thread.currentThread().toString())
-                            this@WordInfoPresenterImpl.wordInfo = wordInfo
-                            showWord(wordInfo)
-                        }, { e ->
-                            Log.e(TAG, "error:"+Thread.currentThread().toString())
-                            wordInfoView?.let {
-                                it.showError(e.message ?: it.getContext().getString(R.string.default_error))
-                            }
-                        }))
+            Single.just(wordName).doOnEvent { t1, t2 -> wordInfoView?.showProgress(true) }.subscribeOn(
+                Schedulers.io()
+            ).flatMap { repository.getWordInfo(it) }.observeOn(AndroidSchedulers.mainThread()).doOnEvent { t1, t2 ->
+                wordInfoView?.showProgress(
+                    false
+                )
+            }.subscribe({ wordInfo ->
+                Log.e(TAG, "onnext:" + Thread.currentThread().toString())
+                this@WordInfoPresenterImpl.wordInfo = wordInfo
+                showWord(wordInfo)
+            }, { e ->
+                Log.e(TAG, "error:" + Thread.currentThread().toString())
+                wordInfoView?.let {
+                    it.showError(e.message ?: it.getContext().getString(R.string.default_error))
+                }
+            })
+        )
     }
 
 

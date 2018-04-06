@@ -17,9 +17,11 @@ class WordListAdapter(val listener: (Int, String) -> Unit) :
     }
 
     fun setData(list: List<WordListItem>) {
-        dataset.clear()
-        dataset.addAll(list)
-        notifyDataSetChanged()
+        if (list != dataset) {
+            dataset.clear()
+            dataset.addAll(list)
+            notifyDataSetChanged()
+        }
     }
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int) =

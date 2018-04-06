@@ -7,6 +7,7 @@ import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.auth.GoogleAuthProvider
 import com.google.firebase.database.*
 import com.mydictionary.R
+import com.mydictionary.commons.AuthorizationException
 import com.mydictionary.commons.MAX_HISTORY_LIMIT
 import com.mydictionary.data.firebasestorage.dto.UserWord
 import com.mydictionary.data.firebasestorage.dto.WordList
@@ -26,6 +27,7 @@ class InternalFirebaseStorage(val context: Context) {
     private val TAG = InternalFirebaseStorage::class.java.simpleName
     private val firebaseAuth = FirebaseAuth.getInstance();
     private var firebaseDatabase = FirebaseDatabase.getInstance()
+    private val allWordLists = mutableListOf<WordList>()
 
     init {
         firebaseDatabase.setPersistenceEnabled(true)
@@ -63,9 +65,15 @@ class InternalFirebaseStorage(val context: Context) {
         emitter.onComplete()
     }
 
+    fun getUserName(): Single<String> = Single.create<String> { emitter ->
+        firebaseAuth.currentUser?.let { emitter.onSuccess(it.email!!) } ?: emitter.onError(
+            AuthorizationException()
+        )
+    }
+
     fun getHistoryWords(): Flowable<List<String>> = Flowable.create<List<String>>({ emitter ->
         if (firebaseAuth.currentUser == null) {
-            emitter.onError(Exception(context.getString(R.string.sign_in_message)))
+            emitter.onError(AuthorizationException(context.getString(R.string.sign_in_message_favorites)))
             return@create
         }
         val query = getUserReference().orderByChild("accessTime").limitToLast(MAX_HISTORY_LIMIT)
@@ -92,7 +100,7 @@ class InternalFirebaseStorage(val context: Context) {
     ): Flowable<UserWord> =
         Flowable.create<UserWord>({ emitter ->
             if (firebaseAuth.currentUser == null) {
-                emitter.onError(Exception(context.getString(R.string.sign_in_message)))
+                emitter.onError(AuthorizationException(context.getString(R.string.sign_in_message_favorites)))
                 return@create
             }
             var query: Query = getUserReference()
@@ -132,7 +140,8 @@ class InternalFirebaseStorage(val context: Context) {
 
     fun getFavoriteWordsCount(): Single<Int> = Single.create({ emitter ->
         if (firebaseAuth.currentUser == null) {
-            emitter.onError(Exception(context.getString(R.string.sign_in_message)))
+            if (!emitter.isDisposed)
+                emitter.onError(AuthorizationException(context.getString(R.string.sign_in_message_favorites)))
             return@create
         }
         val query = getUserReference().orderByChild("accessTime")
@@ -156,7 +165,7 @@ class InternalFirebaseStorage(val context: Context) {
 
     fun addWordToHistoryAndGet(word: String): Single<UserWord> = Single.create { emitter ->
         if (firebaseAuth.currentUser == null) {
-            emitter.onError(Exception(context.getString(R.string.sign_in_message)))
+            emitter.onError(AuthorizationException())
         }
 
         val userReferenceQuery = getUserReference()
@@ -196,7 +205,7 @@ class InternalFirebaseStorage(val context: Context) {
     fun setWordFavoriteState(wordName: String, favMeanings: List<String>): Single<UserWord> =
         Single.create<UserWord> { emitter ->
             if (firebaseAuth.currentUser == null) {
-                emitter.onError(Exception(context.getString(R.string.sign_in_message)))
+                emitter.onError(AuthorizationException(context.getString(R.string.sign_in_message_favorites)))
                 return@create
             }
             val userWord = UserWord(wordName)
@@ -210,6 +219,7 @@ class InternalFirebaseStorage(val context: Context) {
         }
 
     fun getAllWordLists(): Single<List<WordList>> = Single.create<List<WordList>> { emitter ->
+        if (allWordLists.isNotEmpty()) emitter.onSuccess(allWordLists)
         val query = getWordListReference()
         query.keepSynced(true)
         query.addListenerForSingleValueEvent(object : ValueEventListener {
@@ -218,15 +228,21 @@ class InternalFirebaseStorage(val context: Context) {
             }
 
             override fun onDataChange(p0: DataSnapshot?) {
-                val list = mutableListOf<WordList>()
-                p0?.children?.mapNotNullTo(list) { it.getValue<WordList>(WordList::class.java) }
-                emitter.onSuccess(list)
+                allWordLists.clear()
+                p0?.children?.mapNotNullTo(allWordLists) { it.getValue<WordList>(WordList::class.java) }
+                emitter.onSuccess(allWordLists)
             }
         })
     }
 
     fun getWordList(wordListName: String): Single<List<String>> =
         Single.create<List<String>> { emitter ->
+            if (allWordLists.isNotEmpty()) {
+                allWordLists.find { it.name == wordListName }?.let {
+                    emitter.onSuccess(it.list)
+                    return@create
+                }
+            }
             val query = getWordListReference().orderByChild("name").equalTo(wordListName)
             query.keepSynced(true)
             query.addListenerForSingleValueEvent(object : ValueEventListener {
@@ -244,7 +260,8 @@ class InternalFirebaseStorage(val context: Context) {
                     }
                 }
             })
-        }
+        }. //hack to return to background thread, because onDataChange is always called in UI thread
+            observeOn(Schedulers.io())
 
     private fun getUserReference() =
         firebaseDatabase.reference.child("users").child(firebaseAuth.currentUser?.uid)

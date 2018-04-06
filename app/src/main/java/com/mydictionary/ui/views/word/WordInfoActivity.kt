@@ -3,13 +3,13 @@ package com.mydictionary.ui.views.word
 import android.content.Context
 import android.content.Intent
 import android.os.Bundle
+import android.support.design.widget.Snackbar
 import android.support.v7.app.AppCompatActivity
 import android.support.v7.widget.LinearLayoutManager
 import android.support.v7.widget.RecyclerView
 import android.view.Menu
 import android.view.MenuItem
 import android.view.View
-import android.widget.Toast
 import com.mydictionary.R
 import com.mydictionary.commons.SELECTED_WORD_NAME_EXTRA
 import com.mydictionary.data.pojo.WordMeaning
@@ -70,12 +70,6 @@ class WordInfoActivity : AppCompatActivity(), WordInfoView, WordCardsAdapter.Vie
         val margin = resources.getDimension(R.dimen.activity_horizontal_margin).toInt()
         recyclerView.addItemDecoration(SpaceItemDecorator(margin))
     }
-//
-//    override fun showIsFavorite(isFavorite: Boolean) {
-//        val imageRes = if (isFavorite) R.drawable.ic_favorite_white_24dp else
-//            R.drawable.ic_favorite_border_white_24dp
-//        favoriteFab.setImageResource(imageRes)
-//    }
 
     override fun onDestroy() {
         super.onDestroy()
@@ -93,13 +87,6 @@ class WordInfoActivity : AppCompatActivity(), WordInfoView, WordCardsAdapter.Vie
         pronunciation.text = if (value.isBlank()) "" else getString(R.string.prononcuation, value)
     }
 
-    //
-//    override fun showWordCards(value: List<Definition>, showSeeAllBtn: Boolean) {
-//        wordCardsAdapter.dataset = value
-//        wordCardsAdapter.notifyDataSetChanged()
-//        if (value.isEmpty()) definitionCard.visibility = View.GONE
-//        seeAllDefinitionsBtn.visibility = if (showSeeAllBtn) View.VISIBLE else View.GONE
-//    }
     override fun showWordCards(value: List<Any>) {
         wordCardsAdapter.dataset = value
         wordCardsAdapter.notifyDataSetChanged()
@@ -110,7 +97,7 @@ class WordInfoActivity : AppCompatActivity(), WordInfoView, WordCardsAdapter.Vie
     }
 
     override fun showError(message: String) {
-        Toast.makeText(this, message, Toast.LENGTH_LONG).show()
+        Snackbar.make(scrollContentRecyclerView, message, Snackbar.LENGTH_LONG).show()
     }
 
     override fun getExtras(): Bundle {

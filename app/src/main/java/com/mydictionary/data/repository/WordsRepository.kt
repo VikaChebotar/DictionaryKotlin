@@ -17,6 +17,8 @@ interface WordsRepository {
 
     fun isSignedIn(): Single<Boolean>
 
+    fun getUserName(): Single<String>
+
     fun signOut(): Completable
 
     fun getWordInfo(wordName: String): Single<WordDetails>
@@ -27,7 +29,11 @@ interface WordsRepository {
 
     fun setWordFavoriteState(word: WordDetails, favMeanings: List<String>): Single<WordDetails>
 
-    fun getFavoriteWordsInfo(offset: Int, pageSize: Int, sortingOption: SortingOption = SortingOption.BY_DATE): Flowable<PagedResult<WordDetails>>
+    fun getFavoriteWordsInfo(
+        offset: Int,
+        pageSize: Int,
+        sortingOption: SortingOption = SortingOption.BY_DATE
+    ): Flowable<PagedResult<WordDetails>>
 
     fun getFavoriteWords(): Single<List<String>>
 

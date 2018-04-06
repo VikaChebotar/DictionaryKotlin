@@ -33,11 +33,11 @@
     <string name="notes">Notes</string>
     <string name="login_error">Google sign in failed</string>
     <string name="login_success">You successfully signed in as %1$s</string>
-    <string name="sign_out">Sign out</string>
+    <string name="account">Sign out</string>
     <string name="sign_out_confirm_question">Are you sure you want to sign out?</string>
     <string name="yes">Yes</string>
     <string name="cancel">Cancel</string>
-    <string name="sign_in_message">To add words to your favorites please sign in</string>
+    <string name="sign_in_message_favorites">To add words to favorites please sign in</string>
     <string name="fav_words_title">My Words</string>
     <string name="delete">Delete</string>
     <string name="word_details">Word Details</string>
@@ -49,4 +49,7 @@
     <string name="random_order">In Random Order</string>
     <string name="sort_by_name">By Name</string>
     <string name="sort">Sort</string>
+    <string name="my_account">My Account</string>
+    <string name="sign_out">Sign Out</string>
+    <string name="user_account_info">You are signed in as %1$s</string>
 </resources>

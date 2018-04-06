@@ -10,4 +10,6 @@ fun getCacheMemorySize(): Int {
     return (maxMemory * MEMORY_CACHE_PERCENT).toInt();
 }
 
-class NoConnectivityException:Exception("No connectivity exception")
+class NoConnectivityException : Exception("No connectivity exception")
+
+class AuthorizationException(message: String = "User is not signed in") : Exception(message)

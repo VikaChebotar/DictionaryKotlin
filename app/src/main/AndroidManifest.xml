@@ -1,9 +1,9 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
-          package="com.mydictionary">
+    package="com.mydictionary">
 
-    <uses-permission android:name="android.permission.INTERNET"/>
-    <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE"/>
+    <uses-permission android:name="android.permission.INTERNET" />
+    <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
 
     <application
         android:name=".ui.DictionaryApp"
@@ -17,25 +17,29 @@
             android:name=".ui.views.home.HomeActivity"
             android:screenOrientation="portrait">
             <intent-filter>
-                <action android:name="android.intent.action.MAIN"/>
+                <action android:name="android.intent.action.MAIN" />
 
-                <category android:name="android.intent.category.LAUNCHER"/>
+                <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
         <activity
             android:name=".ui.views.search.SearchActivity"
-            android:screenOrientation="portrait"/>
+            android:screenOrientation="portrait" />
         <activity
             android:name=".ui.views.word.WordInfoActivity"
-            android:screenOrientation="portrait"/>
+            android:screenOrientation="portrait" />
         <activity
             android:name=".ui.views.mywords.WordsActivity"
             android:label="@string/my_words"
-            android:screenOrientation="portrait"/>
+            android:screenOrientation="portrait" />
         <activity
             android:name=".ui.views.learn.LearnActivity"
-            android:label= "@string/fav_words_title"
-            android:screenOrientation="portrait"/>
+            android:label="@string/fav_words_title"
+            android:screenOrientation="portrait" />
+        <activity
+            android:name=".ui.views.account.AccountActivity"
+            android:label="@string/my_account"
+            android:screenOrientation="portrait" />
     </application>
 
 </manifest>
