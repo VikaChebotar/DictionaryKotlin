@@ -9,11 +9,12 @@ import com.google.android.gms.auth.api.signin.GoogleSignInOptions
 import com.google.android.gms.common.api.ApiException
 import com.mydictionary.R
 import com.mydictionary.data.repository.WordsRepository
-import com.mydictionary.ui.presenters.home.SIGN_IN_REQUEST_CODE
 import io.reactivex.Single
 import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.disposables.CompositeDisposable
 import io.reactivex.schedulers.Schedulers
+
+const val SIGN_IN_REQUEST_CODE = 1
 
 class AccountPresenterImpl(val repository: WordsRepository) : AccountPresenter {
     val TAG = AccountPresenterImpl::class.java.simpleName

@@ -43,7 +43,7 @@ class WordCardsAdapter(val listener: ViewClickListener, val context: Context) : 
         }
     }
 
-    override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): RecyclerView.ViewHolder? {
+    override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): RecyclerView.ViewHolder {
         return when (viewType) {
             ViewTypes.HEADER.ordinal -> HeaderItemViewHolder(parent.inflate(R.layout.word_header_list_item))
             ViewTypes.WORD_MEANING.ordinal -> WordCardItemViewHolder(parent.inflate(R.layout.definition_card))

@@ -2,12 +2,11 @@ package com.mydictionary.ui
 
 import android.app.Application
 import android.content.Context
-import com.mydictionary.data.repository.WordsRepository
 import com.mydictionary.data.repository.WordsRepositoryImpl
 import com.mydictionary.data.repository.WordsStorageFactory
+import com.mydictionary.ui.presenters.ViewModelFactory
 import io.reactivex.internal.functions.Functions
 import io.reactivex.plugins.RxJavaPlugins
-
 
 
 /**
@@ -15,12 +14,12 @@ import io.reactivex.plugins.RxJavaPlugins
  */
 
 class DictionaryApp : Application() {
-    lateinit var repository: WordsRepository;
+    val repository by lazy { WordsRepositoryImpl(WordsStorageFactory.getInstance(this)) }
+    val viewModelFactory by lazy { ViewModelFactory(repository) }
 
     override fun onCreate() {
         super.onCreate()
         RxJavaPlugins.setErrorHandler(Functions.emptyConsumer())
-        repository = WordsRepositoryImpl(WordsStorageFactory.getInstance(this))
     }
 
     companion object {

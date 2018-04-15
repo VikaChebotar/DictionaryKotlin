@@ -34,14 +34,14 @@ class WordListAdapter(val listener: (Int, String) -> Unit) :
 
     override fun getItemViewType(position: Int) =
         when (dataset[position]) {
-            is WordListItem.ListCategory -> ViewTypes.CATEGORY_NAME.ordinal
+            is WordListItem.Category -> ViewTypes.CATEGORY_NAME.ordinal
             is WordListItem.WordList -> ViewTypes.LIST_NAME.ordinal
         }
 
 
-    override fun onBindViewHolder(holder: RecyclerView.ViewHolder?, position: Int) {
+    override fun onBindViewHolder(holder: RecyclerView.ViewHolder, position: Int) {
         when (holder) {
-            is CategoryItemViewHolder -> holder.bind(dataset[position] as WordListItem.ListCategory)
+            is CategoryItemViewHolder -> holder.bind(dataset[position] as WordListItem.Category)
             is ListItemViewHolder -> holder.bind(dataset[position] as WordListItem.WordList)
         }
     }
@@ -57,8 +57,8 @@ class WordListAdapter(val listener: (Int, String) -> Unit) :
     }
 
     inner class CategoryItemViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
-        fun bind(item: WordListItem.ListCategory) {
-            (itemView as TextView).text = item.type
+        fun bind(item: WordListItem.Category) {
+            (itemView as TextView).text = item.category
         }
     }
 }
