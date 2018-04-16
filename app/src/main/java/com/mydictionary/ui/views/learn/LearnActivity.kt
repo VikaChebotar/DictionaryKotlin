@@ -16,6 +16,7 @@ import com.mydictionary.data.pojo.WordDetails
 import com.mydictionary.ui.Data
 import com.mydictionary.ui.DataState
 import com.mydictionary.ui.DictionaryApp
+import com.mydictionary.ui.presenters.learn.DeletedWordInfo
 import com.mydictionary.ui.presenters.learn.LearnWordsViewModel
 import com.mydictionary.ui.views.word.WordInfoActivity
 import kotlinx.android.synthetic.main.learn_activity.*
@@ -24,11 +25,14 @@ import kotlinx.android.synthetic.main.learn_activity.*
 /**
  * Created by Viktoria_Chebotar on 3/9/2018.
  */
-class LearnActivity : AppCompatActivity(), LearnCardItemFragment.OnCardItemListener, Listener {
+class LearnActivity : AppCompatActivity(), LearnCardItemFragment.OnCardItemListener,
+    SortingDialogListener {
     private val viewModel by lazy {
-        ViewModelProviders.of(this,
-                DictionaryApp.getInstance(this).viewModelFactory)
-                .get(LearnWordsViewModel::class.java)
+        ViewModelProviders.of(
+            this,
+            DictionaryApp.getInstance(this).viewModelFactory
+        )
+            .get(LearnWordsViewModel::class.java)
     }
     val space by lazy { resources.getDimension(R.dimen.cards_view_pager_margin).toInt() }
     val adapter = LearnCardPagerAadapter(supportFragmentManager)
@@ -48,10 +52,11 @@ class LearnActivity : AppCompatActivity(), LearnCardItemFragment.OnCardItemListe
                 viewModel.onItemSelected(position)
             }
         })
-        viewModel.onItemSelected(0)
-        zipLiveData(viewModel.currentSelectedPosition,
-                viewModel.totalSize)
-                .observe(this, Observer { showPositionText(it?.first, it?.second) })
+        zipLiveData(
+            viewModel.currentSelectedPosition,
+            viewModel.totalSize
+        )
+            .observe(this, Observer { showPositionText(it?.first, it?.second) })
         viewModel.list.observe(this, Observer { showFavoriteWords(it) })
     }
 
@@ -71,8 +76,8 @@ class LearnActivity : AppCompatActivity(), LearnCardItemFragment.OnCardItemListe
     private fun showPositionText(currentPosition: Int?, totalSize: Int?) {
         positionLabel.text = totalSize?.let {
             getString(
-                    R.string.fav_word_selected,
-                    favWordsPager.currentItem + 1, totalSize
+                R.string.fav_word_selected,
+                favWordsPager.currentItem + 1, totalSize
             ) ?: ""
         }
     }
@@ -88,6 +93,7 @@ class LearnActivity : AppCompatActivity(), LearnCardItemFragment.OnCardItemListe
         }
     }
 
+
     override fun onOptionsItemSelected(item: MenuItem?): Boolean {
         when (item?.itemId) {
             android.R.id.home -> {
@@ -95,7 +101,7 @@ class LearnActivity : AppCompatActivity(), LearnCardItemFragment.OnCardItemListe
                 return true
             }
             R.id.action_sort -> {
-                //todo  presenter.onSortMenuClicked()
+                showSortingDialog(viewModel.sortingType.value)
                 return true
             }
         }
@@ -107,19 +113,43 @@ class LearnActivity : AppCompatActivity(), LearnCardItemFragment.OnCardItemListe
     }
 
     override fun onDeleteClicked(word: WordDetails) {
-        //todo presenter.onItemDeleteClicked(word)
+        viewModel.onItemDeleteClicked(word)
+        viewModel.deletedWordInfo.observe(this, object : Observer<Data<DeletedWordInfo>> {
+            override fun onChanged(t: Data<DeletedWordInfo>?) {
+                viewModel.deletedWordInfo.removeObserver(this)
+                handleWordDeletedResult(t)
+            }
+        })
     }
 
-    fun showWordDeletedMessage(oldWordDetails: WordDetails, favMeanings: List<String>, position: Int) {
-//        Snackbar.make(favWordsPager, getString(R.string.word_removed, oldWordDetails.word), Snackbar.LENGTH_LONG).
-//                setAction(getString(R.string.undo), { presenter.onUndoDeletionClicked(oldWordDetails, favMeanings, position) }).show();
+    private fun handleWordDeletedResult(data: Data<DeletedWordInfo>?) {
+        data?.let {
+            when (data.dataState) {
+                DataState.SUCCESS -> data.data?.let { showWordDeletedMessage(it) }
+                DataState.ERROR -> showError(data.message ?: getString(R.string.delete_word_error))
+                DataState.LOADING -> {
+                }
+            }
+        }
+    }
+
+    private fun showWordDeletedMessage(deletedWordInfo: DeletedWordInfo) {
+        Snackbar.make(
+            favWordsPager,
+            getString(R.string.word_removed, deletedWordInfo.wordDetails.word),
+            Snackbar.LENGTH_LONG
+        )
+            .setAction(getString(R.string.undo), {
+                viewModel.onUndoDeletionClicked(deletedWordInfo)
+            })
+            .show();
     }
 
     override fun onSortItemSelected(item: SortingOption) {
-        //todo  presenter.onSortSelected(item)
+        viewModel.onSortSelected(item)
     }
 
-    fun showSortingDialog(selectedSortingOption: SortingOption) {
+    private fun showSortingDialog(selectedSortingOption: SortingOption) {
         if (adapter.list.isEmpty()) return
         val dialog = LearnSortOptionsDialog.getInstance(selectedSortingOption)
         dialog.show(supportFragmentManager, LearnSortOptionsDialog::class.java.name)

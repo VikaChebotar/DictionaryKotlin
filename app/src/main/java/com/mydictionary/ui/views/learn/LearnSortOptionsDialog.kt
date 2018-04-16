@@ -17,7 +17,7 @@ import kotlinx.android.synthetic.main.learn_sort_options.*
 
 class LearnSortOptionsDialog : BottomSheetDialogFragment(), View.OnClickListener {
 
-    var listener: Listener? = null
+    var listener: SortingDialogListener? = null
 
     companion object {
         fun getInstance(selectedSortingOption: SortingOption): LearnSortOptionsDialog {
@@ -58,6 +58,6 @@ class LearnSortOptionsDialog : BottomSheetDialogFragment(), View.OnClickListener
     }
 }
 
-interface Listener {
+interface SortingDialogListener {
     fun onSortItemSelected(item: SortingOption)
 }
