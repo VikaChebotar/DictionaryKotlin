@@ -1,7 +1,5 @@
 package com.mydictionary.commons
 
-import android.arch.lifecycle.LiveData
-import android.arch.lifecycle.MediatorLiveData
 import android.content.Context
 import android.content.Intent
 import android.content.pm.PackageManager
@@ -11,6 +9,7 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.view.inputmethod.InputMethodManager
+import android.widget.EditText
 import java.util.*
 
 /**
@@ -48,4 +47,11 @@ fun ViewGroup.inflate(layoutRes: Int, attachToRoot: Boolean = false): View {
 fun String.containsWhiteSpace(): Boolean {
     val strLen = this.length
     return (0 until strLen).any { Character.isWhitespace(this.toCharArray()[it]) }
+}
+
+
+fun EditText.showKeyboard(){
+    requestFocus()
+    val imm = context.getSystemService(Context.INPUT_METHOD_SERVICE) as InputMethodManager
+    imm.showSoftInput(this, InputMethodManager.SHOW_IMPLICIT);
 }

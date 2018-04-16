@@ -147,6 +147,8 @@ class LearnWordsViewModel(val repository: WordsRepository) : ViewModel() {
 
     override fun onCleared() {
         compositeDisposable.clear()
+        pagingLiveData.removeSource(currentSelectedPosition)
+        pagingLiveData.removeSource(sortingType)
         pagingLiveData.removeObserver(pagingLiveDataObserver)
         super.onCleared()
     }
