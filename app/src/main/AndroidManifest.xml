@@ -13,32 +13,24 @@
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
         android:theme="@style/AppTheme">
-        <activity
-            android:name=".ui.views.home.HomeActivity">
+        <activity android:name=".ui.views.home.HomeActivity">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
 
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
-        <activity
-            android:name=".ui.views.search.SearchActivity"
-            android:screenOrientation="portrait" />
-        <activity
-            android:name=".ui.views.word.WordInfoActivity"
-            android:screenOrientation="portrait" />
+        <activity android:name=".ui.views.search.SearchActivity" />
+        <activity android:name=".ui.views.word.WordInfoActivity" />
         <activity
             android:name=".ui.views.mywords.WordsActivity"
-            android:label="@string/my_words"
-            android:screenOrientation="portrait" />
+            android:label="@string/my_words" />
         <activity
             android:name=".ui.views.learn.LearnActivity"
-            android:label="@string/fav_words_title"
-            android:screenOrientation="portrait" />
+            android:label="@string/fav_words_title" />
         <activity
             android:name=".ui.views.account.AccountActivity"
-            android:label="@string/my_account"
-            android:screenOrientation="portrait" />
+            android:label="@string/my_account" />
     </application>
 
 </manifest>

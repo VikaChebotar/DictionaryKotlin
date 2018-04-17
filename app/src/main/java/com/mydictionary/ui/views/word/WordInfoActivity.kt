@@ -1,5 +1,7 @@
 package com.mydictionary.ui.views.word
 
+import android.arch.lifecycle.Observer
+import android.arch.lifecycle.ViewModelProviders
 import android.content.Context
 import android.content.Intent
 import android.os.Bundle
@@ -13,9 +15,12 @@ import android.view.View
 import com.mydictionary.R
 import com.mydictionary.commons.SELECTED_WORD_NAME_EXTRA
 import com.mydictionary.data.pojo.WordMeaning
+import com.mydictionary.ui.Data
+import com.mydictionary.ui.DataState
 import com.mydictionary.ui.DictionaryApp
-import com.mydictionary.ui.presenters.word.WordInfoPresenterImpl
-import com.mydictionary.ui.presenters.word.WordInfoView
+import com.mydictionary.ui.presenters.word.WordInfoViewModel
+import com.mydictionary.ui.presenters.word.WordInfoViewModelFactory
+import com.mydictionary.ui.presenters.word.WordPresentationDetails
 import com.mydictionary.ui.views.SpaceItemDecorator
 import kotlinx.android.synthetic.main.word_content_scrolling.*
 import kotlinx.android.synthetic.main.word_info_activity.*
@@ -24,9 +29,22 @@ import kotlinx.android.synthetic.main.word_info_activity.*
  * Created by Viktoria Chebotar on 28.06.17.
  */
 
-class WordInfoActivity : AppCompatActivity(), WordInfoView, WordCardsAdapter.ViewClickListener {
-    val presenter by lazy { WordInfoPresenterImpl(DictionaryApp.getInstance(this).repository) }
-    val wordCardsAdapter = WordCardsAdapter(this, this)
+class WordInfoActivity : AppCompatActivity(), WordCardsAdapter.ViewClickListener {
+    private val wordName by lazy { intent.getStringExtra(SELECTED_WORD_NAME_EXTRA) }
+    private lateinit var textToSpeechHelper: TextToSpeechHelper
+    private val viewModel by lazy {
+        ViewModelProviders.of(
+            this,
+            WordInfoViewModelFactory(
+                DictionaryApp.getInstance(this).repository,
+                wordName,
+                application
+            )
+        )
+            .get(WordInfoViewModel::class.java)
+    }
+
+    private val wordCardsAdapter = WordCardsAdapter(this, this)
 
     companion object {
         fun startActivity(context: Context, word: String) {
@@ -38,10 +56,11 @@ class WordInfoActivity : AppCompatActivity(), WordInfoView, WordCardsAdapter.Vie
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        setContentView(R.layout.word_info_activity);
+        setContentView(R.layout.word_info_activity)
+        initToolbar(wordName)
         initList(scrollContentRecyclerView, wordCardsAdapter)
-
-        presenter.onStart(this)
+        textToSpeechHelper = TextToSpeechHelper(this, lifecycle)
+        viewModel.wordPresentationDetails.observe(this, Observer { showWordDetails(it) })
     }
 
     override fun onCreateOptionsMenu(menu: Menu?): Boolean {
@@ -56,7 +75,7 @@ class WordInfoActivity : AppCompatActivity(), WordInfoView, WordCardsAdapter.Vie
                 return true
             }
             R.id.pronounce -> {
-                presenter.onPronounceClicked()
+                textToSpeechHelper.onPronounceClicked(wordName)
                 return true
             }
         }
@@ -67,45 +86,49 @@ class WordInfoActivity : AppCompatActivity(), WordInfoView, WordCardsAdapter.Vie
         recyclerView: RecyclerView,
         adapter: RecyclerView.Adapter<out RecyclerView.ViewHolder>
     ) {
-        val linearLayoutManager = LinearLayoutManager(this)
-        linearLayoutManager.isAutoMeasureEnabled = true
+        val linearLayoutManager = object : LinearLayoutManager(this) {
+            override fun isAutoMeasureEnabled() = true
+        }
         recyclerView.layoutManager = linearLayoutManager
         recyclerView.adapter = adapter
         val margin = resources.getDimension(R.dimen.activity_horizontal_margin).toInt()
         recyclerView.addItemDecoration(SpaceItemDecorator(margin))
     }
 
-    override fun onDestroy() {
-        super.onDestroy()
-        presenter.onStop()
-    }
-
-    override fun initToolbar(word: String) {
+    private fun initToolbar(word: String) {
         setSupportActionBar(toolbar)
         toolbarLayout.title = word
         supportActionBar?.setDisplayShowHomeEnabled(true)
         supportActionBar?.setDisplayHomeAsUpEnabled(true)
     }
 
-    override fun showPronunciation(value: String) {
-        pronunciation.text = if (value.isBlank()) "" else getString(R.string.prononcuation, value)
+    private fun showWordDetails(data: Data<WordPresentationDetails>?) {
+        data?.apply {
+            progressBar.visibility = if (dataState == DataState.LOADING) View.VISIBLE else View.GONE
+            if (dataState == DataState.ERROR) showError(message)
+            this.data?.let {
+                showPronunciation(it.pronunciation)
+                showWordCards(it.contentList)
+            }
+        }
     }
 
-    override fun showWordCards(value: List<Any>) {
+    private fun showPronunciation(value: String?) {
+        pronunciation.text =
+                if (value?.isBlank() == true) "" else getString(R.string.prononcuation, value)
+    }
+
+    private fun showWordCards(value: List<Any>) {
         wordCardsAdapter.dataset = value
         wordCardsAdapter.notifyDataSetChanged()
     }
 
-    override fun showProgress(progress: Boolean) {
-        progressBar.visibility = if (progress) View.VISIBLE else View.GONE
-    }
-
-    override fun showError(message: String) {
-        Snackbar.make(scrollContentRecyclerView, message, Snackbar.LENGTH_LONG).show()
-    }
-
-    override fun getExtras(): Bundle {
-        return intent.extras
+    private fun showError(message: String?) {
+        Snackbar.make(
+            scrollContentRecyclerView,
+            message ?: getString(R.string.default_error),
+            Snackbar.LENGTH_LONG
+        ).show()
     }
 
     override fun onRelatedWordClicked(item: String) {
@@ -114,8 +137,6 @@ class WordInfoActivity : AppCompatActivity(), WordInfoView, WordCardsAdapter.Vie
     }
 
     override fun onFavouriteBtnClicked(item: WordMeaning) {
-        presenter.onFavoriteClicked(item)
+        viewModel.onFavoriteClicked(item)
     }
-
-    override fun getContext() = this
 }

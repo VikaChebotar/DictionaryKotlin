@@ -1,6 +1,5 @@
 package com.mydictionary.data.repository
 
-import android.util.Log
 import com.mydictionary.data.firebasestorage.dto.UserWord
 import com.mydictionary.data.pojo.PagedResult
 import com.mydictionary.data.pojo.SortingOption
@@ -31,7 +30,6 @@ class WordsRepositoryImpl(val factory: WordsStorageFactory) : WordsRepository {
             factory.oxfordStorage
                     .getFullWordInfo(wordName)
                     .flatMap { wordDetails ->
-                        Log.e(TAG, "getWordInfo:" + Thread.currentThread().toString())
                         isSignedIn().flatMap { isSignedIn ->
                             if (isSignedIn) {
                                 factory.firebaseStorage.addWordToHistoryAndGet(wordName)

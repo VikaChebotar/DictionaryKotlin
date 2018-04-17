@@ -1,7 +1,6 @@
 package com.mydictionary.data.oxfordapi
 
 import android.content.Context
-import android.util.Log
 import android.util.LruCache
 import com.mydictionary.R
 import com.mydictionary.commons.SEARCH_LIMIT
@@ -24,7 +23,6 @@ class OxfordDictionaryStorage(val context: Context) {
 
     fun getFullWordInfo(word: String): Single<WordDetails> =
             Single.just(word).flatMap {
-                Log.e(TAG, "getFullWordInfo:"+Thread.currentThread().toString())
                 val wordDetails = wordsCache.get(word)
                 val needToLoadDetails = wordDetails == null
                 val needToLoadRelatedWords = !(!needToLoadDetails && (wordDetails.synonyms.isNotEmpty() || wordDetails.antonyms.isNotEmpty()))
@@ -34,7 +32,6 @@ class OxfordDictionaryStorage(val context: Context) {
                     Single.zip(restApi.getWordInfo(word), restApi.getRelatedWords(word).onErrorReturn { RelatedWordsResponse() },
                             BiFunction<WordDetailsResponse, RelatedWordsResponse, WordDetails>
                             { wordDetailsResponse, relatedWordsResponse ->
-                                Log.e(TAG, "inside request: "+ Thread.currentThread().toString())
                                 val wordDetails = Mapper.fromDto(wordDetailsResponse)
                                 Mapper.setRelatedWords(wordDetails, relatedWordsResponse)
                                 wordDetails
