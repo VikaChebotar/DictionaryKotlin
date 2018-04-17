@@ -6,30 +6,30 @@
     <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
 
     <application
-        android:name=".ui.DictionaryApp"
+        android:name=".presentation.DictionaryApp"
         android:allowBackup="true"
         android:icon="@mipmap/ic_launcher"
         android:label="@string/app_name"
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
         android:theme="@style/AppTheme">
-        <activity android:name=".ui.views.home.HomeActivity">
+        <activity android:name=".presentation.views.home.HomeActivity">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
 
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
-        <activity android:name=".ui.views.search.SearchActivity" />
-        <activity android:name=".ui.views.word.WordInfoActivity" />
+        <activity android:name=".presentation.views.search.SearchActivity" />
+        <activity android:name=".presentation.views.word.WordInfoActivity" />
         <activity
-            android:name=".ui.views.mywords.WordsActivity"
+            android:name=".presentation.views.mywords.WordsActivity"
             android:label="@string/my_words" />
         <activity
-            android:name=".ui.views.learn.LearnActivity"
+            android:name=".presentation.views.learn.LearnActivity"
             android:label="@string/fav_words_title" />
         <activity
-            android:name=".ui.views.account.AccountActivity"
+            android:name=".presentation.views.account.AccountActivity"
             android:label="@string/my_account" />
     </application>
 

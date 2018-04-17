@@ -56,7 +56,7 @@
             android:orientation="vertical"
             android:padding="25dp">
 
-            <com.mydictionary.ui.views.learn.ClickableRecyclerView
+            <com.mydictionary.presentation.views.learn.ClickableRecyclerView
                 android:id="@+id/favMeaningsRecyclerView"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"

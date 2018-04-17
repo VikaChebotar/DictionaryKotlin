@@ -12,7 +12,7 @@
         android:background="@color/colorPrimary"
         android:transitionName="@string/search_appbar_transition_name">
 
-        <com.mydictionary.ui.views.search.SearchEditText
+        <com.mydictionary.presentation.views.search.SearchEditText
             android:id="@+id/searchField"
             style="@style/SearchEditTextStyle"
             android:transitionName="@string/search_field_transition_name" />

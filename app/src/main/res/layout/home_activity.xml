@@ -20,8 +20,8 @@
             android:layout_height="?android:attr/actionBarSize"
             android:descendantFocusability="beforeDescendants"
             android:focusableInTouchMode="true"
-            app:popupTheme="@style/AppTheme.PopupOverlay"
-            app:theme="@style/ThemeOverlay.AppCompat.Dark.ActionBar" />
+            android:popupTheme="@style/AppTheme.PopupOverlay"
+            android:theme="@style/ThemeOverlay.AppCompat.Dark.ActionBar" />
 
         <EditText
             android:id="@+id/searchField"
@@ -35,7 +35,6 @@
     <android.support.v7.widget.RecyclerView
         android:id="@+id/wordList"
         android:layout_width="match_parent"
-        android:layout_below="@+id/appBarLayout"
         app:layout_behavior="@string/appbar_scrolling_view_behavior"
         android:clipToPadding="false"
         android:layout_height="match_parent" />
