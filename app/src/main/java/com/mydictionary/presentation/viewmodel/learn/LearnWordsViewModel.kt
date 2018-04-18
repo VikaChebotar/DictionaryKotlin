@@ -17,11 +17,12 @@ import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.disposables.CompositeDisposable
 import io.reactivex.processors.PublishProcessor
 import io.reactivex.schedulers.Schedulers
+import javax.inject.Inject
 
 /**
  * Created by Viktoria Chebotar on 15.04.18.
  */
-class LearnWordsViewModel(val repository: WordsRepository) : ViewModel() {
+class LearnWordsViewModel @Inject constructor(val repository: WordsRepository): ViewModel() {
     private val compositeDisposable = CompositeDisposable()
     private val paginator = PublishProcessor.create<Int>()
     private val pagingLiveData = MediatorLiveData<Pair<Int, SortingOption>>()

@@ -1,7 +1,6 @@
 package com.mydictionary.presentation.views.home
 
 import android.arch.lifecycle.Observer
-import android.arch.lifecycle.ViewModelProviders
 import android.content.Intent
 import android.os.Bundle
 import android.support.design.widget.Snackbar
@@ -23,18 +22,17 @@ import com.mydictionary.presentation.views.learn.LearnActivity
 import com.mydictionary.presentation.views.mywords.WordsActivity
 import com.mydictionary.presentation.views.search.SearchActivity
 import kotlinx.android.synthetic.main.home_activity.*
+import javax.inject.Inject
 
 
 class HomeActivity : AppCompatActivity() {
-    private val viewModel by lazy {
-        ViewModelProviders.of(this,
-                DictionaryApp.getInstance(this).viewModelFactory)
-                .get(HomeViewModel::class.java)
-    }
+    @Inject
+    lateinit var viewModel: HomeViewModel
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.home_activity);
+        DictionaryApp.component.inject(this)
         setSupportActionBar(toolbar)
 
         searchField.setOnTouchListener(searchTouchListener)
@@ -98,15 +96,16 @@ class HomeActivity : AppCompatActivity() {
         val intent = Intent(this@HomeActivity, SearchActivity::class.java);
         intent.putExtra(VOICE_SEARCH_EXTRA, isVoiceSearchClicked)
         val p1 = android.support.v4.util.Pair<View, String>(
-                searchField,
-                getString(R.string.search_field_transition_name)
+            searchField,
+            getString(R.string.search_field_transition_name)
         )
         val p2 = android.support.v4.util.Pair<View, String>(
-                appBarLayout,
-                getString(R.string.search_appbar_transition_name)
+            appBarLayout,
+            getString(R.string.search_appbar_transition_name)
         )
         val statusBar = findViewById<View>(android.R.id.statusBarBackground)
-        val p3 = android.support.v4.util.Pair(statusBar, Window.STATUS_BAR_BACKGROUND_TRANSITION_NAME)
+        val p3 =
+            android.support.v4.util.Pair(statusBar, Window.STATUS_BAR_BACKGROUND_TRANSITION_NAME)
         val options = ActivityOptionsCompat.makeSceneTransitionAnimation(this, p1, p2, p3)
         startActivity(intent, options.toBundle())
     }

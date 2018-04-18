@@ -1,7 +1,6 @@
 package com.mydictionary.presentation.views.account
 
 import android.arch.lifecycle.Observer
-import android.arch.lifecycle.ViewModelProviders
 import android.content.Intent
 import android.os.Bundle
 import android.support.design.widget.Snackbar
@@ -19,6 +18,7 @@ import com.mydictionary.presentation.DataState
 import com.mydictionary.presentation.DictionaryApp
 import com.mydictionary.presentation.viewmodel.account.AccountViewModel
 import kotlinx.android.synthetic.main.account_activity.*
+import javax.inject.Inject
 
 const val SIGN_IN_REQUEST_CODE = 1
 
@@ -26,17 +26,13 @@ class AccountActivity : AppCompatActivity() {
     private lateinit var googleSignInOptions: GoogleSignInOptions
     private lateinit var googleSignInClient: GoogleSignInClient
 
-    private val viewModel by lazy {
-        ViewModelProviders.of(
-            this,
-            DictionaryApp.getInstance(this).viewModelFactory
-        )
-            .get(AccountViewModel::class.java)
-    }
+    @Inject
+    lateinit var viewModel: AccountViewModel
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.account_activity)
+        DictionaryApp.component.inject(this)
         setSupportActionBar(toolbar)
         supportActionBar?.setDisplayShowHomeEnabled(true)
         supportActionBar?.setDisplayHomeAsUpEnabled(true)

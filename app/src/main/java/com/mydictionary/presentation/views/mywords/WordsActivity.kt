@@ -15,7 +15,6 @@ import android.view.View
 import com.mydictionary.R
 import com.mydictionary.commons.WORD_LIST_NAME
 import com.mydictionary.presentation.DataState
-import com.mydictionary.presentation.DictionaryApp
 import com.mydictionary.presentation.viewmodel.mywords.WordListViewModel
 import com.mydictionary.presentation.viewmodel.mywords.WordListViewModelFactory
 import com.mydictionary.presentation.views.word.WordInfoActivity
@@ -29,10 +28,7 @@ class WordsActivity : AppCompatActivity() {
     private val viewModel by lazy {
         ViewModelProviders.of(
             this,
-            WordListViewModelFactory(
-                DictionaryApp.getInstance(this).repository,
-                wordListName
-            )
+            WordListViewModelFactory(wordListName)
         )
             .get(WordListViewModel::class.java)
     }

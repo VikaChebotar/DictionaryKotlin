@@ -23,10 +23,8 @@ import java.util.*
 /**
  * Created by Viktoria_Chebotar on 6/12/2017.
  */
-class InternalFirebaseStorage(val context: Context) {
+class InternalFirebaseStorage(val context: Context, val firebaseAuth: FirebaseAuth, val firebaseDatabase: FirebaseDatabase) {
     private val TAG = InternalFirebaseStorage::class.java.simpleName
-    private val firebaseAuth = FirebaseAuth.getInstance();
-    private var firebaseDatabase = FirebaseDatabase.getInstance()
     private val allWordLists = mutableListOf<WordList>()
 
     init {

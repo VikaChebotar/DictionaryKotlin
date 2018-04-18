@@ -2,25 +2,36 @@ package com.mydictionary.presentation.viewmodel
 
 import android.arch.lifecycle.ViewModel
 import android.arch.lifecycle.ViewModelProvider
-import com.mydictionary.data.repository.WordsRepository
-import com.mydictionary.presentation.viewmodel.account.AccountViewModel
-import com.mydictionary.presentation.viewmodel.home.HomeViewModel
-import com.mydictionary.presentation.viewmodel.learn.LearnWordsViewModel
-import com.mydictionary.presentation.viewmodel.search.SearchViewModel
+import javax.inject.Inject
+import javax.inject.Provider
+import javax.inject.Singleton
 
-/**
- * Created by Viktoria Chebotar on 15.04.18.
- */
-class ViewModelFactory(private val repository: WordsRepository) : ViewModelProvider.Factory {
+@Suppress("UNCHECKED_CAST")
+@Singleton
+class ViewModelFactory @Inject
+constructor(
+    private val creators: Map<Class<out ViewModel>,
+            @JvmSuppressWildcards Provider<ViewModel>>
+) : ViewModelProvider.Factory {
 
     override fun <T : ViewModel> create(modelClass: Class<T>): T {
-        return when (modelClass) {
-            HomeViewModel::class.java -> HomeViewModel(repository) as T
-            LearnWordsViewModel::class.java -> LearnWordsViewModel(repository) as T
-            SearchViewModel::class.java -> SearchViewModel(repository) as T
-            AccountViewModel::class.java -> AccountViewModel(repository) as T
-            else -> throw IllegalArgumentException("Unknown ViewModel class");
+        var creator: Provider<out ViewModel>? = creators[modelClass]
+        if (creator == null) {
+            for ((key, value) in creators) {
+                if (modelClass.isAssignableFrom(key)) {
+                    creator = value
+                    break
+                }
+            }
         }
-    }
+        if (creator == null) {
+            throw IllegalArgumentException("unknown model class " + modelClass)
+        }
+        try {
+            return creator.get() as T
+        } catch (e: Exception) {
+            throw RuntimeException(e)
+        }
 
+    }
 }

@@ -14,8 +14,13 @@ import io.reactivex.Single
 import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.disposables.CompositeDisposable
 import io.reactivex.schedulers.Schedulers
+import javax.inject.Inject
 
-class WordInfoViewModel(private val repository: WordsRepository, private val wordName: String, app: Application) :
+class WordInfoViewModel(
+    private val repository: WordsRepository,
+    private val wordName: String,
+    app: Application
+) :
     AndroidViewModel(app) {
     private val wordInfo = MutableLiveData<Data<WordDetails>>()
     private val compositeDisposable = CompositeDisposable()
@@ -71,7 +76,7 @@ class WordInfoViewModel(private val repository: WordsRepository, private val wor
                             wordInfo.value = Data(DataState.SUCCESS, word, null)
                         },
                         { error ->
-                            wordInfo.value = Data(DataState.ERROR, it , error.message)
+                            wordInfo.value = Data(DataState.ERROR, it, error.message)
                         })
             )
         }
@@ -110,11 +115,17 @@ private fun mapToPresentation(
 data class WordPresentationDetails(val pronunciation: String? = null, val contentList: List<Any>)
 
 class WordInfoViewModelFactory(
-    val repository: WordsRepository,
-    val wordName: String,
-    val app: Application
+    private val wordName: String
 ) :
     ViewModelProvider.Factory {
+    @Inject
+    lateinit var repository: WordsRepository
+    @Inject
+    lateinit var app: DictionaryApp
+
+    init {
+        DictionaryApp.component.inject(this)
+    }
 
     override fun <T : ViewModel> create(modelClass: Class<T>): T {
         return when (modelClass) {

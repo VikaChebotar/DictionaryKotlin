@@ -9,8 +9,9 @@ import com.mydictionary.presentation.DataState
 import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.disposables.CompositeDisposable
 import io.reactivex.schedulers.Schedulers
+import javax.inject.Inject
 
-class SearchViewModel(val repository: WordsRepository) : ViewModel() {
+class SearchViewModel @Inject constructor(val repository: WordsRepository): ViewModel() {
     val compositeDisposable = CompositeDisposable()
     val searchResultList = MutableLiveData<Data<SearchResult>>()
 

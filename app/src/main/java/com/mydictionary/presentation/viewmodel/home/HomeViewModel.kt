@@ -9,11 +9,13 @@ import io.reactivex.Single
 import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.disposables.CompositeDisposable
 import io.reactivex.schedulers.Schedulers
+import javax.inject.Inject
 
 /**
  * Created by Viktoria Chebotar on 15.04.18.
  */
-class HomeViewModel(private val repository: WordsRepository) : ViewModel() {
+
+class HomeViewModel @Inject constructor(val repository: WordsRepository): ViewModel() {
     val wordList = MutableLiveData<Data<List<WordListItem>>>()
     private val compositeDisposable = CompositeDisposable()
 

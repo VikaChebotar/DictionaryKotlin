@@ -1,7 +1,6 @@
 package com.mydictionary.presentation.views.learn
 
 import android.arch.lifecycle.Observer
-import android.arch.lifecycle.ViewModelProviders
 import android.os.Bundle
 import android.support.design.widget.Snackbar
 import android.support.v4.view.ViewPager
@@ -20,6 +19,7 @@ import com.mydictionary.presentation.viewmodel.learn.DeletedWordInfo
 import com.mydictionary.presentation.viewmodel.learn.LearnWordsViewModel
 import com.mydictionary.presentation.views.word.WordInfoActivity
 import kotlinx.android.synthetic.main.learn_activity.*
+import javax.inject.Inject
 
 
 /**
@@ -27,19 +27,15 @@ import kotlinx.android.synthetic.main.learn_activity.*
  */
 class LearnActivity : AppCompatActivity(), LearnCardItemFragment.OnCardItemListener,
     SortingDialogListener {
-    private val viewModel by lazy {
-        ViewModelProviders.of(
-            this,
-            DictionaryApp.getInstance(this).viewModelFactory
-        )
-            .get(LearnWordsViewModel::class.java)
-    }
+    @Inject
+    lateinit var viewModel: LearnWordsViewModel
     val space by lazy { resources.getDimension(R.dimen.cards_view_pager_margin).toInt() }
     val adapter = LearnCardPagerAadapter(supportFragmentManager)
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        setContentView(R.layout.learn_activity);
+        setContentView(R.layout.learn_activity)
+        DictionaryApp.component.inject(this)
         setSupportActionBar(toolbar)
         supportActionBar?.setDisplayHomeAsUpEnabled(true)
 

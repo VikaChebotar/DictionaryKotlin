@@ -1,7 +1,6 @@
 package com.mydictionary.presentation.views.search
 
 import android.app.Activity
-import android.arch.lifecycle.ViewModelProviders
 import android.content.Intent
 import android.os.Bundle
 import android.speech.RecognizerIntent
@@ -28,6 +27,7 @@ import com.mydictionary.presentation.viewmodel.search.SearchViewModel
 import com.mydictionary.presentation.views.word.WordInfoActivity
 import kotlinx.android.synthetic.main.search_activity.*
 import java.util.*
+import javax.inject.Inject
 
 
 /**
@@ -37,17 +37,14 @@ class SearchActivity : AppCompatActivity(), SearchEditText.VoiceButtonListener,
     SearchEditText.ContentChangedListener {
     private var shouldAnimateList = true
     private var isRestarted = false
-
-    private val viewModel by lazy {
-        ViewModelProviders
-            .of(this, DictionaryApp.getInstance(this).viewModelFactory)
-            .get(SearchViewModel::class.java)
-    }
+    @Inject
+    lateinit var viewModel: SearchViewModel
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         isRestarted = savedInstanceState != null
         setContentView(R.layout.search_activity)
+        DictionaryApp.component.inject(this)
         fixSharedElementTransitionForStatusBar()
         searchField.contentChangedListener = this
         searchField.voiceRecognitionListener = this

@@ -1,10 +1,9 @@
 package com.mydictionary.presentation
 
 import android.app.Application
-import android.content.Context
-import com.mydictionary.data.repository.WordsRepositoryImpl
-import com.mydictionary.data.repository.WordsStorageFactory
-import com.mydictionary.presentation.viewmodel.ViewModelFactory
+import com.mydictionary.di.AppComponent
+import com.mydictionary.di.AppModule
+import com.mydictionary.di.DaggerAppComponent
 import io.reactivex.internal.functions.Functions
 import io.reactivex.plugins.RxJavaPlugins
 
@@ -14,17 +13,20 @@ import io.reactivex.plugins.RxJavaPlugins
  */
 
 class DictionaryApp : Application() {
-    val repository by lazy { WordsRepositoryImpl(WordsStorageFactory.getInstance(this)) }
-    val viewModelFactory by lazy { ViewModelFactory(repository) }
-
     override fun onCreate() {
         super.onCreate()
         RxJavaPlugins.setErrorHandler(Functions.emptyConsumer())
+        initDagger()
+    }
+
+    private fun initDagger() {
+        component = DaggerAppComponent
+            .builder()
+            .appModule(AppModule(this))
+            .build()
     }
 
     companion object {
-        fun getInstance(context: Context): DictionaryApp {
-            return context.applicationContext as DictionaryApp
-        }
+        lateinit var component: AppComponent
     }
 }

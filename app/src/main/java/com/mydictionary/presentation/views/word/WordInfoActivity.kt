@@ -17,7 +17,6 @@ import com.mydictionary.commons.SELECTED_WORD_NAME_EXTRA
 import com.mydictionary.data.pojo.WordMeaning
 import com.mydictionary.presentation.Data
 import com.mydictionary.presentation.DataState
-import com.mydictionary.presentation.DictionaryApp
 import com.mydictionary.presentation.viewmodel.word.WordInfoViewModel
 import com.mydictionary.presentation.viewmodel.word.WordInfoViewModelFactory
 import com.mydictionary.presentation.viewmodel.word.WordPresentationDetails
@@ -36,9 +35,7 @@ class WordInfoActivity : AppCompatActivity(), WordCardsAdapter.ViewClickListener
         ViewModelProviders.of(
             this,
             WordInfoViewModelFactory(
-                DictionaryApp.getInstance(this).repository,
-                wordName,
-                application
+                wordName
             )
         )
             .get(WordInfoViewModel::class.java)

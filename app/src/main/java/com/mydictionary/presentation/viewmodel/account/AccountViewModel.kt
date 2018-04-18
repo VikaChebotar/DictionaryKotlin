@@ -8,8 +8,9 @@ import com.mydictionary.presentation.DataState
 import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.disposables.CompositeDisposable
 import io.reactivex.schedulers.Schedulers
+import javax.inject.Inject
 
-class AccountViewModel(private val repository: WordsRepository) : ViewModel() {
+class AccountViewModel @Inject constructor(val repository: WordsRepository) : ViewModel() {
     private val compositeDisposable = CompositeDisposable()
     val userName = MutableLiveData<Data<String>>() //holds username if loggedIn, if not - it's null
 

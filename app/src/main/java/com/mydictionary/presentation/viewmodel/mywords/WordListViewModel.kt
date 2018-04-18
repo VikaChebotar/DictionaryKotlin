@@ -6,9 +6,11 @@ import android.arch.lifecycle.ViewModelProvider
 import com.mydictionary.data.repository.WordsRepository
 import com.mydictionary.presentation.Data
 import com.mydictionary.presentation.DataState
+import com.mydictionary.presentation.DictionaryApp
 import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.disposables.CompositeDisposable
 import io.reactivex.schedulers.Schedulers
+import javax.inject.Inject
 
 class WordListViewModel(private val repository: WordsRepository, val wordListName: String) :
     ViewModel() {
@@ -45,8 +47,14 @@ class WordListViewModel(private val repository: WordsRepository, val wordListNam
     }
 }
 
-class WordListViewModelFactory(private val repository: WordsRepository, val wordListName: String) :
+class WordListViewModelFactory(val wordListName: String) :
     ViewModelProvider.Factory {
+    @Inject
+    lateinit var repository: WordsRepository
+
+    init {
+        DictionaryApp.component.inject(this)
+    }
 
     override fun <T : ViewModel> create(modelClass: Class<T>): T {
         return when (modelClass) {
