@@ -3,7 +3,7 @@ package com.mydictionary.presentation.viewmodel.mywords
 import android.arch.lifecycle.MutableLiveData
 import android.arch.lifecycle.ViewModel
 import android.arch.lifecycle.ViewModelProvider
-import com.mydictionary.data.repository.WordsRepository
+import com.mydictionary.data.repository.AllRepository
 import com.mydictionary.presentation.Data
 import com.mydictionary.presentation.DataState
 import com.mydictionary.presentation.DictionaryApp
@@ -12,7 +12,7 @@ import io.reactivex.disposables.CompositeDisposable
 import io.reactivex.schedulers.Schedulers
 import javax.inject.Inject
 
-class WordListViewModel(private val repository: WordsRepository, val wordListName: String) :
+class WordListViewModel(private val repository: AllRepository, val wordListName: String) :
     ViewModel() {
     private val compositeDisposable = CompositeDisposable()
     val wordList = MutableLiveData<Data<List<String>>>()
@@ -50,7 +50,7 @@ class WordListViewModel(private val repository: WordsRepository, val wordListNam
 class WordListViewModelFactory(val wordListName: String) :
     ViewModelProvider.Factory {
     @Inject
-    lateinit var repository: WordsRepository
+    lateinit var repository: AllRepository
 
     init {
         DictionaryApp.component.inject(this)

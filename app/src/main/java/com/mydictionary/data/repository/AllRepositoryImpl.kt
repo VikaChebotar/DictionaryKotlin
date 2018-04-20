@@ -3,9 +3,9 @@ package com.mydictionary.data.repository
 import com.mydictionary.data.firebasestorage.InternalFirebaseStorage
 import com.mydictionary.data.firebasestorage.dto.UserWord
 import com.mydictionary.data.oxfordapi.OxfordDictionaryStorage
-import com.mydictionary.data.pojo.PagedResult
-import com.mydictionary.data.pojo.SortingOption
 import com.mydictionary.data.pojo.WordDetails
+import com.mydictionary.domain.entity.PagedResult
+import com.mydictionary.domain.entity.SortingOption
 import io.reactivex.Completable
 import io.reactivex.Flowable
 import io.reactivex.Single
@@ -16,12 +16,12 @@ import javax.inject.Inject
  * Created by Viktoria_Chebotar on 6/7/2017.
  */
 
-class WordsRepositoryImpl
+class AllRepositoryImpl
 @Inject constructor(
     val firebaseStorage: InternalFirebaseStorage,
     val oxfordStorage: OxfordDictionaryStorage
-) : WordsRepository {
-    private val TAG = WordsRepositoryImpl::class.java.simpleName
+) : AllRepository {
+    private val TAG = AllRepositoryImpl::class.java.simpleName
 
 
     override fun loginFirebaseUser(googleToken: String?): Single<String> =
@@ -58,7 +58,7 @@ class WordsRepositoryImpl
     override fun getHistoryWords() = firebaseStorage.getHistoryWords()
 
     override fun searchWord(searchPhrase: String) =
-        oxfordStorage.searchTheWord(searchPhrase)
+        oxfordStorage.searchTheWord(searchPhrase).singleOrError()
 
     override fun setWordFavoriteState(
         word: WordDetails,

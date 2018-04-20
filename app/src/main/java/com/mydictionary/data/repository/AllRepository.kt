@@ -1,9 +1,9 @@
 package com.mydictionary.data.repository
 
 import com.mydictionary.data.firebasestorage.dto.WordList
-import com.mydictionary.data.pojo.PagedResult
-import com.mydictionary.data.pojo.SortingOption
 import com.mydictionary.data.pojo.WordDetails
+import com.mydictionary.domain.entity.PagedResult
+import com.mydictionary.domain.entity.SortingOption
 import io.reactivex.Completable
 import io.reactivex.Flowable
 import io.reactivex.Single
@@ -12,7 +12,7 @@ import io.reactivex.Single
  * Created by Viktoria_Chebotar on 6/7/2017.
  */
 
-interface WordsRepository {
+interface AllRepository {
     fun loginFirebaseUser(googleToken: String?): Single<String>
 
     fun isSignedIn(): Single<Boolean>

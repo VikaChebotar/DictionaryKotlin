@@ -11,7 +11,7 @@ import com.mydictionary.commons.AuthorizationException
 import com.mydictionary.commons.MAX_HISTORY_LIMIT
 import com.mydictionary.data.firebasestorage.dto.UserWord
 import com.mydictionary.data.firebasestorage.dto.WordList
-import com.mydictionary.data.pojo.SortingOption
+import com.mydictionary.domain.entity.SortingOption
 import io.reactivex.BackpressureStrategy
 import io.reactivex.Completable
 import io.reactivex.Flowable

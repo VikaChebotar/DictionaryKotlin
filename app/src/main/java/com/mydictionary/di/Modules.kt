@@ -16,8 +16,11 @@ import com.mydictionary.data.pojo.SearchResult
 import com.mydictionary.data.pojo.WordDetails
 import com.mydictionary.data.pojo.WordResponseMapper
 import com.mydictionary.data.pojo.WordResponseMapperImpl
-import com.mydictionary.data.repository.WordsRepository
-import com.mydictionary.data.repository.WordsRepositoryImpl
+import com.mydictionary.data.repository.AllRepository
+import com.mydictionary.data.repository.AllRepositoryImpl
+import com.mydictionary.data.repository.WordRepositoryImpl
+import com.mydictionary.domain.repository.WordRepository
+import com.mydictionary.domain.usecases.SearchWordUseCase
 import com.mydictionary.presentation.DictionaryApp
 import com.mydictionary.presentation.viewmodel.ViewModelFactory
 import com.mydictionary.presentation.viewmodel.home.HomeViewModel
@@ -42,7 +45,11 @@ class AppModule(private val app: DictionaryApp) {
 
     @Provides
     @Singleton
-    fun providesFirebaseStorage(app: DictionaryApp, auth: FirebaseAuth, database: FirebaseDatabase) = InternalFirebaseStorage(app, auth, database)
+    fun providesFirebaseStorage(
+        app: DictionaryApp,
+        auth: FirebaseAuth,
+        database: FirebaseDatabase
+    ) = InternalFirebaseStorage(app, auth, database)
 
     @Provides
     @Singleton
@@ -59,7 +66,7 @@ class AppModule(private val app: DictionaryApp) {
     fun providesRepository(
         firebaseStorage: InternalFirebaseStorage,
         oxfordDictionaryStorage: OxfordDictionaryStorage
-    ): WordsRepository = WordsRepositoryImpl(firebaseStorage, oxfordDictionaryStorage)
+    ): AllRepository = AllRepositoryImpl(firebaseStorage, oxfordDictionaryStorage)
 }
 
 @Module
@@ -137,4 +144,24 @@ class FirebaseModule {
     @Provides
     @Singleton
     fun providesFirebaseDatabase() = FirebaseDatabase.getInstance()
+}
+
+@Module
+class UseCasesModule {
+    @Provides
+    @Singleton
+    fun providesSearchWordUseCase(wordRepository: WordRepository) =
+        SearchWordUseCase(wordRepository)
+}
+
+@Module
+class DataModule {
+
+    @Provides
+    @Singleton
+    fun providesWordRepository(
+        oxfordDictionaryStorage: OxfordDictionaryStorage
+    ): WordRepository = WordRepositoryImpl(oxfordDictionaryStorage)
+
+
 }

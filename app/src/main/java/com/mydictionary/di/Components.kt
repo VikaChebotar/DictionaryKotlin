@@ -12,7 +12,10 @@ import javax.inject.Singleton
 
 
 @Singleton
-@Component(modules = [AppModule::class, NetworkModule::class, FirebaseModule::class, ViewModelModule::class])
+@Component(
+    modules = [AppModule::class, NetworkModule::class, FirebaseModule::class,
+        ViewModelModule::class, UseCasesModule::class, DataModule::class]
+)
 interface AppComponent {
     fun inject(app: DictionaryApp)
     fun inject(activity: SearchActivity)

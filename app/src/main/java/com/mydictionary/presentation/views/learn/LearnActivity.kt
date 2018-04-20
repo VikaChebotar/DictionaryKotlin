@@ -10,8 +10,8 @@ import android.view.MenuItem
 import android.view.View
 import com.mydictionary.R
 import com.mydictionary.commons.zipLiveData
-import com.mydictionary.data.pojo.SortingOption
 import com.mydictionary.data.pojo.WordDetails
+import com.mydictionary.domain.entity.SortingOption
 import com.mydictionary.presentation.Data
 import com.mydictionary.presentation.DataState
 import com.mydictionary.presentation.DictionaryApp

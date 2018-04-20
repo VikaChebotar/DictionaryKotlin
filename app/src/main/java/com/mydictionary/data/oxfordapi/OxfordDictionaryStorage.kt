@@ -8,6 +8,7 @@ import com.mydictionary.data.oxfordapi.dto.RelatedWordsResponse
 import com.mydictionary.data.oxfordapi.dto.WordDetailsResponse
 import com.mydictionary.data.pojo.WordDetails
 import com.mydictionary.data.pojo.WordResponseMapper
+import io.reactivex.Flowable
 import io.reactivex.Single
 import io.reactivex.functions.BiFunction
 import javax.inject.Inject
@@ -66,6 +67,6 @@ class OxfordDictionaryStorage @Inject constructor(
         doOnSuccess { wordsCache.put(it.word, it) }
 
 
-    fun searchTheWord(phrase: String): Single<List<String>> =
-        restApi.searchTheWord(phrase, SEARCH_LIMIT).map { it.searchResults }
+    fun searchTheWord(phrase: String): Flowable<List<String>> =
+        restApi.searchTheWord(phrase, SEARCH_LIMIT).map {it.searchResults }
 }

@@ -8,9 +8,9 @@ import android.util.Log
 import com.mydictionary.commons.FAV_WORD_PAGE_SIZE
 import com.mydictionary.commons.FAV_WORD_PAGE_THRESHOLD
 import com.mydictionary.commons.NonNullMutableLiveData
-import com.mydictionary.data.pojo.SortingOption
 import com.mydictionary.data.pojo.WordDetails
-import com.mydictionary.data.repository.WordsRepository
+import com.mydictionary.data.repository.AllRepository
+import com.mydictionary.domain.entity.SortingOption
 import com.mydictionary.presentation.Data
 import com.mydictionary.presentation.DataState
 import io.reactivex.android.schedulers.AndroidSchedulers
@@ -22,7 +22,7 @@ import javax.inject.Inject
 /**
  * Created by Viktoria Chebotar on 15.04.18.
  */
-class LearnWordsViewModel @Inject constructor(val repository: WordsRepository): ViewModel() {
+class LearnWordsViewModel @Inject constructor(val repository: AllRepository): ViewModel() {
     private val compositeDisposable = CompositeDisposable()
     private val paginator = PublishProcessor.create<Int>()
     private val pagingLiveData = MediatorLiveData<Pair<Int, SortingOption>>()
@@ -67,6 +67,7 @@ class LearnWordsViewModel @Inject constructor(val repository: WordsRepository): 
                 .concatMap {
                     repository.getFavoriteWordsInfo(it, FAV_WORD_PAGE_SIZE, sortingType.value)
                 }
+                .subscribeOn(Schedulers.io())
                 .observeOn(AndroidSchedulers.mainThread())
                 .subscribe({ pagedResult ->
                     totalSize.postValue(pagedResult.totalSize)

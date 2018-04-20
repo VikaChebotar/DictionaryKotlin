@@ -7,7 +7,7 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.CheckedTextView
 import com.mydictionary.R
-import com.mydictionary.data.pojo.SortingOption
+import com.mydictionary.domain.entity.SortingOption
 import kotlinx.android.synthetic.main.learn_sort_options.*
 
 

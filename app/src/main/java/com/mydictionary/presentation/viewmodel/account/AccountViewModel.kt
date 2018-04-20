@@ -2,7 +2,7 @@ package com.mydictionary.presentation.viewmodel.account
 
 import android.arch.lifecycle.MutableLiveData
 import android.arch.lifecycle.ViewModel
-import com.mydictionary.data.repository.WordsRepository
+import com.mydictionary.data.repository.AllRepository
 import com.mydictionary.presentation.Data
 import com.mydictionary.presentation.DataState
 import io.reactivex.android.schedulers.AndroidSchedulers
@@ -10,7 +10,7 @@ import io.reactivex.disposables.CompositeDisposable
 import io.reactivex.schedulers.Schedulers
 import javax.inject.Inject
 
-class AccountViewModel @Inject constructor(val repository: WordsRepository) : ViewModel() {
+class AccountViewModel @Inject constructor(val repository: AllRepository) : ViewModel() {
     private val compositeDisposable = CompositeDisposable()
     val userName = MutableLiveData<Data<String>>() //holds username if loggedIn, if not - it's null
 

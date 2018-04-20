@@ -2,8 +2,6 @@ package com.mydictionary.presentation.views.search
 
 import android.content.Context
 import android.content.Intent
-import android.os.Handler
-import android.os.Message
 import android.os.Parcelable
 import android.speech.RecognizerIntent
 import android.support.v7.widget.AppCompatEditText
@@ -16,9 +14,9 @@ import android.view.View
 import android.view.inputmethod.EditorInfo
 import android.widget.TextView
 import com.mydictionary.R
-import com.mydictionary.commons.*
-import java.lang.ref.WeakReference
-
+import com.mydictionary.commons.CompoundDrawables
+import com.mydictionary.commons.hideKeyboard
+import com.mydictionary.commons.isIntentAvailable
 
 
 /**
@@ -29,7 +27,6 @@ class SearchEditText : AppCompatEditText {
     private val isVoiceRecognitionSupported by lazy {
         context.isIntentAvailable(Intent(RecognizerIntent.ACTION_RECOGNIZE_SPEECH))
     }
-    private val handler = MyHandler(this)
     private var mIsSearchActive = false
     private var isMiscActive = true
 
@@ -46,9 +43,7 @@ class SearchEditText : AppCompatEditText {
         }
 
         override fun afterTextChanged(string: Editable) {
-            handler.removeMessages(MESSAGE_TEXT_CHANGED)
-            handler.sendMessageDelayed(handler.obtainMessage(MESSAGE_TEXT_CHANGED, string.toString()),
-                    AUTOCOMPLETE_DELAY)
+            contentChangedListener?.onSearchLetterEntered(string.toString())
             if ((string.isNotEmpty() && isMiscActive) || (string.isEmpty() && !isMiscActive)) {
                 isMiscActive = !isMiscActive
                 showSearchDrawables()
@@ -60,8 +55,9 @@ class SearchEditText : AppCompatEditText {
         if (event?.action == MotionEvent.ACTION_UP) {
             val leftBound = compoundDrawables[CompoundDrawables.LEFT.ordinal].bounds.width() +
                     compoundDrawablePadding + paddingLeft
-            val rightBound = right - compoundDrawables[CompoundDrawables.RIGHT.ordinal].bounds.width() -
-                    compoundDrawablePadding - paddingRight
+            val rightBound =
+                right - compoundDrawables[CompoundDrawables.RIGHT.ordinal].bounds.width() -
+                        compoundDrawablePadding - paddingRight
             if (mIsSearchActive && event.rawX <= leftBound) {
                 closeSearch()
                 return@OnTouchListener true
@@ -89,8 +85,7 @@ class SearchEditText : AppCompatEditText {
         setOnTouchListener(touchListener)
         setOnEditorActionListener({ _: TextView?, p1: Int, _: KeyEvent? ->
             if (p1 == EditorInfo.IME_ACTION_SEARCH) {
-                handler.removeMessages(MESSAGE_TEXT_CHANGED)
-                handler.sendMessage(handler.obtainMessage(MESSAGE_TEXT_CHANGED, text.toString()))
+                contentChangedListener?.onSearchLetterEntered(text.toString())
                 true
             } else false
         })
@@ -108,11 +103,6 @@ class SearchEditText : AppCompatEditText {
         }
     }
 
-    override fun onDetachedFromWindow() {
-        super.onDetachedFromWindow()
-        handler.removeCallbacksAndMessages(null);
-    }
-
     fun closeSearch() {
         clearSearch()
         clearFocus()
@@ -123,7 +113,6 @@ class SearchEditText : AppCompatEditText {
 
     fun clearSearch() {
         text.clear()
-        handler.removeCallbacksAndMessages(null);
         contentChangedListener?.onSearchCleared()
     }
 
@@ -144,14 +133,6 @@ class SearchEditText : AppCompatEditText {
         return super.onKeyPreIme(keyCode, event)
     }
 
-    internal class MyHandler(editText: SearchEditText) : Handler() {
-        private val editTextWeakRef = WeakReference<SearchEditText>(editText)
-
-        override fun handleMessage(msg: Message) {
-            super.handleMessage(msg)
-            editTextWeakRef.get()?.contentChangedListener?.onSearchLetterEntered(msg.obj as String);
-        }
-    }
 
     interface ContentChangedListener {
         fun onSearchLetterEntered(msg: String)

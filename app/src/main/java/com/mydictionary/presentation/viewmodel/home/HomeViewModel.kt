@@ -2,7 +2,7 @@ package com.mydictionary.presentation.viewmodel.home
 
 import android.arch.lifecycle.MutableLiveData
 import android.arch.lifecycle.ViewModel
-import com.mydictionary.data.repository.WordsRepository
+import com.mydictionary.data.repository.AllRepository
 import com.mydictionary.presentation.Data
 import com.mydictionary.presentation.DataState
 import io.reactivex.Single
@@ -15,7 +15,7 @@ import javax.inject.Inject
  * Created by Viktoria Chebotar on 15.04.18.
  */
 
-class HomeViewModel @Inject constructor(val repository: WordsRepository): ViewModel() {
+class HomeViewModel @Inject constructor(val repository: AllRepository): ViewModel() {
     val wordList = MutableLiveData<Data<List<WordListItem>>>()
     private val compositeDisposable = CompositeDisposable()
 

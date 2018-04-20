@@ -6,7 +6,7 @@ import android.content.res.Resources
 import com.mydictionary.R
 import com.mydictionary.data.pojo.WordDetails
 import com.mydictionary.data.pojo.WordMeaning
-import com.mydictionary.data.repository.WordsRepository
+import com.mydictionary.data.repository.AllRepository
 import com.mydictionary.presentation.Data
 import com.mydictionary.presentation.DataState
 import com.mydictionary.presentation.DictionaryApp
@@ -17,7 +17,7 @@ import io.reactivex.schedulers.Schedulers
 import javax.inject.Inject
 
 class WordInfoViewModel(
-    private val repository: WordsRepository,
+    private val repository: AllRepository,
     private val wordName: String,
     app: Application
 ) :
@@ -119,7 +119,7 @@ class WordInfoViewModelFactory(
 ) :
     ViewModelProvider.Factory {
     @Inject
-    lateinit var repository: WordsRepository
+    lateinit var repository: AllRepository
     @Inject
     lateinit var app: DictionaryApp
 

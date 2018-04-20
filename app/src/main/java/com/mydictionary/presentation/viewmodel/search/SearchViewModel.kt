@@ -2,36 +2,39 @@ package com.mydictionary.presentation.viewmodel.search
 
 import android.arch.lifecycle.MutableLiveData
 import android.arch.lifecycle.ViewModel
-import com.mydictionary.commons.MIN_WORD_LENGTH_TO_SEARCH
-import com.mydictionary.data.repository.WordsRepository
+import com.mydictionary.data.repository.AllRepository
+import com.mydictionary.domain.usecases.SearchWordUseCase
 import com.mydictionary.presentation.Data
 import com.mydictionary.presentation.DataState
 import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.disposables.CompositeDisposable
+import io.reactivex.processors.PublishProcessor
 import io.reactivex.schedulers.Schedulers
 import javax.inject.Inject
 
-class SearchViewModel @Inject constructor(val repository: WordsRepository): ViewModel() {
+class SearchViewModel @Inject constructor(
+    val repository: AllRepository,
+    val searchUseCase: SearchWordUseCase
+) : ViewModel() {
     val compositeDisposable = CompositeDisposable()
     val searchResultList = MutableLiveData<Data<SearchResult>>()
+    val searchPublisher = PublishProcessor.create<String>()
 
     init {
         loadHistoryWords(true)
+        subscribeToSearchResult()
     }
 
     fun onSearchLetterEntered(phrase: String) {
-        if (phrase.length >= MIN_WORD_LENGTH_TO_SEARCH) {
-            val disposable = repository.searchWord(phrase)
-                .subscribeOn(Schedulers.io())
-                .observeOn(AndroidSchedulers.mainThread())
-                .subscribe({
-                    searchResultList.value = Data(DataState.SUCCESS, SearchResult(it), null)
-                },
-                    { searchResultList.value = Data(DataState.ERROR, null, it.message) })
-            compositeDisposable.add(disposable)
-        } else {
-            onSearchCleared()
-        }
+        searchPublisher.onNext(phrase)
+    }
+
+    private fun subscribeToSearchResult() {
+        compositeDisposable.add(
+            searchUseCase.execute(searchPublisher).subscribe(
+                { searchResultList.value = Data(DataState.SUCCESS, SearchResult(it), null) },
+                { searchResultList.value = Data(DataState.ERROR, null, it.message) })
+        )
     }
 
     fun onSearchCleared() {
