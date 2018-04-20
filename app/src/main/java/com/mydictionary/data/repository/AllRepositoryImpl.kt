@@ -24,26 +24,26 @@ class AllRepositoryImpl
     private val TAG = AllRepositoryImpl::class.java.simpleName
 
     override fun isSignedIn() = firebaseStorage.isLoggedIn()
-
-    override fun getWordInfo(wordName: String) =
-        oxfordStorage
-            .getFullWordInfo(wordName)
-            .flatMap { wordDetails ->
-                isSignedIn().flatMap { isSignedIn ->
-                    if (isSignedIn) {
-                        firebaseStorage.addWordToHistoryAndGet(wordName)
-                            .map { userWord ->
-                                wordDetails.meanings.forEach {
-                                    it.isFavourite = userWord.favSenses.contains(it.definitionId) ==
-                                            true
-                                }
-                                wordDetails
-                            }
-                    } else {
-                        Single.just(wordDetails)
-                    }
-                }
-            }
+//
+//    override fun getWordInfo(wordName: String) =
+//        oxfordStorage
+//            .getFullWordInfo(wordName)
+//            .flatMap { wordDetails ->
+//                isSignedIn().flatMap { isSignedIn ->
+//                    if (isSignedIn) {
+//                        firebaseStorage.addWordToHistoryAndGet(wordName)
+//                            .map { userWord ->
+//                                wordDetails.meanings.forEach {
+//                                    it.isFavourite = userWord.favSenses.contains(it.definitionId) ==
+//                                            true
+//                                }
+//                                wordDetails
+//                            }
+//                    } else {
+//                        Single.just(wordDetails)
+//                    }
+//                }
+//            }
 
 
     override fun getHistoryWords() = firebaseStorage.getHistoryWords()

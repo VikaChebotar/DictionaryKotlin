@@ -8,6 +8,8 @@ import com.mydictionary.data.oxfordapi.dto.RelatedWordsResponse
 import com.mydictionary.data.oxfordapi.dto.WordDetailsResponse
 import com.mydictionary.data.pojo.WordDetails
 import com.mydictionary.data.pojo.WordResponseMapper
+import com.mydictionary.domain.entity.DetailWordInfo
+import com.mydictionary.domain.entity.WordMeaning
 import io.reactivex.Flowable
 import io.reactivex.Single
 import io.reactivex.functions.BiFunction
@@ -25,7 +27,7 @@ class OxfordDictionaryStorage @Inject constructor(
 ) {
     private val TAG = OxfordDictionaryStorage::class.java.simpleName
 
-    fun getFullWordInfo(word: String): Single<WordDetails> =
+    fun getFullWordInfo(word: String): Single<DetailWordInfo> =
         Single.just(word).flatMap {
             val wordDetails = wordsCache.get(word)
             val needToLoadDetails = wordDetails == null
@@ -53,7 +55,23 @@ class OxfordDictionaryStorage @Inject constructor(
             if (it.meanings.isEmpty() && it.notes.isEmpty() && it.synonyms.isEmpty() && it.antonyms.isEmpty())
                 Single.error(Exception(context.getString(R.string.word_not_found_error)))
             else Single.just(it)
-        }.doOnSuccess { wordsCache.put(it.word, it) }
+        }.doOnSuccess { wordsCache.put(it.word, it) }.map { it ->
+            DetailWordInfo(
+                it.word,
+                it.meanings.map {
+                    WordMeaning(
+                        it.definitionId,
+                        it.definitions,
+                        it.partOfSpeech ?: "",
+                        it.examples
+                    )
+                },
+                it.pronunciation,
+                it.notes,
+                it.synonyms,
+                it.antonyms
+            )
+        }
 
 
     fun getShortWordInfo(word: String): Single<WordDetails> = Single.just(word).flatMap {
@@ -68,5 +86,5 @@ class OxfordDictionaryStorage @Inject constructor(
 
 
     fun searchTheWord(phrase: String): Flowable<List<String>> =
-        restApi.searchTheWord(phrase, SEARCH_LIMIT).map {it.searchResults }
+        restApi.searchTheWord(phrase, SEARCH_LIMIT).map { it.searchResults }
 }

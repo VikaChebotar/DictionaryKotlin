@@ -14,9 +14,8 @@ class WordRepositoryImpl @Inject constructor(val oxfordStorage: OxfordDictionary
 
     override fun searchWord(searchPhrase: String) = oxfordStorage.searchTheWord(searchPhrase)
 
-    override fun getWordInfo(wordName: String): Single<DetailWordInfo> {
-        TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
-    }
+    override fun getWordInfo(wordName: String) =
+        oxfordStorage.getFullWordInfo(wordName)
 
     override fun getShortWordInfo(wordName: String): Single<ShortWordInfo> {
         TODO("not implemented") //To change body of created functions use File | Settings | File Templates.

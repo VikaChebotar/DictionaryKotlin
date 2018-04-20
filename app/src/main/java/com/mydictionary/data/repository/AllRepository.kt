@@ -14,7 +14,7 @@ interface AllRepository {
 
     fun isSignedIn(): Single<Boolean>
 
-    fun getWordInfo(wordName: String): Single<WordDetails>
+//    fun getWordInfo(wordName: String): Single<WordDetails>
 
     fun getHistoryWords(): Flowable<List<String>>
 

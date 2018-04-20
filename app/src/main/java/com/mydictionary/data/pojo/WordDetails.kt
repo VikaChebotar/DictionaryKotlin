@@ -11,7 +11,7 @@ import kotlinx.android.parcel.Parcelize
 @Parcelize
 data class WordDetails(val word: String) : Parcelable {
     var pronunciation: String? = null
-    var notes = listOf<Note>()
+    var notes = listOf<String>()
     var meanings = listOf<WordMeaning>()
     var synonyms = listOf<String>()
     var antonyms = listOf<String>()
@@ -20,21 +20,8 @@ data class WordDetails(val word: String) : Parcelable {
 @SuppressLint("ParcelCreator")
 @Parcelize
 data class WordMeaning(val definitionId: String) : Parcelable {
-    val definitions = mutableListOf<Definition>()
+    val definitions = mutableListOf<String>()
     var partOfSpeech: String? = null
-    val examples = mutableListOf<Example>()
+    val examples = mutableListOf<String>()
     var isFavourite = false
 }
-
-//wrapper classes used to distinguish view types in adapter
-@SuppressLint("ParcelCreator")
-@Parcelize
-data class Note(val text: String)  : Parcelable
-
-@SuppressLint("ParcelCreator")
-@Parcelize
-data class Definition(val text: String) : Parcelable
-
-@SuppressLint("ParcelCreator")
-@Parcelize
-data class Example(val text: String):Parcelable
