@@ -16,11 +16,11 @@ import com.mydictionary.data.pojo.SearchResult
 import com.mydictionary.data.pojo.WordDetails
 import com.mydictionary.data.pojo.WordResponseMapper
 import com.mydictionary.data.pojo.WordResponseMapperImpl
-import com.mydictionary.data.repository.AllRepository
-import com.mydictionary.data.repository.AllRepositoryImpl
-import com.mydictionary.data.repository.WordRepositoryImpl
+import com.mydictionary.data.repository.*
+import com.mydictionary.domain.repository.UserRepository
+import com.mydictionary.domain.repository.UserWordRepository
+import com.mydictionary.domain.repository.WordListRepository
 import com.mydictionary.domain.repository.WordRepository
-import com.mydictionary.domain.usecases.SearchWordUseCase
 import com.mydictionary.presentation.DictionaryApp
 import com.mydictionary.presentation.viewmodel.ViewModelFactory
 import com.mydictionary.presentation.viewmodel.account.AccountViewModel
@@ -164,14 +164,6 @@ class FirebaseModule {
 }
 
 @Module
-class UseCasesModule {
-    @Provides
-    @Singleton
-    fun providesSearchWordUseCase(wordRepository: WordRepository) =
-        SearchWordUseCase(wordRepository)
-}
-
-@Module
 class DataModule {
 
     @Provides
@@ -180,5 +172,19 @@ class DataModule {
         oxfordDictionaryStorage: OxfordDictionaryStorage
     ): WordRepository = WordRepositoryImpl(oxfordDictionaryStorage)
 
+    @Provides
+    @Singleton
+    fun providesUserWordsRepository(
+        firebaseStorage: InternalFirebaseStorage
+    ): UserWordRepository = UserWordsRepositoryImpl(firebaseStorage)
 
+    @Provides
+    @Singleton
+    fun providesUserRepository(firebaseStorage: InternalFirebaseStorage): UserRepository =
+        UserRepositoryImpl(firebaseStorage)
+
+    @Provides
+    @Singleton
+    fun providesWordListRepository(firebaseStorage: InternalFirebaseStorage): WordListRepository =
+        WordListRepositoryImpl(firebaseStorage)
 }

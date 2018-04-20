@@ -10,7 +10,6 @@ data class User(val id: String, val email: String)
  */
 data class UserWord(
     val word: String,
-    val accessTime: String,
     val favMeanings: List<String> = emptyList()
 )
 

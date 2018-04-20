@@ -1,4 +1,4 @@
-package com.mydictionary.presentation.views.mywords
+package com.mydictionary.presentation.views.wordlist
 
 import android.arch.lifecycle.Observer
 import android.content.Context
@@ -15,8 +15,8 @@ import com.mydictionary.R
 import com.mydictionary.commons.WORD_LIST_NAME
 import com.mydictionary.commons.getViewModel
 import com.mydictionary.presentation.DataState
-import com.mydictionary.presentation.viewmodel.mywords.WordListViewModel
-import com.mydictionary.presentation.viewmodel.mywords.WordListViewModelFactory
+import com.mydictionary.presentation.viewmodel.wordlist.WordListViewModel
+import com.mydictionary.presentation.viewmodel.wordlist.WordListViewModelFactory
 import com.mydictionary.presentation.views.word.WordInfoActivity
 import kotlinx.android.synthetic.main.words_activity.*
 

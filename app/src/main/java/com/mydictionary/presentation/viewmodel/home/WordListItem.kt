@@ -1,6 +1,6 @@
 package com.mydictionary.presentation.viewmodel.home
 
-import com.mydictionary.data.firebasestorage.dto.WordList
+import com.mydictionary.domain.entity.WordList
 
 sealed class WordListItem {
     data class Category(val category: String) : WordListItem()
@@ -8,11 +8,11 @@ sealed class WordListItem {
 }
 
 fun mapToPresentation(wordList: WordList) =
-        WordListItem.WordList(wordList.name, wordList.type, wordList.list)
+        WordListItem.WordList(wordList.listName, wordList.category, wordList.list)
 
 fun mapToPresentation(lists: List<WordList>) =
         lists
-                .groupBy { it.type }
+                .groupBy { it.category }
                 .entries
                 .flatMap {
                     listOf(WordListItem.Category(it.key),

@@ -1,7 +1,7 @@
 package com.mydictionary.di
 
 import com.mydictionary.presentation.DictionaryApp
-import com.mydictionary.presentation.viewmodel.mywords.WordListViewModelFactory
+import com.mydictionary.presentation.viewmodel.wordlist.WordListViewModelFactory
 import com.mydictionary.presentation.viewmodel.word.WordInfoViewModelFactory
 import com.mydictionary.presentation.views.account.AccountActivity
 import com.mydictionary.presentation.views.home.HomeActivity
@@ -14,7 +14,7 @@ import javax.inject.Singleton
 @Singleton
 @Component(
     modules = [AppModule::class, NetworkModule::class, FirebaseModule::class,
-        ViewModelModule::class, UseCasesModule::class, DataModule::class]
+        ViewModelModule::class, DataModule::class]
 )
 interface AppComponent {
     fun inject(app: DictionaryApp)

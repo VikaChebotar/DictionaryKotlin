@@ -21,7 +21,7 @@ import com.mydictionary.presentation.viewmodel.home.HomeViewModel
 import com.mydictionary.presentation.viewmodel.home.WordListItem
 import com.mydictionary.presentation.views.account.AccountActivity
 import com.mydictionary.presentation.views.learn.LearnActivity
-import com.mydictionary.presentation.views.mywords.WordsActivity
+import com.mydictionary.presentation.views.wordlist.WordsActivity
 import com.mydictionary.presentation.views.search.SearchActivity
 import kotlinx.android.synthetic.main.home_activity.*
 import javax.inject.Inject

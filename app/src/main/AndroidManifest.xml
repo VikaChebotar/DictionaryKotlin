@@ -23,7 +23,7 @@
         <activity android:name=".presentation.views.search.SearchActivity" />
         <activity android:name=".presentation.views.word.WordInfoActivity" />
         <activity
-            android:name=".presentation.views.mywords.WordsActivity"
+            android:name=".presentation.views.wordlist.WordsActivity"
             android:label="@string/my_words" />
         <activity
             android:name=".presentation.views.learn.LearnActivity"

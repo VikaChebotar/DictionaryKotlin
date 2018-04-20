@@ -10,8 +10,9 @@ import io.reactivex.processors.PublishProcessor
 import io.reactivex.schedulers.Schedulers
 import java.util.concurrent.TimeUnit
 import javax.inject.Inject
+import javax.inject.Singleton
 
-
+@Singleton
 class SearchWordUseCase @Inject constructor(val wordRepository: WordRepository) :
     UseCaseWithParameter<PublishProcessor<String>, List<String>> {
 

@@ -8,7 +8,7 @@ import io.reactivex.Single
 
 interface UserRepository {
     fun getUser(): Single<User>
-    fun signIn(token: String?): Single<User>
+    fun signIn(token: String): Single<User>
     fun signOut(): Completable
 }
 
@@ -24,7 +24,7 @@ interface UserWordRepository {
         pageSize: Int = Int.MAX_VALUE, //default value - get all
         sortingOption: SortingOption = SortingOption.BY_DATE,
         isFavorite: Boolean = false //when isFavorite==true returns only words with not empty fav meanings
-    ): Flowable<PagedResult<UserWord>>
+    ): Single<PagedResult<UserWord>>
 
     fun getUserWord(wordName: String): Observable<UserWord> //each time object updates onNext will be called
 
@@ -33,5 +33,5 @@ interface UserWordRepository {
 
 interface WordListRepository {
     fun getAllWordLists(): Single<List<WordList>>
-    fun getWordList(wordListName: String): Single<List<String>>
+    fun getWordList(wordListName: String): Single<WordList>
 }

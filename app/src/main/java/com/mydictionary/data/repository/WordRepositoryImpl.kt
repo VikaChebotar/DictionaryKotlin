@@ -6,7 +6,9 @@ import com.mydictionary.domain.entity.ShortWordInfo
 import com.mydictionary.domain.repository.WordRepository
 import io.reactivex.Single
 import javax.inject.Inject
+import javax.inject.Singleton
 
+@Singleton
 class WordRepositoryImpl @Inject constructor(val oxfordStorage: OxfordDictionaryStorage) :
     WordRepository {
 

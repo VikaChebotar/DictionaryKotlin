@@ -1,10 +1,10 @@
-package com.mydictionary.presentation.viewmodel.mywords
+package com.mydictionary.presentation.viewmodel.wordlist
 
 import android.arch.lifecycle.MutableLiveData
 import android.arch.lifecycle.ViewModel
 import android.arch.lifecycle.ViewModelProvider
 import android.util.Log
-import com.mydictionary.data.repository.AllRepository
+import com.mydictionary.domain.usecases.ShowWordListUseCase
 import com.mydictionary.presentation.Data
 import com.mydictionary.presentation.DataState
 import com.mydictionary.presentation.DictionaryApp
@@ -13,10 +13,14 @@ import io.reactivex.disposables.CompositeDisposable
 import io.reactivex.schedulers.Schedulers
 import javax.inject.Inject
 
-class WordListViewModel(private val repository: AllRepository, val wordListName: String) :
+class WordListViewModel(
+    private val showWordListUseCase: ShowWordListUseCase,
+    val wordListName: String
+) :
     ViewModel() {
     private val compositeDisposable = CompositeDisposable()
     val wordList = MutableLiveData<Data<List<String>>>()
+    private var isReverseOrder = false
 
     init {
         Log.d("TAG", "word list view model")
@@ -24,23 +28,24 @@ class WordListViewModel(private val repository: AllRepository, val wordListName:
     }
 
     private fun loadList() {
-        repository.getWordList(wordListName)
+        compositeDisposable.add(showWordListUseCase
+            .execute(ShowWordListUseCase.Parameter(wordListName, isReverseOrder))
             .doOnSubscribe {
                 wordList.postValue(Data(DataState.LOADING, wordList.value?.data, null))
             }
             .subscribeOn(Schedulers.io())
             .observeOn(AndroidSchedulers.mainThread())
             .subscribe({
-                wordList.value = Data(DataState.SUCCESS, it, null)
+                wordList.value = Data(DataState.SUCCESS, it.list, null)
             }, { throwable ->
                 wordList.value = Data(DataState.ERROR, null, throwable.message)
             })
+        )
     }
 
     fun sortMenu() {
-        val list = wordList.value?.data?.toMutableList()
-        list?.reverse()
-        wordList.value = Data(DataState.SUCCESS, list, null)
+        isReverseOrder = !isReverseOrder
+        loadList()
     }
 
     override fun onCleared() {
@@ -52,7 +57,7 @@ class WordListViewModel(private val repository: AllRepository, val wordListName:
 class WordListViewModelFactory(val wordListName: String) :
     ViewModelProvider.Factory {
     @Inject
-    lateinit var repository: AllRepository
+    lateinit var showWordListUseCase: ShowWordListUseCase
 
     init {
         DictionaryApp.component.inject(this)
@@ -60,7 +65,7 @@ class WordListViewModelFactory(val wordListName: String) :
 
     override fun <T : ViewModel> create(modelClass: Class<T>): T {
         return when (modelClass) {
-            WordListViewModel::class.java -> WordListViewModel(repository, wordListName) as T
+            WordListViewModel::class.java -> WordListViewModel(showWordListUseCase, wordListName) as T
             else -> throw IllegalArgumentException("Unknown ViewModel class");
         }
     }

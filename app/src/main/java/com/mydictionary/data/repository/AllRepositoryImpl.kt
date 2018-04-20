@@ -1,21 +1,21 @@
 package com.mydictionary.data.repository
 
 import com.mydictionary.data.firebasestorage.InternalFirebaseStorage
-import com.mydictionary.data.firebasestorage.dto.UserWord
+import com.mydictionary.data.firebasestorage.dto.UserWordDto
 import com.mydictionary.data.oxfordapi.OxfordDictionaryStorage
 import com.mydictionary.data.pojo.WordDetails
 import com.mydictionary.domain.entity.PagedResult
 import com.mydictionary.domain.entity.SortingOption
-import io.reactivex.Completable
 import io.reactivex.Flowable
 import io.reactivex.Single
 import io.reactivex.functions.BiFunction
 import javax.inject.Inject
+import javax.inject.Singleton
 
 /**
  * Created by Viktoria_Chebotar on 6/7/2017.
  */
-
+@Singleton
 class AllRepositoryImpl
 @Inject constructor(
     val firebaseStorage: InternalFirebaseStorage,
@@ -23,16 +23,7 @@ class AllRepositoryImpl
 ) : AllRepository {
     private val TAG = AllRepositoryImpl::class.java.simpleName
 
-
-    override fun loginFirebaseUser(googleToken: String?): Single<String> =
-        firebaseStorage.loginFirebaseUser(googleToken)
-
-
     override fun isSignedIn() = firebaseStorage.isLoggedIn()
-
-    override fun getUserName() = firebaseStorage.getUserName()
-
-    override fun signOut(): Completable = firebaseStorage.logoutFirebaseUser()
 
     override fun getWordInfo(wordName: String) =
         oxfordStorage
@@ -67,7 +58,7 @@ class AllRepositoryImpl
         firebaseStorage.setWordFavoriteState(
             word.word,
             favMeanings
-        ).map { userWord: UserWord ->
+        ).map { userWord: UserWordDto ->
             word.meanings.forEach {
                 it.isFavourite = userWord.favSenses.contains(it.definitionId)
             }
@@ -105,8 +96,4 @@ class AllRepositoryImpl
             SortingOption.BY_DATE
         ).map { it.word }.toList()
 
-    override fun getAllWordLists() = firebaseStorage.getAllWordLists()
-
-    override fun getWordList(wordListName: String) =
-        firebaseStorage.getWordList(wordListName)
 }
