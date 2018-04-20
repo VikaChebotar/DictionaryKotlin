@@ -1,6 +1,7 @@
 package com.mydictionary.presentation.views.learn
 
 import android.arch.lifecycle.Observer
+import android.arch.lifecycle.ViewModelProvider
 import android.os.Bundle
 import android.support.design.widget.Snackbar
 import android.support.v4.view.ViewPager
@@ -9,6 +10,7 @@ import android.view.Menu
 import android.view.MenuItem
 import android.view.View
 import com.mydictionary.R
+import com.mydictionary.commons.getViewModel
 import com.mydictionary.commons.zipLiveData
 import com.mydictionary.data.pojo.WordDetails
 import com.mydictionary.domain.entity.SortingOption
@@ -28,7 +30,8 @@ import javax.inject.Inject
 class LearnActivity : AppCompatActivity(), LearnCardItemFragment.OnCardItemListener,
     SortingDialogListener {
     @Inject
-    lateinit var viewModel: LearnWordsViewModel
+    lateinit var viewModelFactory: ViewModelProvider.Factory
+    val viewModel by lazy {getViewModel<LearnWordsViewModel>(viewModelFactory)}
     val space by lazy { resources.getDimension(R.dimen.cards_view_pager_margin).toInt() }
     val adapter = LearnCardPagerAadapter(supportFragmentManager)
 

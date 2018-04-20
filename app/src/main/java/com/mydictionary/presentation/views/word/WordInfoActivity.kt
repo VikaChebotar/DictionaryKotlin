@@ -1,7 +1,6 @@
 package com.mydictionary.presentation.views.word
 
 import android.arch.lifecycle.Observer
-import android.arch.lifecycle.ViewModelProviders
 import android.content.Context
 import android.content.Intent
 import android.os.Bundle
@@ -14,6 +13,7 @@ import android.view.MenuItem
 import android.view.View
 import com.mydictionary.R
 import com.mydictionary.commons.SELECTED_WORD_NAME_EXTRA
+import com.mydictionary.commons.getViewModel
 import com.mydictionary.data.pojo.WordMeaning
 import com.mydictionary.presentation.Data
 import com.mydictionary.presentation.DataState
@@ -32,13 +32,11 @@ class WordInfoActivity : AppCompatActivity(), WordCardsAdapter.ViewClickListener
     private val wordName by lazy { intent.getStringExtra(SELECTED_WORD_NAME_EXTRA) }
     private lateinit var textToSpeechHelper: TextToSpeechHelper
     private val viewModel by lazy {
-        ViewModelProviders.of(
-            this,
+        getViewModel<WordInfoViewModel>(
             WordInfoViewModelFactory(
                 wordName
             )
         )
-            .get(WordInfoViewModel::class.java)
     }
 
     private val wordCardsAdapter = WordCardsAdapter(this, this)

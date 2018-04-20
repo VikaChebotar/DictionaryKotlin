@@ -1,6 +1,7 @@
 package com.mydictionary.presentation.views.home
 
 import android.arch.lifecycle.Observer
+import android.arch.lifecycle.ViewModelProvider
 import android.content.Intent
 import android.os.Bundle
 import android.support.design.widget.Snackbar
@@ -12,6 +13,7 @@ import android.view.*
 import com.mydictionary.R
 import com.mydictionary.commons.CompoundDrawables.RIGHT
 import com.mydictionary.commons.VOICE_SEARCH_EXTRA
+import com.mydictionary.commons.getViewModel
 import com.mydictionary.presentation.Data
 import com.mydictionary.presentation.DataState
 import com.mydictionary.presentation.DictionaryApp
@@ -27,7 +29,8 @@ import javax.inject.Inject
 
 class HomeActivity : AppCompatActivity() {
     @Inject
-    lateinit var viewModel: HomeViewModel
+    lateinit var viewModelFactory: ViewModelProvider.Factory
+    val viewModel by lazy {getViewModel<HomeViewModel>(viewModelFactory)}
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)

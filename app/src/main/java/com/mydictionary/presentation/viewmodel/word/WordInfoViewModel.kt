@@ -3,6 +3,7 @@ package com.mydictionary.presentation.viewmodel.word
 import android.app.Application
 import android.arch.lifecycle.*
 import android.content.res.Resources
+import android.util.Log
 import com.mydictionary.R
 import com.mydictionary.data.pojo.WordDetails
 import com.mydictionary.data.pojo.WordMeaning
@@ -33,6 +34,7 @@ class WordInfoViewModel(
             })
 
     init {
+        Log.d("TAG", "word info view model")
         loadWordInfo()
     }
 

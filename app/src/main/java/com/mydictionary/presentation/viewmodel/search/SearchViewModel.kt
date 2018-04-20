@@ -2,6 +2,7 @@ package com.mydictionary.presentation.viewmodel.search
 
 import android.arch.lifecycle.MutableLiveData
 import android.arch.lifecycle.ViewModel
+import android.util.Log
 import com.mydictionary.data.repository.AllRepository
 import com.mydictionary.domain.usecases.SearchWordUseCase
 import com.mydictionary.presentation.Data
@@ -21,6 +22,7 @@ class SearchViewModel @Inject constructor(
     val searchPublisher = PublishProcessor.create<String>()
 
     init {
+        Log.d("TAG", "search view model")
         loadHistoryWords(true)
         subscribeToSearchResult()
     }

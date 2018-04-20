@@ -1,6 +1,7 @@
 package com.mydictionary.presentation.views.account
 
 import android.arch.lifecycle.Observer
+import android.arch.lifecycle.ViewModelProvider
 import android.content.Intent
 import android.os.Bundle
 import android.support.design.widget.Snackbar
@@ -13,6 +14,7 @@ import com.google.android.gms.auth.api.signin.GoogleSignInClient
 import com.google.android.gms.auth.api.signin.GoogleSignInOptions
 import com.google.android.gms.common.api.ApiException
 import com.mydictionary.R
+import com.mydictionary.commons.getViewModel
 import com.mydictionary.presentation.Data
 import com.mydictionary.presentation.DataState
 import com.mydictionary.presentation.DictionaryApp
@@ -27,7 +29,8 @@ class AccountActivity : AppCompatActivity() {
     private lateinit var googleSignInClient: GoogleSignInClient
 
     @Inject
-    lateinit var viewModel: AccountViewModel
+    lateinit var viewModelFactory: ViewModelProvider.Factory
+    val viewModel by lazy {getViewModel<AccountViewModel>(viewModelFactory)}
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)

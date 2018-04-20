@@ -1,10 +1,14 @@
 package com.mydictionary.commons
 
+import android.arch.lifecycle.ViewModel
+import android.arch.lifecycle.ViewModelProvider
+import android.arch.lifecycle.ViewModelProviders
 import android.content.Context
 import android.content.Intent
 import android.content.pm.PackageManager
 import android.net.ConnectivityManager
 import android.os.IBinder
+import android.support.v4.app.FragmentActivity
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -50,8 +54,13 @@ fun String.containsWhiteSpace(): Boolean {
 }
 
 
-fun EditText.showKeyboard(){
+fun EditText.showKeyboard() {
     requestFocus()
     val imm = context.getSystemService(Context.INPUT_METHOD_SERVICE) as InputMethodManager
     imm.showSoftInput(this, InputMethodManager.SHOW_IMPLICIT);
 }
+
+inline fun <reified T : ViewModel> FragmentActivity.getViewModel(viewModelFactory: ViewModelProvider.Factory): T {
+    return ViewModelProviders.of(this, viewModelFactory)[T::class.java]
+}
+

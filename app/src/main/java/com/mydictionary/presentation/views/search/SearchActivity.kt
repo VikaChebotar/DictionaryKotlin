@@ -1,6 +1,7 @@
 package com.mydictionary.presentation.views.search
 
 import android.app.Activity
+import android.arch.lifecycle.ViewModelProvider
 import android.content.Intent
 import android.os.Bundle
 import android.speech.RecognizerIntent
@@ -15,10 +16,7 @@ import android.view.View
 import android.view.ViewTreeObserver
 import android.view.animation.AnimationUtils
 import com.mydictionary.R
-import com.mydictionary.commons.VOICE_RECOGNITION_CODE
-import com.mydictionary.commons.VOICE_SEARCH_EXTRA
-import com.mydictionary.commons.VOICE_SEARCH_PAUSE_MILLIS
-import com.mydictionary.commons.showKeyboard
+import com.mydictionary.commons.*
 import com.mydictionary.presentation.Data
 import com.mydictionary.presentation.DataState
 import com.mydictionary.presentation.DictionaryApp
@@ -38,7 +36,8 @@ class SearchActivity : AppCompatActivity(), SearchEditText.VoiceButtonListener,
     private var shouldAnimateList = true
     private var isRestarted = false
     @Inject
-    lateinit var viewModel: SearchViewModel
+    lateinit var viewModelFactory: ViewModelProvider.Factory
+    val viewModel by lazy {getViewModel<SearchViewModel>(viewModelFactory)}
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)

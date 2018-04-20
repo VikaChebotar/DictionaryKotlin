@@ -1,7 +1,6 @@
 package com.mydictionary.presentation.views.mywords
 
 import android.arch.lifecycle.Observer
-import android.arch.lifecycle.ViewModelProviders
 import android.content.Context
 import android.content.Intent
 import android.os.Bundle
@@ -14,6 +13,7 @@ import android.view.MenuItem
 import android.view.View
 import com.mydictionary.R
 import com.mydictionary.commons.WORD_LIST_NAME
+import com.mydictionary.commons.getViewModel
 import com.mydictionary.presentation.DataState
 import com.mydictionary.presentation.viewmodel.mywords.WordListViewModel
 import com.mydictionary.presentation.viewmodel.mywords.WordListViewModelFactory
@@ -26,11 +26,11 @@ import kotlinx.android.synthetic.main.words_activity.*
 class WordsActivity : AppCompatActivity() {
     private val wordListName by lazy { intent.getStringExtra(WORD_LIST_NAME) }
     private val viewModel by lazy {
-        ViewModelProviders.of(
-            this,
-            WordListViewModelFactory(wordListName)
+        getViewModel<WordListViewModel>(
+            WordListViewModelFactory(
+                wordListName
+            )
         )
-            .get(WordListViewModel::class.java)
     }
 
     companion object {

@@ -2,6 +2,7 @@ package com.mydictionary.presentation.viewmodel.home
 
 import android.arch.lifecycle.MutableLiveData
 import android.arch.lifecycle.ViewModel
+import android.util.Log
 import com.mydictionary.data.repository.AllRepository
 import com.mydictionary.presentation.Data
 import com.mydictionary.presentation.DataState
@@ -20,6 +21,7 @@ class HomeViewModel @Inject constructor(val repository: AllRepository): ViewMode
     private val compositeDisposable = CompositeDisposable()
 
     init {
+        Log.d("TAG", "home view model")
         loadWordLists()
     }
 
