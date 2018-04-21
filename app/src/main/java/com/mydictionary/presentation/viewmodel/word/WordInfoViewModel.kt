@@ -5,33 +5,33 @@ import android.arch.lifecycle.*
 import android.content.res.Resources
 import android.util.Log
 import com.mydictionary.R
-import com.mydictionary.data.pojo.WordDetails
-import com.mydictionary.data.pojo.WordMeaning
-import com.mydictionary.data.repository.AllRepository
+import com.mydictionary.domain.usecases.AddMeaningToFavoritesUseCase
+import com.mydictionary.domain.usecases.RemoveMeaningFromFavoritesUseCase
+import com.mydictionary.domain.usecases.ShowWordInfoUseCase
 import com.mydictionary.presentation.Data
 import com.mydictionary.presentation.DataState
 import com.mydictionary.presentation.DictionaryApp
+import io.reactivex.Flowable
 import io.reactivex.Single
-import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.disposables.CompositeDisposable
-import io.reactivex.schedulers.Schedulers
 import javax.inject.Inject
 
 class WordInfoViewModel(
-    private val repository: AllRepository,
-    private val wordName: String,
-    app: Application
-) :
-    AndroidViewModel(app) {
-    private val wordInfo = MutableLiveData<Data<WordDetails>>()
+        val showWordUseCase: ShowWordInfoUseCase,
+        val addToFavoritesUseCase: AddMeaningToFavoritesUseCase,
+        val removeFromFavoritesUseCase: RemoveMeaningFromFavoritesUseCase,
+        private val wordName: String,
+        app: Application
+) : AndroidViewModel(app) {
+    private val wordInfo = MutableLiveData<Data<ShowWordInfoUseCase.Result>>()
     private val compositeDisposable = CompositeDisposable()
     val wordPresentationDetails: LiveData<Data<WordPresentationDetails>> =
-        Transformations.map(wordInfo,
-            {
-                val presentationDetails =
-                    mapToPresentation(it.data, getApplication<DictionaryApp>().resources)
-                Data(it.dataState, presentationDetails, it.message)
-            })
+            Transformations.map(wordInfo,
+                    {
+                        val presentationDetails =
+                                mapToPresentation(it.data, getApplication<DictionaryApp>().resources)
+                        Data(it.dataState, presentationDetails, it.message)
+                    })
 
     init {
         Log.d("TAG", "word info view model")
@@ -40,48 +40,33 @@ class WordInfoViewModel(
 
     private fun loadWordInfo() {
         compositeDisposable.add(
-            Single.just(wordName)
-                .doOnSubscribe {
-                    wordInfo.postValue(Data(DataState.LOADING, wordInfo.value?.data, null))
-                }
-                .flatMap { repository.getWordInfo(it) }
-                .subscribeOn(Schedulers.io())
-                .observeOn(AndroidSchedulers.mainThread())
-                .subscribe({ it ->
-                    wordInfo.value = Data(DataState.SUCCESS, it, null)
-                }, { e ->
-                    wordInfo.value = Data(DataState.ERROR, null, e.message)
-                })
+                Flowable.just(wordName)
+                        .doOnSubscribe {
+                            wordInfo.postValue(Data(DataState.LOADING, wordInfo.value?.data, null))
+                        }
+                        .flatMap { showWordUseCase.execute(wordName) }
+                        .subscribe({ it ->
+                            wordInfo.value = Data(DataState.SUCCESS, it, null)
+                        }, { e ->
+                            wordInfo.value = Data(DataState.ERROR, wordInfo.value?.data, e.message)
+                        })
         )
     }
 
     fun onFavoriteClicked(item: WordMeaning) {
-        wordInfo.value?.data?.let {
-            compositeDisposable.add(
-                Single.just(it)
-                    .map {
-                        val favMeanings = mutableListOf<String>()
-                        it.meanings.filter { it.isFavourite }
-                            .forEach { favMeanings.add(it.definitionId) }
-                        if (favMeanings.contains(item.definitionId)) {
-                            favMeanings.remove(item.definitionId)
-                        } else favMeanings.add(item.definitionId)
-                        favMeanings
-                    }
-                    .flatMap { favMeanings ->
-                        repository.setWordFavoriteState(it, favMeanings)
-                    }
-                    .subscribeOn(Schedulers.io())
-                    .observeOn(AndroidSchedulers.mainThread())
-                    .subscribe(
-                        { word ->
-                            wordInfo.value = Data(DataState.SUCCESS, word, null)
-                        },
-                        { error ->
-                            wordInfo.value = Data(DataState.ERROR, it, error.message)
-                        })
-            )
-        }
+        Single.just(item.isFavourite)
+                .flatMapCompletable {
+                    if (it) {
+                        removeFromFavoritesUseCase.execute(RemoveMeaningFromFavoritesUseCase.Parameter(
+                                wordName, listOf(item.definitionId)
+                        ))
+                    } else
+                        addToFavoritesUseCase
+                                .execute(AddMeaningToFavoritesUseCase.Parameter(wordName,
+                                        item.definitionId))
+                }.subscribe({}, {
+                    wordInfo.value = Data(DataState.ERROR, wordInfo.value?.data, it.message)
+                })
     }
 
     override fun onCleared() {
@@ -91,37 +76,52 @@ class WordInfoViewModel(
 }
 
 private fun mapToPresentation(
-    wordDetails: WordDetails?,
-    resources: Resources
+        wordDetailsResult: ShowWordInfoUseCase.Result?,
+        resources: Resources
 ): WordPresentationDetails? {
-    return wordDetails?.let {
+    return wordDetailsResult?.let {
         val wordCardsList = mutableListOf<Any>()
         wordCardsList.add(resources.getString(R.string.definitions) ?: "")
-        wordCardsList.addAll(it.meanings)
-        if (it.synonyms.isNotEmpty()) {
-            wordCardsList.add(resources.getString(R.string.synonyms))
-            wordCardsList.add(it.synonyms)
+        val wordInfo = it.wordInfo
+        val userWord = it.userWord
+        with(wordInfo) {
+            val meanings = meanings.map {
+                com.mydictionary.presentation.viewmodel.word.WordMeaning(
+                        it.definitionId, it.definitions?.map { Definition(it) } ?: emptyList(),
+                        it.partOfSpeech, it.examples?.map { Example(it) } ?: emptyList(),
+                        userWord?.favMeanings?.contains(it.definitionId) == true
+                )
+            }
+            wordCardsList.addAll(meanings)
+            if (synonyms?.isNotEmpty() == true) {
+                wordCardsList.add(resources.getString(R.string.synonyms))
+                wordCardsList.add(synonyms)
+            }
+            if (antonyms?.isNotEmpty() == true) {
+                wordCardsList.add(resources.getString(R.string.antonyms))
+                wordCardsList.add(antonyms)
+            }
+            if (notes?.isNotEmpty() == true) {
+                wordCardsList.add(resources.getString(R.string.notes))
+                wordCardsList.addAll(notes.map { Note(it) })
+            }
+            WordPresentationDetails(pronunciation, wordCardsList)
         }
-        if (it.antonyms.isNotEmpty()) {
-            wordCardsList.add(resources.getString(R.string.antonyms))
-            wordCardsList.add(it.antonyms)
-        }
-        if (it.notes.isNotEmpty()) {
-            wordCardsList.add(resources.getString(R.string.notes))
-            wordCardsList.addAll(it.notes)
-        }
-        WordPresentationDetails(it.pronunciation, wordCardsList)
     }
 }
 
 data class WordPresentationDetails(val pronunciation: String? = null, val contentList: List<Any>)
 
 class WordInfoViewModelFactory(
-    private val wordName: String
+        private val wordName: String
 ) :
-    ViewModelProvider.Factory {
+        ViewModelProvider.Factory {
     @Inject
-    lateinit var repository: AllRepository
+    lateinit var useCase: ShowWordInfoUseCase
+    @Inject
+    lateinit var addFavUseCase: AddMeaningToFavoritesUseCase
+    @Inject
+    lateinit var removeFavUseCase: RemoveMeaningFromFavoritesUseCase
     @Inject
     lateinit var app: DictionaryApp
 
@@ -131,7 +131,8 @@ class WordInfoViewModelFactory(
 
     override fun <T : ViewModel> create(modelClass: Class<T>): T {
         return when (modelClass) {
-            WordInfoViewModel::class.java -> WordInfoViewModel(repository, wordName, app) as T
+            WordInfoViewModel::class.java -> WordInfoViewModel(useCase, addFavUseCase,
+                    removeFavUseCase, wordName, app) as T
             else -> throw IllegalArgumentException("Unknown ViewModel class");
         }
     }

@@ -14,7 +14,7 @@ object WordResponseMapperImpl : WordResponseMapper {
         val word = WordDetails(result?.word ?: "")
         val allEntries = mutableListOf<WordDetailsResponse.Entry>()
         val pronunciations = mutableSetOf<String>()
-        val notesList = mutableSetOf<Note>()
+        val notesList = mutableSetOf<String>()
         val meanings = mutableListOf<WordMeaning>()
         result?.lexicalEntries?.forEach { lexicalEntry ->
             allEntries.addAll(lexicalEntry.entries?.onEach {
@@ -28,13 +28,13 @@ object WordResponseMapperImpl : WordResponseMapper {
         word.pronunciation = pronunciations.elementAtOrNull(0)
         allEntries.sortBy { it.homographNumber }
         allEntries.forEach { entry ->
-            entry.notes?.forEach { notesList.add(Note(it.text)) }
+            entry.notes?.forEach { notesList.add(it.text) }
             entry.senses?.filter { it.definitions?.isNotEmpty() == true }?.forEach {
                 val meaning = WordMeaning(it.id)
                 meaning.partOfSpeech = entry.lexicalCategory
-                it.definitions?.map { Definition(it) }?.forEach { meaning.definitions.add(it) }
+                it.definitions?.forEach { meaning.definitions.add(it) }
                 it.examples?.map { it.text }?.filterNotNull()
-                    ?.forEach { meaning.examples.add(Example(it)) }
+                    ?.forEach { meaning.examples.add(it) }
                 meanings.add(meaning)
             }
         }

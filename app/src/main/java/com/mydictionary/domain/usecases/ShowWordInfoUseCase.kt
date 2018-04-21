@@ -5,34 +5,44 @@ import com.mydictionary.domain.entity.UserWord
 import com.mydictionary.domain.repository.UserRepository
 import com.mydictionary.domain.repository.UserWordRepository
 import com.mydictionary.domain.repository.WordRepository
-import com.mydictionary.domain.usecases.base.SingleUseCaseWithParameter
-import io.reactivex.Single
+import com.mydictionary.domain.usecases.base.UseCaseWithParameter
+import io.reactivex.Flowable
+import io.reactivex.android.schedulers.AndroidSchedulers
+import io.reactivex.schedulers.Schedulers
 import javax.inject.Inject
 import javax.inject.Singleton
 
 @Singleton
 class ShowWordInfoUseCase @Inject constructor(
-    val wordRepository: WordRepository,
-    val userWordRepository: UserWordRepository,
-    val userRepository: UserRepository
-) :
-    SingleUseCaseWithParameter<String, ShowWordInfoUseCase.Result> {
-    override fun execute(parameter: String): Single<Result> =
-        wordRepository.getWordInfo(parameter)
-            .map { Result(it, null) }
-            .flatMap { result ->
-                userRepository.getUser().flatMap {
-                    userWordRepository.getUserWord(parameter).singleOrError()
-                        .doOnEvent { t1, t2 ->
-                            val userWord = t1?.let { t1 } ?: UserWord(parameter)
-                            userWordRepository.addOrUpdateUserWord(userWord)
-                        }
-                        .map {
-                            Result(result.wordInfo, it)
-                        }
-                }.onErrorResumeNext { Single.just(result) }
-            }
-    
+        val wordRepository: WordRepository,
+        val userWordRepository: UserWordRepository,
+        val userRepository: UserRepository
+) : UseCaseWithParameter<String, ShowWordInfoUseCase.Result> {
+
+    override fun execute(parameter: String): Flowable<Result> =
+            wordRepository.getWordInfo(parameter)
+                    .toFlowable()
+                    .map {
+                        Result(it, null)
+                    }
+                    .flatMap { result ->
+                        userRepository.getUser()
+                                .toFlowable()
+                                .flatMap {
+                                    userWordRepository.getUserWord(parameter)
+                                            .onErrorReturn { UserWord(parameter) }
+                                            .flatMap {
+                                                userWordRepository.addOrUpdateUserWord(it)
+                                                        .andThen(Flowable.just(it))
+                                            }
+                                            .map {
+                                                Result(result.wordInfo, it)
+                                            }
+                                }
+                                .onErrorReturn { result }
+                    }.subscribeOn(Schedulers.io())
+                    .observeOn(AndroidSchedulers.mainThread())
+
 
     data class Result(val wordInfo: DetailWordInfo, val userWord: UserWord?)
 }

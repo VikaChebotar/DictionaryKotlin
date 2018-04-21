@@ -14,11 +14,11 @@ import android.view.View
 import com.mydictionary.R
 import com.mydictionary.commons.SELECTED_WORD_NAME_EXTRA
 import com.mydictionary.commons.getViewModel
-import com.mydictionary.data.pojo.WordMeaning
 import com.mydictionary.presentation.Data
 import com.mydictionary.presentation.DataState
 import com.mydictionary.presentation.viewmodel.word.WordInfoViewModel
 import com.mydictionary.presentation.viewmodel.word.WordInfoViewModelFactory
+import com.mydictionary.presentation.viewmodel.word.WordMeaning
 import com.mydictionary.presentation.viewmodel.word.WordPresentationDetails
 import com.mydictionary.presentation.views.SpaceItemDecorator
 import kotlinx.android.synthetic.main.word_content_scrolling.*
@@ -33,9 +33,9 @@ class WordInfoActivity : AppCompatActivity(), WordCardsAdapter.ViewClickListener
     private lateinit var textToSpeechHelper: TextToSpeechHelper
     private val viewModel by lazy {
         getViewModel<WordInfoViewModel>(
-            WordInfoViewModelFactory(
-                wordName
-            )
+                WordInfoViewModelFactory(
+                        wordName
+                )
         )
     }
 
@@ -78,8 +78,8 @@ class WordInfoActivity : AppCompatActivity(), WordCardsAdapter.ViewClickListener
     }
 
     private fun initList(
-        recyclerView: RecyclerView,
-        adapter: RecyclerView.Adapter<out RecyclerView.ViewHolder>
+            recyclerView: RecyclerView,
+            adapter: RecyclerView.Adapter<out RecyclerView.ViewHolder>
     ) {
         val linearLayoutManager = object : LinearLayoutManager(this) {
             override fun isAutoMeasureEnabled() = true
@@ -114,15 +114,17 @@ class WordInfoActivity : AppCompatActivity(), WordCardsAdapter.ViewClickListener
     }
 
     private fun showWordCards(value: List<Any>) {
-        wordCardsAdapter.dataset = value
-        wordCardsAdapter.notifyDataSetChanged()
+        if (wordCardsAdapter.dataset != value) {
+            wordCardsAdapter.dataset = value
+            wordCardsAdapter.notifyDataSetChanged()
+        }
     }
 
     private fun showError(message: String?) {
         Snackbar.make(
-            scrollContentRecyclerView,
-            message ?: getString(R.string.default_error),
-            Snackbar.LENGTH_LONG
+                scrollContentRecyclerView,
+                message ?: getString(R.string.default_error),
+                Snackbar.LENGTH_LONG
         ).show()
     }
 

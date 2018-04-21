@@ -3,7 +3,6 @@ package com.mydictionary.domain.repository
 import com.mydictionary.domain.entity.*
 import io.reactivex.Completable
 import io.reactivex.Flowable
-import io.reactivex.Observable
 import io.reactivex.Single
 
 interface UserRepository {
@@ -13,7 +12,7 @@ interface UserRepository {
 }
 
 interface WordRepository {
-    fun searchWord(searchPhrase: String): Flowable<List<String>>
+    fun searchWord(searchPhrase: String): Single<List<String>>
     fun getWordInfo(wordName: String): Single<DetailWordInfo>
     fun getShortWordInfo(wordName: String): Single<ShortWordInfo>
 }
@@ -26,7 +25,7 @@ interface UserWordRepository {
         isFavorite: Boolean = false //when isFavorite==true returns only words with not empty fav meanings
     ): Single<PagedResult<UserWord>>
 
-    fun getUserWord(wordName: String): Observable<UserWord> //each time object updates onNext will be called
+    fun getUserWord(wordName: String): Flowable<UserWord> //each time object updates onNext will be called
 
     fun addOrUpdateUserWord(userWord: UserWord): Completable
 }

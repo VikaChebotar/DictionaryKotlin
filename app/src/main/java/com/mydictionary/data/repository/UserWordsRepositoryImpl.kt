@@ -5,6 +5,7 @@ import com.mydictionary.domain.entity.SortingOption
 import com.mydictionary.domain.entity.UserWord
 import com.mydictionary.domain.repository.UserWordRepository
 import io.reactivex.Completable
+import io.reactivex.Flowable
 import io.reactivex.Observable
 import javax.inject.Inject
 import javax.inject.Singleton
@@ -20,12 +21,8 @@ class UserWordsRepositoryImpl @Inject constructor(val firebaseStorage: InternalF
         isFavorite: Boolean
     ) = firebaseStorage.getUserWords(offset, pageSize, sortingOption, isFavorite)
 
-    override fun getUserWord(wordName: String): Observable<UserWord> {
-        TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
-    }
+    override fun getUserWord(wordName: String): Flowable<UserWord> = firebaseStorage.getUserWord(wordName)
 
-    override fun addOrUpdateUserWord(userWord: UserWord): Completable {
-        TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
-    }
+    override fun addOrUpdateUserWord(userWord: UserWord) = firebaseStorage.addOrUpdateUserWord(userWord)
 
 }

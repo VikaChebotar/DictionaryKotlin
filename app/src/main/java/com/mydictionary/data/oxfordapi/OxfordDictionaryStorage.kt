@@ -85,6 +85,6 @@ class OxfordDictionaryStorage @Inject constructor(
         doOnSuccess { wordsCache.put(it.word, it) }
 
 
-    fun searchTheWord(phrase: String): Flowable<List<String>> =
+    fun searchTheWord(phrase: String): Single<List<String>> =
         restApi.searchTheWord(phrase, SEARCH_LIMIT).map { it.searchResults }
 }

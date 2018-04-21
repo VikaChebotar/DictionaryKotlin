@@ -14,19 +14,20 @@ import javax.inject.Singleton
 
 @Singleton
 class SearchWordUseCase @Inject constructor(val wordRepository: WordRepository) :
-    UseCaseWithParameter<PublishProcessor<String>, List<String>> {
+        UseCaseWithParameter<PublishProcessor<String>, List<String>> {
 
     override fun execute(publisher: PublishProcessor<String>): Flowable<List<String>> {
         return publisher
-            .onBackpressureDrop()
-            .filter { searchPhrase: String -> !searchPhrase.isEmpty() && searchPhrase.length >= MIN_WORD_LENGTH_TO_SEARCH }
-            .debounce(AUTOCOMPLETE_DELAY, TimeUnit.MILLISECONDS)
-            .distinctUntilChanged()
-            .switchMap {
-                wordRepository.searchWord(it)
-            }
-            .subscribeOn(Schedulers.io())
-            .observeOn(AndroidSchedulers.mainThread())
+                .onBackpressureDrop()
+                .filter { searchPhrase: String -> !searchPhrase.isEmpty() && searchPhrase.length >= MIN_WORD_LENGTH_TO_SEARCH }
+                .debounce(AUTOCOMPLETE_DELAY, TimeUnit.MILLISECONDS)
+                .distinctUntilChanged()
+                .switchMap {
+                    wordRepository.searchWord(it).toFlowable()
+                            .onErrorReturn { emptyList() }
+                }
+                .subscribeOn(Schedulers.io())
+                .observeOn(AndroidSchedulers.mainThread())
     }
 
 

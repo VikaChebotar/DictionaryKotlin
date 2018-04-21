@@ -49,7 +49,7 @@ class AllRepositoryImpl
     override fun getHistoryWords() = firebaseStorage.getHistoryWords()
 
     override fun searchWord(searchPhrase: String) =
-        oxfordStorage.searchTheWord(searchPhrase).singleOrError()
+        oxfordStorage.searchTheWord(searchPhrase)
 
     override fun setWordFavoriteState(
         word: WordDetails,

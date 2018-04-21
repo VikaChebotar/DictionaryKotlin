@@ -6,8 +6,8 @@ import android.view.ViewGroup
 import android.widget.TextView
 import com.mydictionary.R
 import com.mydictionary.commons.inflate
-import com.mydictionary.data.pojo.Definition
-import com.mydictionary.data.pojo.Example
+import com.mydictionary.presentation.viewmodel.word.Definition
+import com.mydictionary.presentation.viewmodel.word.Example
 
 /**
  * Created by Viktoria Chebotar on 25.02.18.
