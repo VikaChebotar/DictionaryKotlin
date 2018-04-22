@@ -63,7 +63,7 @@ class WordInfoViewModel(
                     } else
                         addToFavoritesUseCase
                                 .execute(AddMeaningToFavoritesUseCase.Parameter(wordName,
-                                        item.definitionId))
+                                        listOf(item.definitionId)))
                 }.subscribe({}, {
                     wordInfo.value = Data(DataState.ERROR, wordInfo.value?.data, it.message)
                 })

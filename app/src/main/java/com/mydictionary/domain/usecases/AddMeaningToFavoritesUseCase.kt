@@ -27,10 +27,10 @@ class AddMeaningToFavoritesUseCase @Inject constructor(
                                 .single(UserWord(parameter.word))
                     }.flatMapCompletable {
                         val meanings = it.favMeanings.toMutableSet()
-                        meanings.add(parameter.favMeaningId)
+                        meanings.addAll(parameter.favMeaningIds)
                         userWordRepository.addOrUpdateUserWord(UserWord(it.word, meanings.toList()))
                     }.subscribeOn(Schedulers.io())
                     .observeOn(AndroidSchedulers.mainThread())
 
-    data class Parameter(val word: String, val favMeaningId: String)
+    data class Parameter(val word: String, val favMeaningIds: List<String>)
 }

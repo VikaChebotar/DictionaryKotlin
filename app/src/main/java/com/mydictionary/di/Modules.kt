@@ -16,7 +16,10 @@ import com.mydictionary.data.pojo.SearchResult
 import com.mydictionary.data.pojo.WordDetails
 import com.mydictionary.data.pojo.WordResponseMapper
 import com.mydictionary.data.pojo.WordResponseMapperImpl
-import com.mydictionary.data.repository.*
+import com.mydictionary.data.repository.UserRepositoryImpl
+import com.mydictionary.data.repository.UserWordsRepositoryImpl
+import com.mydictionary.data.repository.WordListRepositoryImpl
+import com.mydictionary.data.repository.WordRepositoryImpl
 import com.mydictionary.domain.repository.UserRepository
 import com.mydictionary.domain.repository.UserWordRepository
 import com.mydictionary.domain.repository.WordListRepository
@@ -63,13 +66,6 @@ class AppModule(private val app: DictionaryApp) {
         mapper: WordResponseMapper
     ) =
         OxfordDictionaryStorage(app, wordsAPI, cache, mapper)
-
-    @Provides
-    @Singleton
-    fun providesRepository(
-        firebaseStorage: InternalFirebaseStorage,
-        oxfordDictionaryStorage: OxfordDictionaryStorage
-    ): AllRepository = AllRepositoryImpl(firebaseStorage, oxfordDictionaryStorage)
 }
 
 @Module

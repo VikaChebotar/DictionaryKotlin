@@ -3,12 +3,13 @@ package com.mydictionary.presentation.views.learn
 import android.support.v4.app.FragmentManager
 import android.support.v4.app.FragmentStatePagerAdapter
 import com.mydictionary.data.pojo.WordDetails
+import com.mydictionary.presentation.viewmodel.learn.UserWordInfoPresentation
 
 /**
  * Created by Viktoria_Chebotar on 3/9/2018.
  */
 class LearnCardPagerAadapter(fm: FragmentManager) : FragmentStatePagerAdapter(fm) {
-    var list = listOf<WordDetails>()
+    var list = listOf<UserWordInfoPresentation>()
 
     override fun getItem(position: Int) = LearnCardItemFragment.getInstance(list[position])
 

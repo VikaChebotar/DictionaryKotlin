@@ -1,33 +1,40 @@
 package com.mydictionary.presentation.viewmodel.learn
 
+import android.annotation.SuppressLint
 import android.arch.lifecycle.MediatorLiveData
 import android.arch.lifecycle.MutableLiveData
 import android.arch.lifecycle.Observer
 import android.arch.lifecycle.ViewModel
+import android.os.Parcelable
 import android.util.Log
-import com.mydictionary.commons.FAV_WORD_PAGE_SIZE
 import com.mydictionary.commons.FAV_WORD_PAGE_THRESHOLD
 import com.mydictionary.commons.NonNullMutableLiveData
-import com.mydictionary.data.pojo.WordDetails
-import com.mydictionary.data.repository.AllRepository
+import com.mydictionary.domain.entity.PagedResult
 import com.mydictionary.domain.entity.SortingOption
+import com.mydictionary.domain.usecases.AddMeaningToFavoritesUseCase
+import com.mydictionary.domain.usecases.RemoveMeaningFromFavoritesUseCase
+import com.mydictionary.domain.usecases.ShowFavoriteWordsUseCase
 import com.mydictionary.presentation.Data
 import com.mydictionary.presentation.DataState
-import io.reactivex.android.schedulers.AndroidSchedulers
+import com.mydictionary.presentation.viewmodel.word.Definition
+import com.mydictionary.presentation.viewmodel.word.Example
 import io.reactivex.disposables.CompositeDisposable
 import io.reactivex.processors.PublishProcessor
-import io.reactivex.schedulers.Schedulers
+import kotlinx.android.parcel.Parcelize
 import javax.inject.Inject
 
 /**
  * Created by Viktoria Chebotar on 15.04.18.
  */
-class LearnWordsViewModel @Inject constructor(val repository: AllRepository): ViewModel() {
+class LearnWordsViewModel @Inject constructor(val showFavoriteWordsUseCase: ShowFavoriteWordsUseCase,
+                                              val addMeaningToFavoritesUseCase: AddMeaningToFavoritesUseCase,
+                                              val removeMeaningFromFavoritesUseCase: RemoveMeaningFromFavoritesUseCase)
+    : ViewModel() {
     private val compositeDisposable = CompositeDisposable()
-    private val paginator = PublishProcessor.create<Int>()
+    private val paginator = PublishProcessor.create<ShowFavoriteWordsUseCase.Parameter>()
     private val pagingLiveData = MediatorLiveData<Pair<Int, SortingOption>>()
 
-    val list = MutableLiveData<Data<List<WordDetails>>>()
+    val list = MutableLiveData<Data<List<UserWordInfoPresentation>>>()
     val deletedWordInfo = MutableLiveData<Data<DeletedWordInfo>>()
     val totalSize = MutableLiveData<Int>()
     val currentSelectedPosition = NonNullMutableLiveData(0)
@@ -36,39 +43,57 @@ class LearnWordsViewModel @Inject constructor(val repository: AllRepository): Vi
     private var favWordsOffset = 0
 
 
-   private val pagingLiveDataObserver = Observer<Pair<Int, SortingOption>> {
+    private val pagingLiveDataObserver = Observer<Pair<Int, SortingOption>> {
         if (currentSelectedPosition.value + FAV_WORD_PAGE_THRESHOLD >= favWordsOffset
-            && currentSelectedPosition.value < totalSize.value ?: Int.MAX_VALUE
+                && currentSelectedPosition.value < totalSize.value ?: Int.MAX_VALUE
         ) {
-            loadFavoriteWords()
+            loadNextPage()
         }
     }
 
     init {
-        createRequest()
-        loadFavoriteWords()
         pagingLiveData.addSource(
-            currentSelectedPosition,
-            { pagingLiveData.value = Pair(currentSelectedPosition.value, sortingType.value) })
+                currentSelectedPosition,
+                { pagingLiveData.value = Pair(currentSelectedPosition.value, sortingType.value) })
         pagingLiveData.addSource(sortingType, { sortingOption ->
             favWordsOffset = 0
             pagingLiveData.value = Pair(currentSelectedPosition.value, sortingType.value)
         })
         pagingLiveData.observeForever(pagingLiveDataObserver)
+        subscribeToNextPageResult()
+        loadNextPage()
     }
 
-    private fun createRequest() {
-        val disposable =
-            paginator.filter { list.value?.dataState != DataState.LOADING }
+    private fun subscribeToNextPageResult() {
+        val disposable = paginator.filter { list.value?.dataState != DataState.LOADING }
                 .onBackpressureDrop()
                 .doOnNext {
                     list.value = Data(DataState.LOADING, list.value?.data, null)
                 }
                 .concatMap {
-                    repository.getFavoriteWordsInfo(it, FAV_WORD_PAGE_SIZE, sortingType.value)
+                    showFavoriteWordsUseCase.execute(it)
                 }
-                .subscribeOn(Schedulers.io())
-                .observeOn(AndroidSchedulers.mainThread())
+                .map {
+                    val mappedList =
+                            it.list.map {
+                                with(it) {
+                                    val meanings =
+                                            wordInfo.meanings.filter {
+                                                userWord.favMeanings.contains(it.definitionId)
+                                            }.map {
+                                                UserWordMeaningPresentation(
+                                                        it.definitionId,
+                                                        it.definitions?.map { Definition(it) }
+                                                                ?: emptyList(), it.partOfSpeech,
+                                                        it.examples?.map { Example(it) }
+                                                                ?: emptyList()
+                                                )
+                                            }
+                                    UserWordInfoPresentation(wordInfo.word, meanings)
+                                }
+                            }
+                    PagedResult<UserWordInfoPresentation>(mappedList, it.totalSize)
+                }
                 .subscribe({ pagedResult ->
                     totalSize.postValue(pagedResult.totalSize)
                     val oldList = list.value?.data?.toMutableList() ?: mutableListOf()
@@ -84,9 +109,8 @@ class LearnWordsViewModel @Inject constructor(val repository: AllRepository): Vi
         compositeDisposable.add(disposable)
     }
 
-    private fun loadFavoriteWords() {
-        if (!compositeDisposable.isDisposed)
-            paginator.onNext(favWordsOffset)
+    private fun loadNextPage() {
+        paginator.onNext(ShowFavoriteWordsUseCase.Parameter(favWordsOffset, sortingType.value))
     }
 
     fun onItemSelected(position: Int) {
@@ -98,52 +122,40 @@ class LearnWordsViewModel @Inject constructor(val repository: AllRepository): Vi
             sortingType.value = sortingOption
     }
 
-    fun onItemDeleteClicked(wordDetails: WordDetails) {
-        val favMeanings = emptyList<String>()
-        val oldFavMeanings = wordDetails.meanings.filter { it.isFavourite }.map { it.definitionId }
+    fun onItemDeleteClicked(wordDetails: UserWordInfoPresentation) {
+        val oldFavMeanings = wordDetails.meanings.map { it.definitionId }
         val disposable =
-            repository.setWordFavoriteState(wordDetails, favMeanings)
-                .subscribeOn(Schedulers.io())
-                .observeOn(AndroidSchedulers.mainThread())
-                .subscribe({ wordDetails ->
-                    if (wordDetails.meanings.none { it.isFavourite }) {
-                        val oldList = list.value?.data?.toMutableList() ?: mutableListOf()
-                        val position = oldList.indexOf(wordDetails)
-                        oldList.remove(wordDetails)
-                        totalSize.value = totalSize.value?.minus(1)
-                        list.value = Data(DataState.SUCCESS, oldList, null)
-                        deletedWordInfo.value = Data(
-                            DataState.SUCCESS,
-                            DeletedWordInfo(wordDetails, oldFavMeanings, position)
-                        )
-                    } else {
-                        deletedWordInfo.value = Data(DataState.ERROR)
-                    }
-                }, { exception ->
-                    deletedWordInfo.value = Data(DataState.ERROR, null, exception.message)
-                })
+                removeMeaningFromFavoritesUseCase.execute(RemoveMeaningFromFavoritesUseCase.Parameter(
+                        wordDetails.word, oldFavMeanings
+                ))
+                        .subscribe({
+                            val oldList = list.value?.data?.toMutableList() ?: mutableListOf()
+                            val position = oldList.indexOf(wordDetails)
+                            oldList.remove(wordDetails)
+                            totalSize.value = totalSize.value?.minus(1)
+                            list.value = Data(DataState.SUCCESS, oldList, null)
+                            deletedWordInfo.value = Data(
+                                    DataState.SUCCESS,
+                                    DeletedWordInfo(wordDetails, oldFavMeanings, position)
+                            )
+                        }, { exception ->
+                            deletedWordInfo.value = Data(DataState.ERROR, null, exception.message)
+                        })
         compositeDisposable.add(disposable)
     }
 
     fun onUndoDeletionClicked(deletedWordInfo: DeletedWordInfo) {
-        val disposable = repository.setWordFavoriteState(
-            deletedWordInfo.wordDetails,
-            deletedWordInfo.oldFavMeanings
-        )
-            .subscribeOn(Schedulers.io())
-            .observeOn(AndroidSchedulers.mainThread())
-            .subscribe({ t ->
-                if (t.meanings.any { it.isFavourite }) {
+        val disposable = addMeaningToFavoritesUseCase.execute(AddMeaningToFavoritesUseCase.Parameter(
+                deletedWordInfo.wordDetails.word,
+                deletedWordInfo.oldFavMeanings))
+                .subscribe({
                     val oldList = list.value?.data?.toMutableList() ?: mutableListOf()
-                    oldList.add(deletedWordInfo.oldPosition, t)
+                    oldList.add(deletedWordInfo.oldPosition, deletedWordInfo.wordDetails)
                     totalSize.value = totalSize.value?.plus(1)
                     list.value = Data(DataState.SUCCESS, oldList, null)
-                } else {
-                    Log.e(LearnWordsViewModel::class.java.name, "Error undoing deletion")
-                }
-            }, {
-                Log.e(LearnWordsViewModel::class.java.name, it.message)
-            })
+                }, {
+                    Log.e(LearnWordsViewModel::class.java.name, it.message)
+                })
         compositeDisposable.add(disposable)
     }
 
@@ -157,7 +169,21 @@ class LearnWordsViewModel @Inject constructor(val repository: AllRepository): Vi
 }
 
 data class DeletedWordInfo(
-    val wordDetails: WordDetails,
-    val oldFavMeanings: List<String>,
-    val oldPosition: Int
+        val wordDetails: UserWordInfoPresentation,
+        val oldFavMeanings: List<String>,
+        val oldPosition: Int
 )
+
+@SuppressLint("ParcelCreator")
+@Parcelize
+data class UserWordInfoPresentation(val word: String,
+                                    var meanings: List<UserWordMeaningPresentation>) : Parcelable
+
+@SuppressLint("ParcelCreator")
+@Parcelize
+data class UserWordMeaningPresentation(
+        val definitionId: String,
+        val definitions: List<Definition>,
+        var partOfSpeech: String,
+        val examples: List<Example>
+) : Parcelable

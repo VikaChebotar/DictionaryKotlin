@@ -12,13 +12,13 @@ import android.view.View
 import com.mydictionary.R
 import com.mydictionary.commons.getViewModel
 import com.mydictionary.commons.zipLiveData
-import com.mydictionary.data.pojo.WordDetails
 import com.mydictionary.domain.entity.SortingOption
 import com.mydictionary.presentation.Data
 import com.mydictionary.presentation.DataState
 import com.mydictionary.presentation.DictionaryApp
 import com.mydictionary.presentation.viewmodel.learn.DeletedWordInfo
 import com.mydictionary.presentation.viewmodel.learn.LearnWordsViewModel
+import com.mydictionary.presentation.viewmodel.learn.UserWordInfoPresentation
 import com.mydictionary.presentation.views.word.WordInfoActivity
 import kotlinx.android.synthetic.main.learn_activity.*
 import javax.inject.Inject
@@ -81,7 +81,7 @@ class LearnActivity : AppCompatActivity(), LearnCardItemFragment.OnCardItemListe
         }
     }
 
-    private fun showFavoriteWords(data: Data<List<WordDetails>>?) {
+    private fun showFavoriteWords(data: Data<List<UserWordInfoPresentation>>?) {
         data?.let {
             showProgress(it.dataState == DataState.LOADING && (it.data == null || it.data.isEmpty()))
             it.data?.let {
@@ -107,11 +107,11 @@ class LearnActivity : AppCompatActivity(), LearnCardItemFragment.OnCardItemListe
         return super.onOptionsItemSelected(item)
     }
 
-    override fun onDetailsClicked(word: WordDetails) {
+    override fun onDetailsClicked(word: UserWordInfoPresentation) {
         WordInfoActivity.startActivity(this, word.word)
     }
 
-    override fun onDeleteClicked(word: WordDetails) {
+    override fun onDeleteClicked(word: UserWordInfoPresentation) {
         viewModel.onItemDeleteClicked(word)
         viewModel.deletedWordInfo.observe(this, object : Observer<Data<DeletedWordInfo>> {
             override fun onChanged(t: Data<DeletedWordInfo>?) {

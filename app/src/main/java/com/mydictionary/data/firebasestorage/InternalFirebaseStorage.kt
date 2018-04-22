@@ -319,10 +319,6 @@ class InternalFirebaseStorage(
             sortingOption: SortingOption,
             isFavorite: Boolean
     ) = Single.create({ emitter: SingleEmitter<PagedResult<UserWord>> ->
-        if (firebaseAuth.currentUser == null) {
-            emitter.onError(AuthorizationException(context.getString(R.string.sign_in_message_favorites)))
-            return@create
-        }
         var query: Query = getUserReference()
         when (sortingOption) {
             SortingOption.BY_DATE -> query = query.orderByChild("accessTime")

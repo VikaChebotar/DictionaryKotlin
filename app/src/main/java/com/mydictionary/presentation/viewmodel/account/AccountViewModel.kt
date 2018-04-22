@@ -2,7 +2,6 @@ package com.mydictionary.presentation.viewmodel.account
 
 import android.arch.lifecycle.MutableLiveData
 import android.arch.lifecycle.ViewModel
-import com.mydictionary.data.repository.AllRepository
 import com.mydictionary.domain.usecases.ShowUserUseCase
 import com.mydictionary.domain.usecases.SignInUseCase
 import com.mydictionary.domain.usecases.SignOutUseCase
@@ -12,7 +11,6 @@ import io.reactivex.disposables.CompositeDisposable
 import javax.inject.Inject
 
 class AccountViewModel @Inject constructor(
-    val repository: AllRepository,
     val showUserUseCase: ShowUserUseCase,
     val signInUseCase: SignInUseCase,
     val signOutUseCase: SignOutUseCase

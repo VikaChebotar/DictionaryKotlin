@@ -18,7 +18,7 @@ import android.view.View
 import android.view.ViewGroup
 import com.mydictionary.R
 import com.mydictionary.commons.SELCTED_WORD_INFO_EXTRA
-import com.mydictionary.data.pojo.WordDetails
+import com.mydictionary.presentation.viewmodel.learn.UserWordInfoPresentation
 import com.mydictionary.presentation.views.word.MeaningSpaceItemDecorator
 import com.mydictionary.presentation.views.word.MeaningsAdapter
 import kotlinx.android.synthetic.main.learn_card_item.*
@@ -38,17 +38,17 @@ class LearnCardItemFragment : Fragment() {
     }
     private var isShowingFrontSide = true
     private var animatorSet: AnimatorSet? = null
-    private var wordDetails: WordDetails? = null
+    private var wordDetails: UserWordInfoPresentation? = null
     private var meaningsList: List<Any>? = null
     private var listener: OnCardItemListener? = null
 
     interface OnCardItemListener {
-        fun onDetailsClicked(word: WordDetails)
-        fun onDeleteClicked(word: WordDetails)
+        fun onDetailsClicked(word: UserWordInfoPresentation)
+        fun onDeleteClicked(word: UserWordInfoPresentation)
     }
 
     companion object {
-        fun getInstance(details: WordDetails): LearnCardItemFragment {
+        fun getInstance(details: UserWordInfoPresentation): LearnCardItemFragment {
             val fragment = LearnCardItemFragment()
             val extras = Bundle()
             extras.putParcelable(SELCTED_WORD_INFO_EXTRA, details)
@@ -72,7 +72,7 @@ class LearnCardItemFragment : Fragment() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         wordDetails = arguments?.getParcelable(SELCTED_WORD_INFO_EXTRA)
-        meaningsList = wordDetails?.meanings?.filter { it.isFavourite }?.map { it.definitions.union(it.examples) }?.
+        meaningsList = wordDetails?.meanings?.map { it.definitions.union(it.examples) }?.
                 reduce { acc, set -> acc.union(set) }?.toList()
     }
 
