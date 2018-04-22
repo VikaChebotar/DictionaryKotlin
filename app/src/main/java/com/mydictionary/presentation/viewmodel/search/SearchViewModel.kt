@@ -6,8 +6,8 @@ import android.util.Log
 import com.mydictionary.domain.MIN_WORD_LENGTH_TO_SEARCH
 import com.mydictionary.domain.usecases.SearchWordUseCase
 import com.mydictionary.domain.usecases.ShowUserHistoryUseCase
-import com.mydictionary.presentation.Data
-import com.mydictionary.presentation.DataState
+import com.mydictionary.presentation.viewmodel.Data
+import com.mydictionary.presentation.viewmodel.DataState
 import io.reactivex.Single
 import io.reactivex.disposables.CompositeDisposable
 import io.reactivex.processors.PublishProcessor

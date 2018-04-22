@@ -10,11 +10,11 @@ import android.view.Menu
 import android.view.MenuItem
 import android.view.View
 import com.mydictionary.R
-import com.mydictionary.commons.getViewModel
-import com.mydictionary.commons.zipLiveData
+import com.mydictionary.presentation.utils.getViewModel
+import com.mydictionary.presentation.utils.zipLiveData
 import com.mydictionary.domain.entity.SortingOption
-import com.mydictionary.presentation.Data
-import com.mydictionary.presentation.DataState
+import com.mydictionary.presentation.viewmodel.Data
+import com.mydictionary.presentation.viewmodel.DataState
 import com.mydictionary.presentation.DictionaryApp
 import com.mydictionary.presentation.viewmodel.learn.DeletedWordInfo
 import com.mydictionary.presentation.viewmodel.learn.LearnWordsViewModel

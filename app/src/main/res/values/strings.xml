@@ -26,12 +26,9 @@
     <string name="no_word">Sorry, no word info found</string>
     <string name="more_from_recent_history">More from recent history</string>
     <string name="speak_now">Speak Now</string>
-    <string name="default_error">Error</string>
-    <string name="word_not_found_error">Word not found</string>
     <string name="empty_part_of_speech">-</string>
     <string name="example_formatted_string">\'%1$s\'</string>
     <string name="notes">Notes</string>
-    <string name="login_error">Google sign in failed</string>
     <string name="login_success">You successfully signed in as %1$s</string>
     <string name="account">Sign out</string>
     <string name="sign_out_confirm_question">Are you sure you want to sign out?</string>

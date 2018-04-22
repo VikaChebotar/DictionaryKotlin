@@ -5,7 +5,7 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.TextView
 import com.mydictionary.R
-import com.mydictionary.commons.inflate
+import com.mydictionary.presentation.utils.inflate
 import kotlinx.android.synthetic.main.word_list_item.view.*
 
 class WordListAdapter(val listener: (String) -> Unit) :

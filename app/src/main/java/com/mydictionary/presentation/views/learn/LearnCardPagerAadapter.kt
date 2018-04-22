@@ -2,7 +2,6 @@ package com.mydictionary.presentation.views.learn
 
 import android.support.v4.app.FragmentManager
 import android.support.v4.app.FragmentStatePagerAdapter
-import com.mydictionary.data.pojo.WordDetails
 import com.mydictionary.presentation.viewmodel.learn.UserWordInfoPresentation
 
 /**

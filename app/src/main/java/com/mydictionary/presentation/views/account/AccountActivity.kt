@@ -14,10 +14,10 @@ import com.google.android.gms.auth.api.signin.GoogleSignInClient
 import com.google.android.gms.auth.api.signin.GoogleSignInOptions
 import com.google.android.gms.common.api.ApiException
 import com.mydictionary.R
-import com.mydictionary.commons.getViewModel
-import com.mydictionary.presentation.Data
-import com.mydictionary.presentation.DataState
 import com.mydictionary.presentation.DictionaryApp
+import com.mydictionary.presentation.utils.getViewModel
+import com.mydictionary.presentation.viewmodel.Data
+import com.mydictionary.presentation.viewmodel.DataState
 import com.mydictionary.presentation.viewmodel.account.AccountViewModel
 import kotlinx.android.synthetic.main.account_activity.*
 import javax.inject.Inject
@@ -30,15 +30,17 @@ class AccountActivity : AppCompatActivity() {
 
     @Inject
     lateinit var viewModelFactory: ViewModelProvider.Factory
-    val viewModel by lazy {getViewModel<AccountViewModel>(viewModelFactory)}
+    private val viewModel by lazy { getViewModel<AccountViewModel>(viewModelFactory) }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.account_activity)
         DictionaryApp.component.inject(this)
         setSupportActionBar(toolbar)
-        supportActionBar?.setDisplayShowHomeEnabled(true)
-        supportActionBar?.setDisplayHomeAsUpEnabled(true)
+        supportActionBar?.apply {
+            setDisplayShowHomeEnabled(true)
+            setDisplayHomeAsUpEnabled(true)
+        }
         initGoogleSignInClient()
         loginBtn.setOnClickListener { startSignInActivity() }
         logoutBtn.setOnClickListener { showSignOutConfirmDialog() }
@@ -61,9 +63,9 @@ class AccountActivity : AppCompatActivity() {
 
     private fun initGoogleSignInClient() {
         googleSignInOptions = GoogleSignInOptions.Builder(GoogleSignInOptions.DEFAULT_SIGN_IN)
-            .requestIdToken(getString(R.string.default_web_client_id))
-            .requestEmail()
-            .build()
+                .requestIdToken(getString(R.string.default_web_client_id))
+                .requestEmail()
+                .build()
         googleSignInClient = GoogleSignIn.getClient(this, googleSignInOptions)
     }
 
@@ -77,9 +79,9 @@ class AccountActivity : AppCompatActivity() {
 
     private fun showSignOutConfirmDialog() {
         AlertDialog.Builder(this).setTitle(getString(R.string.account))
-            .setMessage(getString(R.string.sign_out_confirm_question))
-            .setPositiveButton(getString(R.string.yes), { _, _ -> onSignoutClicked() })
-            .setNegativeButton(getString(R.string.cancel), { _, _ -> }).show()
+                .setMessage(getString(R.string.sign_out_confirm_question))
+                .setPositiveButton(getString(R.string.yes), { _, _ -> onSignoutClicked() })
+                .setNegativeButton(getString(R.string.cancel), { _, _ -> }).show()
     }
 
     private fun onSignoutClicked() {

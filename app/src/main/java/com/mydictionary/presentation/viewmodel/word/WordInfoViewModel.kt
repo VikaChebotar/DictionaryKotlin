@@ -8,8 +8,8 @@ import com.mydictionary.R
 import com.mydictionary.domain.usecases.AddMeaningToFavoritesUseCase
 import com.mydictionary.domain.usecases.RemoveMeaningFromFavoritesUseCase
 import com.mydictionary.domain.usecases.ShowWordInfoUseCase
-import com.mydictionary.presentation.Data
-import com.mydictionary.presentation.DataState
+import com.mydictionary.presentation.viewmodel.Data
+import com.mydictionary.presentation.viewmodel.DataState
 import com.mydictionary.presentation.DictionaryApp
 import io.reactivex.Flowable
 import io.reactivex.Single

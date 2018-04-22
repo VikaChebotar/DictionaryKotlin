@@ -5,7 +5,7 @@ import android.arch.lifecycle.LifecycleObserver
 import android.arch.lifecycle.OnLifecycleEvent
 import android.content.Context
 import android.speech.tts.TextToSpeech
-import com.mydictionary.commons.SPEECH_RATE
+import com.mydictionary.presentation.utils.SPEECH_RATE
 import java.util.*
 
 class TextToSpeechHelper(context: Context, lifecycle: Lifecycle) : LifecycleObserver {
@@ -31,7 +31,7 @@ class TextToSpeechHelper(context: Context, lifecycle: Lifecycle) : LifecycleObse
     }
 
     @OnLifecycleEvent(Lifecycle.Event.ON_STOP)
-    private fun onStop() {
+    fun onStop() {
         textToSpeech.stop()
         textToSpeech.shutdown()
     }

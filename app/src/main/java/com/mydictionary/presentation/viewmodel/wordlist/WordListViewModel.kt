@@ -5,8 +5,8 @@ import android.arch.lifecycle.ViewModel
 import android.arch.lifecycle.ViewModelProvider
 import android.util.Log
 import com.mydictionary.domain.usecases.ShowWordListUseCase
-import com.mydictionary.presentation.Data
-import com.mydictionary.presentation.DataState
+import com.mydictionary.presentation.viewmodel.Data
+import com.mydictionary.presentation.viewmodel.DataState
 import com.mydictionary.presentation.DictionaryApp
 import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.disposables.CompositeDisposable

@@ -12,10 +12,10 @@ import android.view.Menu
 import android.view.MenuItem
 import android.view.View
 import com.mydictionary.R
-import com.mydictionary.commons.SELECTED_WORD_NAME_EXTRA
-import com.mydictionary.commons.getViewModel
-import com.mydictionary.presentation.Data
-import com.mydictionary.presentation.DataState
+import com.mydictionary.presentation.utils.SELECTED_WORD_NAME_EXTRA
+import com.mydictionary.presentation.utils.getViewModel
+import com.mydictionary.presentation.viewmodel.Data
+import com.mydictionary.presentation.viewmodel.DataState
 import com.mydictionary.presentation.viewmodel.word.WordInfoViewModel
 import com.mydictionary.presentation.viewmodel.word.WordInfoViewModelFactory
 import com.mydictionary.presentation.viewmodel.word.WordMeaning

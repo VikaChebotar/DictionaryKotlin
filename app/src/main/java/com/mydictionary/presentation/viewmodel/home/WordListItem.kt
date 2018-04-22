@@ -11,8 +11,7 @@ fun mapToPresentation(wordList: WordList) =
         WordListItem.WordList(wordList.listName, wordList.category, wordList.list)
 
 fun mapToPresentation(lists: List<WordList>) =
-        lists
-                .groupBy { it.category }
+        lists.groupBy { it.category }
                 .entries
                 .flatMap {
                     listOf(WordListItem.Category(it.key),

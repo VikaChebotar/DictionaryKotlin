@@ -12,9 +12,9 @@ import android.view.Menu
 import android.view.MenuItem
 import android.view.View
 import com.mydictionary.R
-import com.mydictionary.commons.WORD_LIST_NAME
-import com.mydictionary.commons.getViewModel
-import com.mydictionary.presentation.DataState
+import com.mydictionary.presentation.utils.WORD_LIST_NAME
+import com.mydictionary.presentation.utils.getViewModel
+import com.mydictionary.presentation.viewmodel.DataState
 import com.mydictionary.presentation.viewmodel.wordlist.WordListViewModel
 import com.mydictionary.presentation.viewmodel.wordlist.WordListViewModelFactory
 import com.mydictionary.presentation.views.word.WordInfoActivity

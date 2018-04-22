@@ -5,7 +5,7 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.TextView
 import com.mydictionary.R
-import com.mydictionary.commons.inflate
+import com.mydictionary.presentation.utils.inflate
 import com.mydictionary.presentation.viewmodel.word.Definition
 import com.mydictionary.presentation.viewmodel.word.Example
 

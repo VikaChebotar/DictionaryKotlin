@@ -16,9 +16,9 @@ import android.view.View
 import android.view.ViewTreeObserver
 import android.view.animation.AnimationUtils
 import com.mydictionary.R
-import com.mydictionary.commons.*
-import com.mydictionary.presentation.Data
-import com.mydictionary.presentation.DataState
+import com.mydictionary.presentation.utils.*
+import com.mydictionary.presentation.viewmodel.Data
+import com.mydictionary.presentation.viewmodel.DataState
 import com.mydictionary.presentation.DictionaryApp
 import com.mydictionary.presentation.viewmodel.search.SearchResult
 import com.mydictionary.presentation.viewmodel.search.SearchViewModel

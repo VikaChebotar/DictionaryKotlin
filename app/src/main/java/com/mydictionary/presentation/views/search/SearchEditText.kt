@@ -14,9 +14,9 @@ import android.view.View
 import android.view.inputmethod.EditorInfo
 import android.widget.TextView
 import com.mydictionary.R
-import com.mydictionary.commons.CompoundDrawables
-import com.mydictionary.commons.hideKeyboard
-import com.mydictionary.commons.isIntentAvailable
+import com.mydictionary.presentation.utils.CompoundDrawables
+import com.mydictionary.presentation.utils.hideKeyboard
+import com.mydictionary.presentation.utils.isIntentAvailable
 
 
 /**

@@ -6,8 +6,8 @@ import android.support.v7.widget.RecyclerView
 import android.view.View
 import android.view.ViewGroup
 import com.mydictionary.R
-import com.mydictionary.commons.containsWhiteSpace
-import com.mydictionary.commons.inflate
+import com.mydictionary.presentation.utils.containsWhiteSpace
+import com.mydictionary.presentation.utils.inflate
 import com.mydictionary.presentation.viewmodel.word.Note
 import com.mydictionary.presentation.viewmodel.word.WordMeaning
 import kotlinx.android.synthetic.main.definition_card.view.*

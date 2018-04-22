@@ -17,7 +17,7 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import com.mydictionary.R
-import com.mydictionary.commons.SELCTED_WORD_INFO_EXTRA
+import com.mydictionary.presentation.utils.SELCTED_WORD_INFO_EXTRA
 import com.mydictionary.presentation.viewmodel.learn.UserWordInfoPresentation
 import com.mydictionary.presentation.views.word.MeaningSpaceItemDecorator
 import com.mydictionary.presentation.views.word.MeaningsAdapter

@@ -5,15 +5,15 @@ import android.arch.lifecycle.ViewModel
 import com.mydictionary.domain.usecases.ShowUserUseCase
 import com.mydictionary.domain.usecases.SignInUseCase
 import com.mydictionary.domain.usecases.SignOutUseCase
-import com.mydictionary.presentation.Data
-import com.mydictionary.presentation.DataState
+import com.mydictionary.presentation.viewmodel.Data
+import com.mydictionary.presentation.viewmodel.DataState
 import io.reactivex.disposables.CompositeDisposable
 import javax.inject.Inject
 
 class AccountViewModel @Inject constructor(
-    val showUserUseCase: ShowUserUseCase,
-    val signInUseCase: SignInUseCase,
-    val signOutUseCase: SignOutUseCase
+        private val showUserUseCase: ShowUserUseCase,
+        private val signInUseCase: SignInUseCase,
+        private val signOutUseCase: SignOutUseCase
 ) : ViewModel() {
     private val compositeDisposable = CompositeDisposable()
     val userName = MutableLiveData<Data<String>>() //holds username if loggedIn, if not - it's null

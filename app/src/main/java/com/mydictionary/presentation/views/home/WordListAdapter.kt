@@ -5,11 +5,11 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.TextView
 import com.mydictionary.R
-import com.mydictionary.commons.inflate
+import com.mydictionary.presentation.utils.inflate
 import com.mydictionary.presentation.viewmodel.home.WordListItem
 
-class WordListAdapter(val listener: (Int, String) -> Unit) :
-    RecyclerView.Adapter<RecyclerView.ViewHolder>() {
+class WordListAdapter(val listener: (String) -> Unit) :
+        RecyclerView.Adapter<RecyclerView.ViewHolder>() {
     private val dataset = mutableListOf<WordListItem>()
 
     private enum class ViewTypes {
@@ -25,18 +25,18 @@ class WordListAdapter(val listener: (Int, String) -> Unit) :
     }
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int) =
-        when (ViewTypes.values()[viewType]) {
-            ViewTypes.CATEGORY_NAME -> CategoryItemViewHolder(parent.inflate(R.layout.home_category_list_item))
-            ViewTypes.LIST_NAME -> ListItemViewHolder(parent.inflate(R.layout.home_word_list_item))
-        }
+            when (ViewTypes.values()[viewType]) {
+                ViewTypes.CATEGORY_NAME -> CategoryItemViewHolder(parent.inflate(R.layout.home_category_list_item))
+                ViewTypes.LIST_NAME -> ListItemViewHolder(parent.inflate(R.layout.home_word_list_item))
+            }
 
     override fun getItemCount() = dataset.size
 
     override fun getItemViewType(position: Int) =
-        when (dataset[position]) {
-            is WordListItem.Category -> ViewTypes.CATEGORY_NAME.ordinal
-            is WordListItem.WordList -> ViewTypes.LIST_NAME.ordinal
-        }
+            when (dataset[position]) {
+                is WordListItem.Category -> ViewTypes.CATEGORY_NAME.ordinal
+                is WordListItem.WordList -> ViewTypes.LIST_NAME.ordinal
+            }
 
 
     override fun onBindViewHolder(holder: RecyclerView.ViewHolder, position: Int) {
@@ -51,7 +51,7 @@ class WordListAdapter(val listener: (Int, String) -> Unit) :
             (itemView as TextView).text = item.name
             itemView.setOnClickListener {
                 val data = dataset[adapterPosition] as WordListItem.WordList
-                listener.invoke(adapterPosition, data.name)
+                listener.invoke(data.name)
             }
         }
     }

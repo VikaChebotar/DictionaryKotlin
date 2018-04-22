@@ -7,6 +7,6 @@
 /captures
 .externalNativeBuild
 *.orig
-/app/src/main/res/values/keys.xml
+/data/src/main/res/values/keys.xml
 *.db
 /app/google-services.json

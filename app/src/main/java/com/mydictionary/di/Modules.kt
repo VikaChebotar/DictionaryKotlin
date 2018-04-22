@@ -2,24 +2,23 @@ package com.mydictionary.di
 
 import android.arch.lifecycle.ViewModel
 import android.arch.lifecycle.ViewModelProvider
-import android.util.LruCache
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.database.FirebaseDatabase
 import com.google.gson.Gson
 import com.google.gson.GsonBuilder
 import com.google.gson.reflect.TypeToken
-import com.mydictionary.commons.OXFORD_API_ENDPOINT
-import com.mydictionary.commons.getCacheMemorySize
-import com.mydictionary.data.firebasestorage.InternalFirebaseStorage
-import com.mydictionary.data.oxfordapi.*
-import com.mydictionary.data.pojo.SearchResult
-import com.mydictionary.data.pojo.WordDetails
-import com.mydictionary.data.pojo.WordResponseMapper
-import com.mydictionary.data.pojo.WordResponseMapperImpl
-import com.mydictionary.data.repository.UserRepositoryImpl
-import com.mydictionary.data.repository.UserWordsRepositoryImpl
-import com.mydictionary.data.repository.WordListRepositoryImpl
-import com.mydictionary.data.repository.WordRepositoryImpl
+import com.mydictionary.data.userrepo.UserMapper
+import com.mydictionary.data.userrepo.UserRepositoryImpl
+import com.mydictionary.data.userwordrepo.UserWordMapper
+import com.mydictionary.data.userwordrepo.UserWordsRepositoryImpl
+import com.mydictionary.data.wordinforepo.*
+import com.mydictionary.data.wordinforepo.pojo.SearchResult
+import com.mydictionary.data.wordinforepo.restapi.ConnectivityInterceptor
+import com.mydictionary.data.wordinforepo.restapi.HeaderInterceptor
+import com.mydictionary.data.wordinforepo.restapi.SearchResultResponseDeserializer
+import com.mydictionary.data.wordinforepo.restapi.WordsAPI
+import com.mydictionary.data.wordlistrepo.WordListMapper
+import com.mydictionary.data.wordlistrepo.WordListRepositoryImpl
 import com.mydictionary.domain.repository.UserRepository
 import com.mydictionary.domain.repository.UserWordRepository
 import com.mydictionary.domain.repository.WordListRepository
@@ -52,24 +51,6 @@ class AppModule(private val app: DictionaryApp) {
     @Provides
     @Singleton
     fun providesApplication(): DictionaryApp = app
-
-    @Provides
-    @Singleton
-    fun providesFirebaseStorage(
-            app: DictionaryApp,
-            auth: FirebaseAuth,
-            database: FirebaseDatabase
-    ) = InternalFirebaseStorage(app, auth, database)
-
-    @Provides
-    @Singleton
-    fun providesOxfordDictionaryStorage(
-            app: DictionaryApp,
-            wordsAPI: WordsAPI,
-            cache: LruCache<String, WordDetails>,
-            mapper: WordResponseMapper
-    ) =
-            OxfordDictionaryStorage(app, wordsAPI, cache, mapper)
 
     @Provides
     @Named("executor_thread")
@@ -112,14 +93,6 @@ abstract class ViewModelModule {
 
 @Module
 class NetworkModule {
-
-    @Provides
-    fun providesOxfordDictionaryMapper(): WordResponseMapper = WordResponseMapperImpl
-
-    @Provides
-    @Singleton
-    fun providesWordsCache() = LruCache<String, WordDetails>(getCacheMemorySize())
-
     @Provides
     @Singleton
     fun providesWordsApi(
@@ -181,22 +154,50 @@ class DataModule {
     @Provides
     @Singleton
     fun providesWordRepository(
-            oxfordDictionaryStorage: OxfordDictionaryStorage
-    ): WordRepository = WordRepositoryImpl(oxfordDictionaryStorage)
+            context: DictionaryApp,
+            wordsApi: WordsAPI,
+            wordsCache: WordInfoCache,
+            mapper: WordInfoMapper
+    ): WordRepository = WordRepositoryImpl(context, wordsApi, wordsCache, mapper)
 
     @Provides
     @Singleton
     fun providesUserWordsRepository(
-            firebaseStorage: InternalFirebaseStorage
-    ): UserWordRepository = UserWordsRepositoryImpl(firebaseStorage)
+            firebaseDb: FirebaseDatabase,
+            firebaseAuth: FirebaseAuth,
+            userWordMapper: UserWordMapper,
+            context: DictionaryApp
+    ): UserWordRepository = UserWordsRepositoryImpl(firebaseDb, firebaseAuth, context, userWordMapper)
 
     @Provides
     @Singleton
-    fun providesUserRepository(firebaseStorage: InternalFirebaseStorage): UserRepository =
-            UserRepositoryImpl(firebaseStorage)
+    fun providesUserRepository(context: DictionaryApp,
+                               firebaseAuth: FirebaseAuth,
+                               userMapper: UserMapper): UserRepository =
+            UserRepositoryImpl(context, firebaseAuth, userMapper)
 
     @Provides
     @Singleton
-    fun providesWordListRepository(firebaseStorage: InternalFirebaseStorage): WordListRepository =
-            WordListRepositoryImpl(firebaseStorage)
+    fun providesWordListRepository(firebaseDatabase: FirebaseDatabase,
+                                   wordListMapper: WordListMapper): WordListRepository =
+            WordListRepositoryImpl(firebaseDatabase, wordListMapper)
+
+
+    @Provides
+    fun providesUserMapper() = UserMapper
+
+    @Provides
+    fun providesUserWordMapper() = UserWordMapper
+
+    @Provides
+    fun providesWordListMapper() = WordListMapper
+
+    @Provides
+    fun providesWordInfoMapper() = WordInfoMapper
+
+
+    @Provides
+    @Singleton
+    fun providesWordsCache(): WordInfoCache = WordInfoCacheImpl()
+
 }

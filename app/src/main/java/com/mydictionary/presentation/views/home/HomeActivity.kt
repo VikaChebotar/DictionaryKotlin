@@ -11,18 +11,18 @@ import android.support.v7.widget.DividerItemDecoration
 import android.support.v7.widget.LinearLayoutManager
 import android.view.*
 import com.mydictionary.R
-import com.mydictionary.commons.CompoundDrawables.RIGHT
-import com.mydictionary.commons.VOICE_SEARCH_EXTRA
-import com.mydictionary.commons.getViewModel
-import com.mydictionary.presentation.Data
-import com.mydictionary.presentation.DataState
 import com.mydictionary.presentation.DictionaryApp
+import com.mydictionary.presentation.utils.CompoundDrawables.RIGHT
+import com.mydictionary.presentation.utils.VOICE_SEARCH_EXTRA
+import com.mydictionary.presentation.utils.getViewModel
+import com.mydictionary.presentation.viewmodel.Data
+import com.mydictionary.presentation.viewmodel.DataState
 import com.mydictionary.presentation.viewmodel.home.HomeViewModel
 import com.mydictionary.presentation.viewmodel.home.WordListItem
 import com.mydictionary.presentation.views.account.AccountActivity
 import com.mydictionary.presentation.views.learn.LearnActivity
-import com.mydictionary.presentation.views.wordlist.WordsActivity
 import com.mydictionary.presentation.views.search.SearchActivity
+import com.mydictionary.presentation.views.wordlist.WordsActivity
 import kotlinx.android.synthetic.main.home_activity.*
 import javax.inject.Inject
 
@@ -30,18 +30,15 @@ import javax.inject.Inject
 class HomeActivity : AppCompatActivity() {
     @Inject
     lateinit var viewModelFactory: ViewModelProvider.Factory
-    val viewModel by lazy {getViewModel<HomeViewModel>(viewModelFactory)}
+    private val viewModel by lazy { getViewModel<HomeViewModel>(viewModelFactory) }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.home_activity);
         DictionaryApp.component.inject(this)
         setSupportActionBar(toolbar)
-
         searchField.setOnTouchListener(searchTouchListener)
-        fabBtn.setOnClickListener {
-            startLearnActivity()
-        }
+        fabBtn.setOnClickListener { startLearnActivity() }
         initList()
         viewModel.wordList.observe(this, Observer { updateList(it) })
     }
@@ -69,11 +66,11 @@ class HomeActivity : AppCompatActivity() {
         }
     }
 
-    fun showProgress(progress: Boolean) {
+    private fun showProgress(progress: Boolean) {
         progressBar.visibility = if (progress) View.VISIBLE else View.GONE
     }
 
-    fun showError(message: String) {
+    private fun showError(message: String) {
         Snackbar.make(wordList, message, Snackbar.LENGTH_LONG).show()
     }
 
@@ -89,7 +86,7 @@ class HomeActivity : AppCompatActivity() {
 
     private fun initList() {
         wordList.layoutManager = LinearLayoutManager(this)
-        wordList.adapter = WordListAdapter({ it1, it2 -> onWordListClick(it1, it2) })
+        wordList.adapter = WordListAdapter({ onWordListClick(it) })
         val divider = DividerItemDecoration(this, LinearLayoutManager.VERTICAL)
         divider.setDrawable(getDrawable(R.drawable.divider))
         wordList.addItemDecoration(divider)
@@ -99,16 +96,16 @@ class HomeActivity : AppCompatActivity() {
         val intent = Intent(this@HomeActivity, SearchActivity::class.java);
         intent.putExtra(VOICE_SEARCH_EXTRA, isVoiceSearchClicked)
         val p1 = android.support.v4.util.Pair<View, String>(
-            searchField,
-            getString(R.string.search_field_transition_name)
+                searchField,
+                getString(R.string.search_field_transition_name)
         )
         val p2 = android.support.v4.util.Pair<View, String>(
-            appBarLayout,
-            getString(R.string.search_appbar_transition_name)
+                appBarLayout,
+                getString(R.string.search_appbar_transition_name)
         )
         val statusBar = findViewById<View>(android.R.id.statusBarBackground)
         val p3 =
-            android.support.v4.util.Pair(statusBar, Window.STATUS_BAR_BACKGROUND_TRANSITION_NAME)
+                android.support.v4.util.Pair(statusBar, Window.STATUS_BAR_BACKGROUND_TRANSITION_NAME)
         val options = ActivityOptionsCompat.makeSceneTransitionAnimation(this, p1, p2, p3)
         startActivity(intent, options.toBundle())
     }
@@ -124,7 +121,7 @@ class HomeActivity : AppCompatActivity() {
         false
     }
 
-    private fun onWordListClick(position: Int, wordListName: String) {
+    private fun onWordListClick(wordListName: String) {
         WordsActivity.startActivity(this, wordListName)
     }
 }
