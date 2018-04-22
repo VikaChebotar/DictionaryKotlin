@@ -3,7 +3,7 @@ package com.mydictionary.presentation.viewmodel.search
 import android.arch.lifecycle.MutableLiveData
 import android.arch.lifecycle.ViewModel
 import android.util.Log
-import com.mydictionary.commons.MIN_WORD_LENGTH_TO_SEARCH
+import com.mydictionary.domain.MIN_WORD_LENGTH_TO_SEARCH
 import com.mydictionary.domain.usecases.SearchWordUseCase
 import com.mydictionary.domain.usecases.ShowUserHistoryUseCase
 import com.mydictionary.presentation.Data

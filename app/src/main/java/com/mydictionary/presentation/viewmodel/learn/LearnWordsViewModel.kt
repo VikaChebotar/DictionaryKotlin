@@ -7,8 +7,8 @@ import android.arch.lifecycle.Observer
 import android.arch.lifecycle.ViewModel
 import android.os.Parcelable
 import android.util.Log
-import com.mydictionary.commons.FAV_WORD_PAGE_THRESHOLD
 import com.mydictionary.commons.NonNullMutableLiveData
+import com.mydictionary.domain.FAV_WORD_PAGE_THRESHOLD
 import com.mydictionary.domain.entity.PagedResult
 import com.mydictionary.domain.entity.SortingOption
 import com.mydictionary.domain.usecases.AddMeaningToFavoritesUseCase

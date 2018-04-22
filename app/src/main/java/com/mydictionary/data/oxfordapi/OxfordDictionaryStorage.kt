@@ -3,7 +3,6 @@ package com.mydictionary.data.oxfordapi
 import android.content.Context
 import android.util.LruCache
 import com.mydictionary.R
-import com.mydictionary.commons.SEARCH_LIMIT
 import com.mydictionary.data.oxfordapi.dto.RelatedWordsResponse
 import com.mydictionary.data.oxfordapi.dto.WordDetailsResponse
 import com.mydictionary.data.pojo.WordDetails
@@ -91,6 +90,6 @@ class OxfordDictionaryStorage @Inject constructor(
             }
 
 
-    fun searchTheWord(phrase: String): Single<List<String>> =
-            restApi.searchTheWord(phrase, SEARCH_LIMIT).map { it.searchResults }
+    fun searchTheWord(phrase: String, searchLimit: Int): Single<List<String>> =
+            restApi.searchTheWord(phrase, searchLimit).map { it.searchResults }
 }

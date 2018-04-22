@@ -4,9 +4,9 @@ import com.mydictionary.domain.entity.UserWord
 import com.mydictionary.domain.repository.UserRepository
 import com.mydictionary.domain.repository.UserWordRepository
 import com.mydictionary.domain.usecases.base.CompletableUseCaseWithParameter
-import io.reactivex.android.schedulers.AndroidSchedulers
-import io.reactivex.schedulers.Schedulers
+import io.reactivex.Scheduler
 import javax.inject.Inject
+import javax.inject.Named
 import javax.inject.Singleton
 
 /**
@@ -15,7 +15,9 @@ import javax.inject.Singleton
 @Singleton
 class AddMeaningToFavoritesUseCase @Inject constructor(
         val userWordRepository: UserWordRepository,
-        val userRepository: UserRepository
+        val userRepository: UserRepository,
+        @Named("executor_thread") val executorThread: Scheduler,
+        @Named("ui_thread") val uiThread: Scheduler
 ) : CompletableUseCaseWithParameter<AddMeaningToFavoritesUseCase.Parameter> {
 
     override fun execute(parameter: Parameter) =
@@ -29,8 +31,8 @@ class AddMeaningToFavoritesUseCase @Inject constructor(
                         val meanings = it.favMeanings.toMutableSet()
                         meanings.addAll(parameter.favMeaningIds)
                         userWordRepository.addOrUpdateUserWord(UserWord(it.word, meanings.toList()))
-                    }.subscribeOn(Schedulers.io())
-                    .observeOn(AndroidSchedulers.mainThread())
+                    }.subscribeOn(executorThread)
+                    .observeOn(uiThread)
 
     data class Parameter(val word: String, val favMeaningIds: List<String>)
 }

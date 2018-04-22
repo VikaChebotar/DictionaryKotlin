@@ -34,11 +34,15 @@ import dagger.Binds
 import dagger.Module
 import dagger.Provides
 import dagger.multibindings.IntoMap
+import io.reactivex.Scheduler
+import io.reactivex.android.schedulers.AndroidSchedulers
+import io.reactivex.schedulers.Schedulers
 import okhttp3.OkHttpClient
 import okhttp3.logging.HttpLoggingInterceptor
 import retrofit2.Retrofit
 import retrofit2.adapter.rxjava2.RxJava2CallAdapterFactory
 import retrofit2.converter.gson.GsonConverterFactory
+import javax.inject.Named
 import javax.inject.Singleton
 
 
@@ -52,20 +56,32 @@ class AppModule(private val app: DictionaryApp) {
     @Provides
     @Singleton
     fun providesFirebaseStorage(
-        app: DictionaryApp,
-        auth: FirebaseAuth,
-        database: FirebaseDatabase
+            app: DictionaryApp,
+            auth: FirebaseAuth,
+            database: FirebaseDatabase
     ) = InternalFirebaseStorage(app, auth, database)
 
     @Provides
     @Singleton
     fun providesOxfordDictionaryStorage(
-        app: DictionaryApp,
-        wordsAPI: WordsAPI,
-        cache: LruCache<String, WordDetails>,
-        mapper: WordResponseMapper
+            app: DictionaryApp,
+            wordsAPI: WordsAPI,
+            cache: LruCache<String, WordDetails>,
+            mapper: WordResponseMapper
     ) =
-        OxfordDictionaryStorage(app, wordsAPI, cache, mapper)
+            OxfordDictionaryStorage(app, wordsAPI, cache, mapper)
+
+    @Provides
+    @Named("executor_thread")
+    fun provideExecutorThread(): Scheduler {
+        return Schedulers.io()
+    }
+
+    @Provides
+    @Named("ui_thread")
+    fun provideUiThread(): Scheduler {
+        return AndroidSchedulers.mainThread()
+    }
 }
 
 @Module
@@ -107,36 +123,36 @@ class NetworkModule {
     @Provides
     @Singleton
     fun providesWordsApi(
-        client: OkHttpClient,
-        gson: Gson
+            client: OkHttpClient,
+            gson: Gson
     ): WordsAPI = Retrofit.Builder()
-        .baseUrl(OXFORD_API_ENDPOINT)
-        .client(client)
-        .addConverterFactory(GsonConverterFactory.create(gson))
-        .addCallAdapterFactory(RxJava2CallAdapterFactory.create())
-        .build()
-        .create(WordsAPI::class.java)
+            .baseUrl(OXFORD_API_ENDPOINT)
+            .client(client)
+            .addConverterFactory(GsonConverterFactory.create(gson))
+            .addCallAdapterFactory(RxJava2CallAdapterFactory.create())
+            .build()
+            .create(WordsAPI::class.java)
 
     @Provides
     @Singleton
     fun provideGson(): Gson {
         val searchResultListType = object : TypeToken<SearchResult>() {}.type
         return GsonBuilder().registerTypeAdapter(
-            searchResultListType,
-            SearchResultResponseDeserializer()
+                searchResultListType,
+                SearchResultResponseDeserializer()
         ).create()
     }
 
     @Provides
     @Singleton
     fun provideOkHttpClient(
-        connectivityInterceptor: ConnectivityInterceptor,
-        headerInterceptor: HeaderInterceptor
+            connectivityInterceptor: ConnectivityInterceptor,
+            headerInterceptor: HeaderInterceptor
     ): OkHttpClient {
         val loggingInterceptor = HttpLoggingInterceptor()
         loggingInterceptor.level = HttpLoggingInterceptor.Level.BODY
         return OkHttpClient.Builder().addInterceptor(loggingInterceptor)
-            .addInterceptor(headerInterceptor).addInterceptor(connectivityInterceptor).build();
+                .addInterceptor(headerInterceptor).addInterceptor(connectivityInterceptor).build();
     }
 
     @Provides
@@ -165,22 +181,22 @@ class DataModule {
     @Provides
     @Singleton
     fun providesWordRepository(
-        oxfordDictionaryStorage: OxfordDictionaryStorage
+            oxfordDictionaryStorage: OxfordDictionaryStorage
     ): WordRepository = WordRepositoryImpl(oxfordDictionaryStorage)
 
     @Provides
     @Singleton
     fun providesUserWordsRepository(
-        firebaseStorage: InternalFirebaseStorage
+            firebaseStorage: InternalFirebaseStorage
     ): UserWordRepository = UserWordsRepositoryImpl(firebaseStorage)
 
     @Provides
     @Singleton
     fun providesUserRepository(firebaseStorage: InternalFirebaseStorage): UserRepository =
-        UserRepositoryImpl(firebaseStorage)
+            UserRepositoryImpl(firebaseStorage)
 
     @Provides
     @Singleton
     fun providesWordListRepository(firebaseStorage: InternalFirebaseStorage): WordListRepository =
-        WordListRepositoryImpl(firebaseStorage)
+            WordListRepositoryImpl(firebaseStorage)
 }

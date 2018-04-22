@@ -12,17 +12,17 @@ interface UserRepository {
 }
 
 interface WordRepository {
-    fun searchWord(searchPhrase: String): Single<List<String>>
+    fun searchWord(searchPhrase: String, searchLimit: Int): Single<List<String>>
     fun getWordInfo(wordName: String): Single<DetailWordInfo>
     fun getShortWordInfo(wordName: String): Single<ShortWordInfo>
 }
 
 interface UserWordRepository {
     fun getUserWords(
-        offset: Int = 0,
-        pageSize: Int = Int.MAX_VALUE, //default value - get all
-        sortingOption: SortingOption = SortingOption.BY_DATE,
-        isFavorite: Boolean = false //when isFavorite==true returns only words with not empty fav meanings
+            offset: Int = 0,
+            pageSize: Int = Int.MAX_VALUE, //default value - get all
+            sortingOption: SortingOption = SortingOption.BY_DATE,
+            isFavorite: Boolean = false //when isFavorite==true returns only words with not empty fav meanings
     ): Single<PagedResult<UserWord>>
 
     fun getUserWord(wordName: String): Flowable<UserWord> //each time object updates onNext will be called

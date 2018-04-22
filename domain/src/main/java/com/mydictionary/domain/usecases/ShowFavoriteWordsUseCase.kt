@@ -1,6 +1,6 @@
 package com.mydictionary.domain.usecases
 
-import com.mydictionary.commons.FAV_WORD_PAGE_SIZE
+import com.mydictionary.domain.FAV_WORD_PAGE_SIZE
 import com.mydictionary.domain.entity.PagedResult
 import com.mydictionary.domain.entity.ShortWordInfo
 import com.mydictionary.domain.entity.SortingOption
@@ -10,9 +10,9 @@ import com.mydictionary.domain.repository.UserWordRepository
 import com.mydictionary.domain.repository.WordRepository
 import com.mydictionary.domain.usecases.base.UseCaseWithParameter
 import io.reactivex.Flowable
-import io.reactivex.android.schedulers.AndroidSchedulers
-import io.reactivex.schedulers.Schedulers
+import io.reactivex.Scheduler
 import javax.inject.Inject
+import javax.inject.Named
 import javax.inject.Singleton
 
 /**
@@ -22,7 +22,9 @@ import javax.inject.Singleton
 class ShowFavoriteWordsUseCase @Inject constructor(
         val userRepository: UserRepository,
         val userWordRepository: UserWordRepository,
-        val wordRepository: WordRepository
+        val wordRepository: WordRepository,
+        @Named("executor_thread") val executorThread: Scheduler,
+        @Named("ui_thread") val uiThread: Scheduler
 ) : UseCaseWithParameter<ShowFavoriteWordsUseCase.Parameter,
         PagedResult<ShowFavoriteWordsUseCase.Result>> {
 
@@ -48,8 +50,8 @@ class ShowFavoriteWordsUseCase @Inject constructor(
                             .map { PagedResult<Result>(it, pagedResult.totalSize) }
                             .toFlowable()
                 }
-                .subscribeOn(Schedulers.io())
-                .observeOn(AndroidSchedulers.mainThread())
+                .subscribeOn(executorThread)
+                .observeOn(uiThread)
     }
 
     data class Parameter(val offset: Int, val sortingOption: SortingOption)

@@ -7,16 +7,18 @@ import com.mydictionary.domain.repository.UserWordRepository
 import com.mydictionary.domain.repository.WordRepository
 import com.mydictionary.domain.usecases.base.UseCaseWithParameter
 import io.reactivex.Flowable
-import io.reactivex.android.schedulers.AndroidSchedulers
-import io.reactivex.schedulers.Schedulers
+import io.reactivex.Scheduler
 import javax.inject.Inject
+import javax.inject.Named
 import javax.inject.Singleton
 
 @Singleton
 class ShowWordInfoUseCase @Inject constructor(
         val wordRepository: WordRepository,
         val userWordRepository: UserWordRepository,
-        val userRepository: UserRepository
+        val userRepository: UserRepository,
+        @Named("executor_thread") val executorThread: Scheduler,
+        @Named("ui_thread") val uiThread: Scheduler
 ) : UseCaseWithParameter<String, ShowWordInfoUseCase.Result> {
 
     override fun execute(parameter: String): Flowable<Result> =
@@ -40,8 +42,8 @@ class ShowWordInfoUseCase @Inject constructor(
                                             }
                                 }
                                 .onErrorReturn { result }
-                    }.subscribeOn(Schedulers.io())
-                    .observeOn(AndroidSchedulers.mainThread())
+                    }.subscribeOn(executorThread)
+                    .observeOn(uiThread)
 
 
     data class Result(val wordInfo: DetailWordInfo, val userWord: UserWord?)

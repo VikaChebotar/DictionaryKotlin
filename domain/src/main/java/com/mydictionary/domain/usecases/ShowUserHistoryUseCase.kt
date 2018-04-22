@@ -1,19 +1,21 @@
 package com.mydictionary.domain.usecases
 
-import com.mydictionary.commons.MAX_HISTORY_LIMIT
+import com.mydictionary.domain.MAX_HISTORY_LIMIT
 import com.mydictionary.domain.repository.UserRepository
 import com.mydictionary.domain.repository.UserWordRepository
 import com.mydictionary.domain.usecases.base.SingleUseCase
+import io.reactivex.Scheduler
 import io.reactivex.Single
-import io.reactivex.android.schedulers.AndroidSchedulers
-import io.reactivex.schedulers.Schedulers
 import javax.inject.Inject
+import javax.inject.Named
 import javax.inject.Singleton
 
 @Singleton
 class ShowUserHistoryUseCase @Inject constructor(
-    val userRepository: UserRepository,
-    val userWordRepository: UserWordRepository
+        val userRepository: UserRepository,
+        val userWordRepository: UserWordRepository,
+        @Named("executor_thread") val executorThread: Scheduler,
+        @Named("ui_thread") val uiThread: Scheduler
 ) :
     SingleUseCase<List<String>> {
 
@@ -26,7 +28,7 @@ class ShowUserHistoryUseCase @Inject constructor(
                     }
             }
             .onErrorReturn { emptyList() }
-            .subscribeOn(Schedulers.io())
-            .observeOn(AndroidSchedulers.mainThread())
+            .subscribeOn(executorThread)
+            .observeOn(uiThread)
     }
 }

@@ -3,13 +3,15 @@ package com.mydictionary.domain.usecases
 import com.mydictionary.domain.entity.WordList
 import com.mydictionary.domain.repository.WordListRepository
 import com.mydictionary.domain.usecases.base.SingleUseCaseWithParameter
+import io.reactivex.Scheduler
 import io.reactivex.Single
-import io.reactivex.android.schedulers.AndroidSchedulers
-import io.reactivex.schedulers.Schedulers
 import javax.inject.Inject
+import javax.inject.Named
 
 
-class ShowWordListUseCase @Inject constructor(val wordListRepository: WordListRepository) :
+class ShowWordListUseCase @Inject constructor(val wordListRepository: WordListRepository,
+                                              @Named("executor_thread") val executorThread: Scheduler,
+                                              @Named("ui_thread") val uiThread: Scheduler) :
     SingleUseCaseWithParameter<ShowWordListUseCase.Parameter, WordList> {
     private var wordList: WordList? = null
 
@@ -26,8 +28,8 @@ class ShowWordListUseCase @Inject constructor(val wordListRepository: WordListRe
                     sortedList.reverse()
                 WordList(it.listName, it.category, sortedList)
             }
-            .subscribeOn(Schedulers.io())
-            .observeOn(AndroidSchedulers.mainThread())
+            .subscribeOn(executorThread)
+            .observeOn(uiThread)
 
 
     data class Parameter(val listName: String, val isReverseOrder: Boolean)

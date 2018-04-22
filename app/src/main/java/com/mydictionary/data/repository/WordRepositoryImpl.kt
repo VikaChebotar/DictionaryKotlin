@@ -7,12 +7,13 @@ import javax.inject.Singleton
 
 @Singleton
 class WordRepositoryImpl @Inject constructor(val oxfordStorage: OxfordDictionaryStorage) :
-    WordRepository {
+        WordRepository {
 
-    override fun searchWord(searchPhrase: String) = oxfordStorage.searchTheWord(searchPhrase)
+    override fun searchWord(searchPhrase: String, searchLimit: Int) =
+            oxfordStorage.searchTheWord(searchPhrase, searchLimit)
 
     override fun getWordInfo(wordName: String) =
-        oxfordStorage.getFullWordInfo(wordName)
+            oxfordStorage.getFullWordInfo(wordName)
 
     override fun getShortWordInfo(wordName: String) = oxfordStorage.getShortWordInfo(wordName)
 

@@ -95,15 +95,15 @@ private fun mapToPresentation(
             wordCardsList.addAll(meanings)
             if (synonyms?.isNotEmpty() == true) {
                 wordCardsList.add(resources.getString(R.string.synonyms))
-                wordCardsList.add(synonyms)
+                wordCardsList.add(synonyms!!)
             }
             if (antonyms?.isNotEmpty() == true) {
                 wordCardsList.add(resources.getString(R.string.antonyms))
-                wordCardsList.add(antonyms)
+                wordCardsList.add(antonyms!!)
             }
             if (notes?.isNotEmpty() == true) {
                 wordCardsList.add(resources.getString(R.string.notes))
-                wordCardsList.addAll(notes.map { Note(it) })
+                wordCardsList.addAll(notes!!.map { Note(it) })
             }
             WordPresentationDetails(pronunciation, wordCardsList)
         }
