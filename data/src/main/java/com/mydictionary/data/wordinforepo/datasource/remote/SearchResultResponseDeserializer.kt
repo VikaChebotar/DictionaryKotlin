@@ -1,4 +1,4 @@
-package com.mydictionary.data.wordinforepo.restapi
+package com.mydictionary.data.wordinforepo.datasource.remote
 
 import com.mydictionary.data.wordinforepo.pojo.SearchResult
 

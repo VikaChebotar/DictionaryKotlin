@@ -1,4 +1,4 @@
-package com.mydictionary.data.wordinforepo.restapi
+package com.mydictionary.data.wordinforepo.datasource.remote
 
 import com.mydictionary.data.wordinforepo.pojo.RelatedWordsResponse
 import com.mydictionary.data.wordinforepo.pojo.SearchResult
@@ -12,7 +12,7 @@ import retrofit2.http.Query
  * Created by Viktoria_Chebotar on 6/2/2017.
  */
 
-interface WordsAPI {
+interface RemoteWordsDataSource {
     @GET("https://api.datamuse.com/sug")
     fun searchTheWord(@Query("s") query: String, @Query("max") max: Int): Single<SearchResult>
 

@@ -1,6 +1,7 @@
-package com.mydictionary.data.wordinforepo
+package com.mydictionary.data.wordinforepo.datasource.cache
 
 import android.util.LruCache
+import com.mydictionary.data.wordinforepo.getCacheMemorySize
 import com.mydictionary.data.wordinforepo.pojo.RelatedWordsResponse
 import com.mydictionary.data.wordinforepo.pojo.WordDetailsResponse
 

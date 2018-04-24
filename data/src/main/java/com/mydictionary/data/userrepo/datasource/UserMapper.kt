@@ -1,4 +1,4 @@
-package com.mydictionary.data.userrepo
+package com.mydictionary.data.userrepo.datasource
 
 import com.google.firebase.auth.FirebaseUser
 import com.mydictionary.domain.entity.User

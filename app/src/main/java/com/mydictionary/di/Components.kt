@@ -1,8 +1,9 @@
 package com.mydictionary.di
 
+import com.mydictionary.di.modules.*
 import com.mydictionary.presentation.DictionaryApp
-import com.mydictionary.presentation.viewmodel.wordlist.WordListViewModelFactory
 import com.mydictionary.presentation.viewmodel.word.WordInfoViewModelFactory
+import com.mydictionary.presentation.viewmodel.wordlist.WordListViewModelFactory
 import com.mydictionary.presentation.views.account.AccountActivity
 import com.mydictionary.presentation.views.home.HomeActivity
 import com.mydictionary.presentation.views.learn.LearnActivity

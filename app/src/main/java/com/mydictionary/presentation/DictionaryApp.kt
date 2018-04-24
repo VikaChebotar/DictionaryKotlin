@@ -2,8 +2,8 @@ package com.mydictionary.presentation
 
 import android.app.Application
 import com.mydictionary.di.AppComponent
-import com.mydictionary.di.AppModule
 import com.mydictionary.di.DaggerAppComponent
+import com.mydictionary.di.modules.AppModule
 import io.reactivex.internal.functions.Functions
 import io.reactivex.plugins.RxJavaPlugins
 
