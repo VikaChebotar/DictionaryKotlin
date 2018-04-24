@@ -1,4 +1,4 @@
-package com.mydictionary.di
+package com.mydictionary.di.modules
 
 import android.arch.lifecycle.ViewModel
 import dagger.MapKey

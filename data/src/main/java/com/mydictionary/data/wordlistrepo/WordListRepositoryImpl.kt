@@ -1,74 +1,39 @@
 package com.mydictionary.data.wordlistrepo
 
-import com.google.firebase.database.DataSnapshot
-import com.google.firebase.database.DatabaseError
-import com.google.firebase.database.FirebaseDatabase
-import com.google.firebase.database.ValueEventListener
+import com.mydictionary.data.wordlistrepo.datasource.cache.WordListCache
+import com.mydictionary.data.wordlistrepo.datasource.remote.WordListDataSource
 import com.mydictionary.data.wordlistrepo.pojo.WordListDto
 import com.mydictionary.domain.entity.WordList
 import com.mydictionary.domain.repository.WordListRepository
 import io.reactivex.Single
-import io.reactivex.schedulers.Schedulers
-import java.lang.ref.WeakReference
 import javax.inject.Inject
 import javax.inject.Singleton
 
 @Singleton
-class WordListRepositoryImpl @Inject constructor(val firebaseDatabase: FirebaseDatabase,
-                                                 val mapper: WordListMapper) : WordListRepository {
-    private var allWordListsCache = WeakReference<List<WordListDto>>(emptyList())
+class WordListRepositoryImpl @Inject constructor(
+    val remoteWordListDataSource: WordListDataSource,
+    val cache: WordListCache,
+    val mapper: WordListMapper
+) : WordListRepository {
 
-    override fun getAllWordLists(): Single<List<WordList>> =
-            Single.create<List<WordListDto>> { emitter ->
-                if (allWordListsCache.get()?.isNotEmpty() == true) emitter.onSuccess(allWordListsCache.get()!!)
-                val query = getWordListReference()
-                query.keepSynced(true)
-                query.addListenerForSingleValueEvent(object : ValueEventListener {
-                    override fun onCancelled(p0: DatabaseError?) {
-                        emitter.onError(p0?.toException() ?: Exception("error in getAllWordLists"))
-                    }
-
-                    override fun onDataChange(p0: DataSnapshot?) {
-                        allWordListsCache.clear()
-                        val list = mutableListOf<WordListDto>()
-                        p0?.children?.mapNotNullTo(list) { it.getValue<WordListDto>(WordListDto::class.java) }
-                        allWordListsCache = WeakReference(list)
-                        emitter.onSuccess(list)
-                    }
-                })
-            }.map { mapper.mapListOfWordList(it) }
+    override fun getAllWordLists(): Single<List<WordList>> = Single
+        .create<List<WordListDto>> { emitter ->
+            if (cache.get()?.isNotEmpty() == true) emitter.onSuccess(cache.get()!!)
+            else remoteWordListDataSource.getAllWordLists()
+        }
+        .doOnEvent { t1, t2 ->
+            t1?.let { cache.put(t1) }
+        }
+        .map { mapper.mapListOfWordList(it) }
 
 
-    override fun getWordList(wordListName: String): Single<WordList> =
-            Single.create<WordListDto> { emitter ->
-                if (allWordListsCache.get()?.isNotEmpty() == true) {
-                    allWordListsCache.get()?.find { it.name == wordListName }?.let {
-                        emitter.onSuccess(it)
-                        return@create
-                    }
+    override fun getWordList(wordListName: String): Single<WordList> = Single
+        .create<WordListDto> { emitter ->
+            if (cache.get()?.isNotEmpty() == true) {
+                cache.get()?.find { it.name == wordListName }?.let {
+                    emitter.onSuccess(it)
                 }
-                val query = getWordListReference().orderByChild("name").equalTo(wordListName)
-                query.keepSynced(true)
-                query.addListenerForSingleValueEvent(object : ValueEventListener {
-                    override fun onCancelled(p0: DatabaseError?) {
-                        emitter.onError(p0?.toException() ?: Exception("error in getAllWordLists"))
-                    }
-
-                    override fun onDataChange(p0: DataSnapshot?) {
-                        val wordList = mutableListOf<WordListDto>()
-                        p0?.children?.mapNotNullTo(wordList) { it.getValue<WordListDto>(WordListDto::class.java) }
-                        if (wordList.isNotEmpty()) {
-                            emitter.onSuccess(wordList[0])
-                        } else {
-                            emitter.onError(Exception("No such list"))
-                        }
-                    }
-                })
-            }.
-                    //hack to return to background thread, because onDataChange is always called in UI thread
-                    observeOn(Schedulers.io())
-                    .map { mapper.mapWordList(it) }
-
-
-    private fun getWordListReference() = firebaseDatabase.reference.child("wordlist")
+            } else remoteWordListDataSource.getWordList(wordListName)
+        }
+        .map { mapper.mapWordList(it) }
 }

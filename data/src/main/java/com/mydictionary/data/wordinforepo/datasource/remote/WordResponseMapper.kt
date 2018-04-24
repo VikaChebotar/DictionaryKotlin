@@ -1,4 +1,4 @@
-package com.mydictionary.data.wordinforepo
+package com.mydictionary.data.wordinforepo.datasource.remote
 
 import com.mydictionary.data.wordinforepo.pojo.RelatedWordsResponse
 import com.mydictionary.data.wordinforepo.pojo.WordDetailsResponse
@@ -47,7 +47,9 @@ object WordInfoMapper {
 
     fun map(wordDetailsResponse: WordDetailsResponse, relatedWordsResponse: RelatedWordsResponse?)
             : DetailWordInfo {
-        val shortWordInfo = map(wordDetailsResponse)
+        val shortWordInfo = map(
+            wordDetailsResponse
+        )
         val notes = mutableSetOf<String>()
         val synonyms = mutableSetOf<String>()
         val antonyms = mutableSetOf<String>()
