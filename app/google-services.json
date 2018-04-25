@@ -1,0 +1,123 @@
+{
+  "project_info": {
+    "project_number": "192953764790",
+    "firebase_url": "https://dictionarykotlin.firebaseio.com",
+    "project_id": "dictionarykotlin",
+    "storage_bucket": "dictionarykotlin.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:192953764790:android:aa613e2431930ced",
+        "android_client_info": {
+          "package_name": "com.firebaseproblemexample"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "192953764790-lh2vb331vhq87mopq5avrm3qe6kdq8pi.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.firebaseproblemexample",
+            "certificate_hash": "f0cc395a96744c164a63959f3595c33ac045439c"
+          }
+        },
+        {
+          "client_id": "192953764790-i43u1kqdpvvgeoi2kt0f7dv7qej2b7ed.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.firebaseproblemexample",
+            "certificate_hash": "74950c1b03f1c34d30c72bb85d4dfb8c0e9521d1"
+          }
+        },
+        {
+          "client_id": "192953764790-htdf99qei1b9621mthkbg6m5rsmn3msl.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyC8ZtIVIWfNMc0TftG4oWE-kv3p0mqh4tg"
+        }
+      ],
+      "services": {
+        "analytics_service": {
+          "status": 1
+        },
+        "appinvite_service": {
+          "status": 2,
+          "other_platform_oauth_client": [
+            {
+              "client_id": "192953764790-htdf99qei1b9621mthkbg6m5rsmn3msl.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        },
+        "ads_service": {
+          "status": 2
+        }
+      }
+    },
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:192953764790:android:6ae2ace0452ccab9",
+        "android_client_info": {
+          "package_name": "com.mydictionary"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "192953764790-7kiq34lt8hp2u2d0tp1060ks8dqbjlbu.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.mydictionary",
+            "certificate_hash": "f0cc395a96744c164a63959f3595c33ac045439c"
+          }
+        },
+        {
+          "client_id": "192953764790-ljf1s3e7b9rd4kpm30ujqv611o53ok94.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.mydictionary",
+            "certificate_hash": "3eaeab0dab3ea959a52ad01403de4a4a81f15ca5"
+          }
+        },
+        {
+          "client_id": "192953764790-ig4gbs9399j7og8111794a292h06e0np.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.mydictionary",
+            "certificate_hash": "74950c1b03f1c34d30c72bb85d4dfb8c0e9521d1"
+          }
+        },
+        {
+          "client_id": "192953764790-htdf99qei1b9621mthkbg6m5rsmn3msl.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyC8ZtIVIWfNMc0TftG4oWE-kv3p0mqh4tg"
+        }
+      ],
+      "services": {
+        "analytics_service": {
+          "status": 1
+        },
+        "appinvite_service": {
+          "status": 2,
+          "other_platform_oauth_client": [
+            {
+              "client_id": "192953764790-htdf99qei1b9621mthkbg6m5rsmn3msl.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        },
+        "ads_service": {
+          "status": 2
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
