@@ -67,6 +67,14 @@
       },
       "oauth_client": [
         {
+          "client_id": "192953764790-694biaq2nf2tkd6c70k4hd9ikmjh0hit.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.mydictionary",
+            "certificate_hash": "8776ec4a4fe7ea990b16b18a83220e500727effe"
+          }
+        },
+        {
           "client_id": "192953764790-7kiq34lt8hp2u2d0tp1060ks8dqbjlbu.apps.googleusercontent.com",
           "client_type": 1,
           "android_info": {
