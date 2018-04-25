@@ -13,8 +13,8 @@ import io.reactivex.functions.BiFunction
  */
 
 object WordInfoMapper {
-    fun map(wordDetailsResponse: WordDetailsResponse?): ShortWordInfo {
-        val result = wordDetailsResponse?.results?.elementAtOrNull(0)
+    fun WordDetailsResponse.map(): ShortWordInfo {
+        val result = results?.elementAtOrNull(0)
 
         val allEntries = mutableListOf<WordDetailsResponse.Entry>()
         val pronunciations = mutableSetOf<String>()
@@ -47,9 +47,7 @@ object WordInfoMapper {
 
     fun map(wordDetailsResponse: WordDetailsResponse, relatedWordsResponse: RelatedWordsResponse?)
             : DetailWordInfo {
-        val shortWordInfo = map(
-            wordDetailsResponse
-        )
+        val shortWordInfo = wordDetailsResponse.map()
         val notes = mutableSetOf<String>()
         val synonyms = mutableSetOf<String>()
         val antonyms = mutableSetOf<String>()

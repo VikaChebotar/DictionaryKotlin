@@ -1,20 +1,13 @@
 package com.mydictionary.domain.usecases
 
 import com.mydictionary.domain.repository.UserRepository
-import com.mydictionary.domain.usecases.base.CompletableUseCase
-import io.reactivex.Scheduler
+import com.mydictionary.domain.usecases.base.SuspendUseCase
 import javax.inject.Inject
-import javax.inject.Named
 import javax.inject.Singleton
 
 @Singleton
-class SignOutUseCase @Inject constructor(val userRepository: UserRepository,
-                                         @Named("executor_thread") val executorThread: Scheduler,
-                                         @Named("ui_thread") val uiThread: Scheduler) :
-    CompletableUseCase {
+class SignOutUseCase @Inject constructor(
+    val userRepository: UserRepository) : SuspendUseCase {
 
-    override fun execute() =
-        userRepository.signOut()
-            .subscribeOn(executorThread)
-            .observeOn(uiThread)
+    override suspend fun execute() = userRepository.signOut()
 }
