@@ -1,16 +1,16 @@
 package com.mydictionary.domain.usecases.base
 
 import io.reactivex.Completable
-import io.reactivex.Flowable
+import io.reactivex.Observable
 import io.reactivex.Single
 
 
 interface UseCase<R> {
-    fun execute(): Flowable<R>
+    fun execute(): Observable<R>
 }
 
 interface UseCaseWithParameter<P, R> {
-    fun execute(parameter: P): Flowable<R>
+    fun execute(parameter: P): Observable<R>
 }
 
 interface SingleUseCase<T> {

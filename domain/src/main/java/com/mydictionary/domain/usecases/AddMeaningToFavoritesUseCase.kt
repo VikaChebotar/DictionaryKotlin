@@ -17,7 +17,7 @@ class AddMeaningToFavoritesUseCase @Inject constructor(
         val userWordRepository: UserWordRepository,
         val userRepository: UserRepository,
         @Named("executor_thread") val executorThread: Scheduler,
-        @Named("ui_thread") val uiThread: Scheduler
+        @Named("postExecutionThread") val postExecutionThread: Scheduler
 ) : CompletableUseCaseWithParameter<AddMeaningToFavoritesUseCase.Parameter> {
 
     override fun execute(parameter: Parameter) =
@@ -32,7 +32,7 @@ class AddMeaningToFavoritesUseCase @Inject constructor(
                         meanings.addAll(parameter.favMeaningIds)
                         userWordRepository.addOrUpdateUserWord(UserWord(it.word, meanings.toList()))
                     }.subscribeOn(executorThread)
-                    .observeOn(uiThread)
+                    .observeOn(postExecutionThread)
 
     data class Parameter(val word: String, val favMeaningIds: List<String>)
 }

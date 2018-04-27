@@ -24,8 +24,8 @@ class AppModule(private val app: DictionaryApp) {
     }
 
     @Provides
-    @Named("ui_thread")
-    fun provideUiThread(): Scheduler {
+    @Named("postExecutionThread")
+    fun providepostExecutionThread(): Scheduler {
         return AndroidSchedulers.mainThread()
     }
 }

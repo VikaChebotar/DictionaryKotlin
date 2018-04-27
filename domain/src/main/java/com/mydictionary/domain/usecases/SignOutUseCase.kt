@@ -10,11 +10,11 @@ import javax.inject.Singleton
 @Singleton
 class SignOutUseCase @Inject constructor(val userRepository: UserRepository,
                                          @Named("executor_thread") val executorThread: Scheduler,
-                                         @Named("ui_thread") val uiThread: Scheduler) :
+                                         @Named("postExecutionThread") val postExecutionThread: Scheduler) :
     CompletableUseCase {
 
     override fun execute() =
         userRepository.signOut()
             .subscribeOn(executorThread)
-            .observeOn(uiThread)
+            .observeOn(postExecutionThread)
 }

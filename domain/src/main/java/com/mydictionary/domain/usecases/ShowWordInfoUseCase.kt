@@ -6,7 +6,7 @@ import com.mydictionary.domain.repository.UserRepository
 import com.mydictionary.domain.repository.UserWordRepository
 import com.mydictionary.domain.repository.WordRepository
 import com.mydictionary.domain.usecases.base.UseCaseWithParameter
-import io.reactivex.Flowable
+import io.reactivex.Observable
 import io.reactivex.Scheduler
 import javax.inject.Inject
 import javax.inject.Named
@@ -18,24 +18,24 @@ class ShowWordInfoUseCase @Inject constructor(
         val userWordRepository: UserWordRepository,
         val userRepository: UserRepository,
         @Named("executor_thread") val executorThread: Scheduler,
-        @Named("ui_thread") val uiThread: Scheduler
+        @Named("postExecutionThread") val postExecutionThread: Scheduler
 ) : UseCaseWithParameter<String, ShowWordInfoUseCase.Result> {
 
-    override fun execute(parameter: String): Flowable<Result> =
+    override fun execute(parameter: String): Observable<Result> =
             wordRepository.getWordInfo(parameter)
-                    .toFlowable()
+                    .toObservable()
                     .map {
                         Result(it, null)
                     }
                     .flatMap { result ->
                         userRepository.getUser()
-                                .toFlowable()
+                                .toObservable()
                                 .flatMap {
                                     userWordRepository.getUserWord(parameter)
                                             .onErrorReturn { UserWord(parameter) }
                                             .flatMap {
                                                 userWordRepository.addOrUpdateUserWord(it)
-                                                        .andThen(Flowable.just(it))
+                                                        .andThen(Observable.just(it))
                                             }
                                             .map {
                                                 Result(result.wordInfo, it)
@@ -43,7 +43,7 @@ class ShowWordInfoUseCase @Inject constructor(
                                 }
                                 .onErrorReturn { result }
                     }.subscribeOn(executorThread)
-                    .observeOn(uiThread)
+                    .observeOn(postExecutionThread)
 
 
     data class Result(val wordInfo: DetailWordInfo, val userWord: UserWord?)

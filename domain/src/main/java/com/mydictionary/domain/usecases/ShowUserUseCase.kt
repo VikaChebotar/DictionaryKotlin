@@ -12,10 +12,10 @@ import javax.inject.Singleton
 class ShowUserUseCase @Inject constructor(
         val userRepository: UserRepository,
         @Named("executor_thread") val executorThread: Scheduler,
-        @Named("ui_thread") val uiThread: Scheduler
+        @Named("postExecutionThread") val postExecutionThread: Scheduler
 ) : SingleUseCase<User> {
 
     override fun execute() = userRepository.getUser()
         .subscribeOn(executorThread)
-        .observeOn(uiThread)
+        .observeOn(postExecutionThread)
 }

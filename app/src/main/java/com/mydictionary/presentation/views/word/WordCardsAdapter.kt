@@ -8,8 +8,6 @@ import android.view.ViewGroup
 import com.mydictionary.R
 import com.mydictionary.presentation.utils.containsWhiteSpace
 import com.mydictionary.presentation.utils.inflate
-import com.mydictionary.presentation.viewmodel.word.Note
-import com.mydictionary.presentation.viewmodel.word.WordMeaning
 import kotlinx.android.synthetic.main.definition_card.view.*
 import kotlinx.android.synthetic.main.related_word_card.view.*
 import kotlinx.android.synthetic.main.related_word_item.view.*
@@ -57,7 +55,7 @@ class WordCardsAdapter(val listener: ViewClickListener, val context: Context) : 
     override fun getItemViewType(position: Int): Int {
         return when (dataset[position]) {
             is String -> ViewTypes.HEADER.ordinal
-            is com.mydictionary.presentation.viewmodel.word.WordMeaning -> ViewTypes.WORD_MEANING.ordinal
+            is WordMeaning -> ViewTypes.WORD_MEANING.ordinal
             is Note -> ViewTypes.NOTES.ordinal
             else -> ViewTypes.RELATED_WORDS.ordinal
         }

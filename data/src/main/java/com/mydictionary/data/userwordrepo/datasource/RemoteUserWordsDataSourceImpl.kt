@@ -8,7 +8,10 @@ import com.mydictionary.data.R
 import com.mydictionary.data.userwordrepo.pojo.UserWordDto
 import com.mydictionary.domain.entity.PagedResult
 import com.mydictionary.domain.entity.SortingOption
-import io.reactivex.*
+import io.reactivex.Completable
+import io.reactivex.Observable
+import io.reactivex.Single
+import io.reactivex.SingleEmitter
 import io.reactivex.schedulers.Schedulers
 
 
@@ -57,8 +60,8 @@ class RemoteUserWordsDataSourceImpl(
         //hack to return to background thread, because onDataChange is always called in UI thread
         .observeOn(Schedulers.io())
 
-    override fun getUserWord(wordName: String): Flowable<UserWordDto> =
-        Flowable.create<UserWordDto>({ emitter ->
+    override fun getUserWord(wordName: String): Observable<UserWordDto> =
+        Observable.create<UserWordDto>({ emitter ->
             val reference = getUserReferenceQuery().equalTo(wordName).limitToFirst(1)
             var userWordDto: UserWordDto? = null
             val valueListener = object : ValueEventListener {
@@ -79,7 +82,7 @@ class RemoteUserWordsDataSourceImpl(
             }
             reference.addValueEventListener(valueListener)
             emitter.setCancellable { reference.removeEventListener(valueListener) }
-        }, BackpressureStrategy.DROP)
+        })
 
     override fun addOrUpdateUserWord(userWord: UserWordDto) = Completable.create { emitter ->
         val saveCompleteListener = OnCompleteListener<Void> { it ->

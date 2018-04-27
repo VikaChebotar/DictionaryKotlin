@@ -1,4 +1,4 @@
-package com.mydictionary.presentation.viewmodel.word
+package com.mydictionary.presentation.views.word
 
 import android.app.Application
 import android.arch.lifecycle.*
@@ -8,10 +8,10 @@ import com.mydictionary.R
 import com.mydictionary.domain.usecases.AddMeaningToFavoritesUseCase
 import com.mydictionary.domain.usecases.RemoveMeaningFromFavoritesUseCase
 import com.mydictionary.domain.usecases.ShowWordInfoUseCase
-import com.mydictionary.presentation.viewmodel.Data
-import com.mydictionary.presentation.viewmodel.DataState
+import com.mydictionary.presentation.views.Data
+import com.mydictionary.presentation.views.DataState
 import com.mydictionary.presentation.DictionaryApp
-import io.reactivex.Flowable
+import io.reactivex.Observable
 import io.reactivex.Single
 import io.reactivex.disposables.CompositeDisposable
 import javax.inject.Inject
@@ -29,8 +29,15 @@ class WordInfoViewModel(
             Transformations.map(wordInfo,
                     {
                         val presentationDetails =
-                                mapToPresentation(it.data, getApplication<DictionaryApp>().resources)
-                        Data(it.dataState, presentationDetails, it.message)
+                            mapToPresentation(
+                                it.data,
+                                getApplication<DictionaryApp>().resources
+                            )
+                        Data(
+                            it.dataState,
+                            presentationDetails,
+                            it.message
+                        )
                     })
 
     init {
@@ -40,15 +47,29 @@ class WordInfoViewModel(
 
     private fun loadWordInfo() {
         compositeDisposable.add(
-                Flowable.just(wordName)
+                Observable.just(wordName)
                         .doOnSubscribe {
-                            wordInfo.postValue(Data(DataState.LOADING, wordInfo.value?.data, null))
+                            wordInfo.postValue(
+                                Data(
+                                    DataState.LOADING,
+                                    wordInfo.value?.data,
+                                    null
+                                )
+                            )
                         }
                         .flatMap { showWordUseCase.execute(wordName) }
                         .subscribe({ it ->
-                            wordInfo.value = Data(DataState.SUCCESS, it, null)
+                            wordInfo.value = Data(
+                                DataState.SUCCESS,
+                                it,
+                                null
+                            )
                         }, { e ->
-                            wordInfo.value = Data(DataState.ERROR, wordInfo.value?.data, e.message)
+                            wordInfo.value = Data(
+                                DataState.ERROR,
+                                wordInfo.value?.data,
+                                e.message
+                            )
                         })
         )
     }
@@ -65,7 +86,11 @@ class WordInfoViewModel(
                                 .execute(AddMeaningToFavoritesUseCase.Parameter(wordName,
                                         listOf(item.definitionId)))
                 }.subscribe({}, {
-                    wordInfo.value = Data(DataState.ERROR, wordInfo.value?.data, it.message)
+                    wordInfo.value = Data(
+                        DataState.ERROR,
+                        wordInfo.value?.data,
+                        it.message
+                    )
                 })
     }
 
@@ -86,10 +111,14 @@ private fun mapToPresentation(
         val userWord = it.userWord
         with(wordInfo) {
             val meanings = meanings.map {
-                com.mydictionary.presentation.viewmodel.word.WordMeaning(
-                        it.definitionId, it.definitions?.map { Definition(it) } ?: emptyList(),
-                        it.partOfSpeech, it.examples?.map { Example(it) } ?: emptyList(),
-                        userWord?.favMeanings?.contains(it.definitionId) == true
+                WordMeaning(
+                    it.definitionId,
+                    it.definitions?.map { Definition(it) }
+                            ?: emptyList(),
+                    it.partOfSpeech,
+                    it.examples?.map { Example(it) }
+                            ?: emptyList(),
+                    userWord?.favMeanings?.contains(it.definitionId) == true
                 )
             }
             wordCardsList.addAll(meanings)
@@ -105,7 +134,10 @@ private fun mapToPresentation(
                 wordCardsList.add(resources.getString(R.string.notes))
                 wordCardsList.addAll(notes!!.map { Note(it) })
             }
-            WordPresentationDetails(pronunciation, wordCardsList)
+            WordPresentationDetails(
+                pronunciation,
+                wordCardsList
+            )
         }
     }
 }
@@ -131,8 +163,10 @@ class WordInfoViewModelFactory(
 
     override fun <T : ViewModel> create(modelClass: Class<T>): T {
         return when (modelClass) {
-            WordInfoViewModel::class.java -> WordInfoViewModel(useCase, addFavUseCase,
-                    removeFavUseCase, wordName, app) as T
+            WordInfoViewModel::class.java -> WordInfoViewModel(
+                useCase, addFavUseCase,
+                removeFavUseCase, wordName, app
+            ) as T
             else -> throw IllegalArgumentException("Unknown ViewModel class");
         }
     }

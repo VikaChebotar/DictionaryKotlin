@@ -13,12 +13,9 @@ import com.mydictionary.R
 import com.mydictionary.presentation.utils.getViewModel
 import com.mydictionary.presentation.utils.zipLiveData
 import com.mydictionary.domain.entity.SortingOption
-import com.mydictionary.presentation.viewmodel.Data
-import com.mydictionary.presentation.viewmodel.DataState
+import com.mydictionary.presentation.views.Data
+import com.mydictionary.presentation.views.DataState
 import com.mydictionary.presentation.DictionaryApp
-import com.mydictionary.presentation.viewmodel.learn.DeletedWordInfo
-import com.mydictionary.presentation.viewmodel.learn.LearnWordsViewModel
-import com.mydictionary.presentation.viewmodel.learn.UserWordInfoPresentation
 import com.mydictionary.presentation.views.word.WordInfoActivity
 import kotlinx.android.synthetic.main.learn_activity.*
 import javax.inject.Inject

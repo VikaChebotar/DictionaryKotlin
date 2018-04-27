@@ -1,12 +1,12 @@
-package com.mydictionary.presentation.viewmodel.account
+package com.mydictionary.presentation.views.account
 
 import android.arch.lifecycle.MutableLiveData
 import android.arch.lifecycle.ViewModel
 import com.mydictionary.domain.usecases.ShowUserUseCase
 import com.mydictionary.domain.usecases.SignInUseCase
 import com.mydictionary.domain.usecases.SignOutUseCase
-import com.mydictionary.presentation.viewmodel.Data
-import com.mydictionary.presentation.viewmodel.DataState
+import com.mydictionary.presentation.views.Data
+import com.mydictionary.presentation.views.DataState
 import io.reactivex.disposables.CompositeDisposable
 import javax.inject.Inject
 
@@ -26,12 +26,26 @@ class AccountViewModel @Inject constructor(
         compositeDisposable.add(
           signInUseCase.execute(googleIdToken)
                 .doOnSubscribe {
-                    this.userName.postValue(Data(DataState.LOADING, null, null))
+                    this.userName.postValue(
+                        Data(
+                            DataState.LOADING,
+                            null,
+                            null
+                        )
+                    )
                 }
                 .subscribe({ user ->
-                    this.userName.value = Data(DataState.SUCCESS, user.email, null)
+                    this.userName.value = Data(
+                        DataState.SUCCESS,
+                        user.email,
+                        null
+                    )
                 }, { error ->
-                    this.userName.value = Data(DataState.ERROR, null, error.message)
+                    this.userName.value = Data(
+                        DataState.ERROR,
+                        null,
+                        error.message
+                    )
                 })
         )
     }
@@ -40,7 +54,11 @@ class AccountViewModel @Inject constructor(
         compositeDisposable.add(
          signOutUseCase.execute()
                 .subscribe({
-                    this.userName.value = Data(DataState.SUCCESS, null, null)
+                    this.userName.value = Data(
+                        DataState.SUCCESS,
+                        null,
+                        null
+                    )
                 })
         )
     }
@@ -50,10 +68,18 @@ class AccountViewModel @Inject constructor(
             showUserUseCase.execute()
                 .subscribe(
                     { user ->
-                        this.userName.value = Data(DataState.SUCCESS, user.email, null)
+                        this.userName.value = Data(
+                            DataState.SUCCESS,
+                            user.email,
+                            null
+                        )
                     },
                     {
-                        this.userName.value = Data(DataState.SUCCESS, null, null)
+                        this.userName.value = Data(
+                            DataState.SUCCESS,
+                            null,
+                            null
+                        )
                     })
         )
     }

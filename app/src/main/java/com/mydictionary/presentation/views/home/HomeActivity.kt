@@ -15,10 +15,8 @@ import com.mydictionary.presentation.DictionaryApp
 import com.mydictionary.presentation.utils.CompoundDrawables.RIGHT
 import com.mydictionary.presentation.utils.VOICE_SEARCH_EXTRA
 import com.mydictionary.presentation.utils.getViewModel
-import com.mydictionary.presentation.viewmodel.Data
-import com.mydictionary.presentation.viewmodel.DataState
-import com.mydictionary.presentation.viewmodel.home.HomeViewModel
-import com.mydictionary.presentation.viewmodel.home.WordListItem
+import com.mydictionary.presentation.views.Data
+import com.mydictionary.presentation.views.DataState
 import com.mydictionary.presentation.views.account.AccountActivity
 import com.mydictionary.presentation.views.learn.LearnActivity
 import com.mydictionary.presentation.views.search.SearchActivity

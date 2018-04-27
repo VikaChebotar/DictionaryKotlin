@@ -6,7 +6,6 @@ import android.view.ViewGroup
 import android.widget.TextView
 import com.mydictionary.R
 import com.mydictionary.presentation.utils.inflate
-import com.mydictionary.presentation.viewmodel.home.WordListItem
 
 class WordListAdapter(val listener: (String) -> Unit) :
         RecyclerView.Adapter<RecyclerView.ViewHolder>() {

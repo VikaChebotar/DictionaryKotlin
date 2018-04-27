@@ -1,4 +1,4 @@
-package com.mydictionary.presentation.viewmodel
+package com.mydictionary.presentation.views
 
 /**
  * Created by Viktoria Chebotar on 15.04.18.

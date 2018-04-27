@@ -11,7 +11,7 @@ import javax.inject.Named
 
 class ShowWordListUseCase @Inject constructor(val wordListRepository: WordListRepository,
                                               @Named("executor_thread") val executorThread: Scheduler,
-                                              @Named("ui_thread") val uiThread: Scheduler) :
+                                              @Named("postExecutionThread") val postExecutionThread: Scheduler) :
     SingleUseCaseWithParameter<ShowWordListUseCase.Parameter, WordList> {
     private var wordList: WordList? = null
 
@@ -29,7 +29,7 @@ class ShowWordListUseCase @Inject constructor(val wordListRepository: WordListRe
                 WordList(it.listName, it.category, sortedList)
             }
             .subscribeOn(executorThread)
-            .observeOn(uiThread)
+            .observeOn(postExecutionThread)
 
 
     data class Parameter(val listName: String, val isReverseOrder: Boolean)

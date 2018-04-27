@@ -1,8 +1,9 @@
 package com.mydictionary.domain.repository
 
+import com.mydictionary.domain.DEFAULT_PAGE_SIZE
 import com.mydictionary.domain.entity.*
 import io.reactivex.Completable
-import io.reactivex.Flowable
+import io.reactivex.Observable
 import io.reactivex.Single
 
 interface UserRepository {
@@ -20,12 +21,12 @@ interface WordRepository {
 interface UserWordRepository {
     fun getUserWords(
             offset: Int = 0,
-            pageSize: Int = Int.MAX_VALUE, //default value - get all
+            pageSize: Int = DEFAULT_PAGE_SIZE, //default value - get all
             sortingOption: SortingOption = SortingOption.BY_DATE,
             isFavorite: Boolean = false //when isFavorite==true returns only words with not empty fav meanings
     ): Single<PagedResult<UserWord>>
 
-    fun getUserWord(wordName: String): Flowable<UserWord> //each time object updates onNext will be called
+    fun getUserWord(wordName: String): Observable<UserWord> //each time object updates onNext will be called
 
     fun addOrUpdateUserWord(userWord: UserWord): Completable
 }

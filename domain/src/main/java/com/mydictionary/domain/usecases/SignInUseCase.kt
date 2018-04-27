@@ -10,17 +10,16 @@ import javax.inject.Named
 import javax.inject.Singleton
 
 @Singleton
-class SignInUseCase @Inject constructor(val userRepository: UserRepository,
-                                        @Named("executor_thread") val executorThread: Scheduler,
-                                        @Named("ui_thread") val uiThread: Scheduler) :
-        SingleUseCaseWithParameter<String?, User> {
+class SignInUseCase @Inject constructor(
+    val userRepository: UserRepository,
+    @Named("executor_thread") val executorThread: Scheduler,
+    @Named("postExecutionThread") val postExecutionThread: Scheduler
+) :
+    SingleUseCaseWithParameter<String?, User> {
 
     override fun execute(parameter: String?): Single<User> =
-            Single.just(parameter)
-                    .flatMap {
-                        userRepository.getUser()
-                                .onErrorResumeNext { userRepository.signIn(parameter!!) }
-                    }
-                    .subscribeOn(executorThread)
-                    .observeOn(uiThread)
+        userRepository.getUser()
+            .onErrorResumeNext { userRepository.signIn(parameter!!) }
+            .subscribeOn(executorThread)
+            .observeOn(postExecutionThread)
 }

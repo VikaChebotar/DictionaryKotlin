@@ -17,11 +17,9 @@ import android.view.ViewTreeObserver
 import android.view.animation.AnimationUtils
 import com.mydictionary.R
 import com.mydictionary.presentation.utils.*
-import com.mydictionary.presentation.viewmodel.Data
-import com.mydictionary.presentation.viewmodel.DataState
+import com.mydictionary.presentation.views.Data
+import com.mydictionary.presentation.views.DataState
 import com.mydictionary.presentation.DictionaryApp
-import com.mydictionary.presentation.viewmodel.search.SearchResult
-import com.mydictionary.presentation.viewmodel.search.SearchViewModel
 import com.mydictionary.presentation.views.word.WordInfoActivity
 import kotlinx.android.synthetic.main.search_activity.*
 import java.util.*

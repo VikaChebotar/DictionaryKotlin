@@ -15,7 +15,7 @@ class ShowUserHistoryUseCase @Inject constructor(
         val userRepository: UserRepository,
         val userWordRepository: UserWordRepository,
         @Named("executor_thread") val executorThread: Scheduler,
-        @Named("ui_thread") val uiThread: Scheduler
+        @Named("postExecutionThread") val postExecutionThread: Scheduler
 ) :
     SingleUseCase<List<String>> {
 
@@ -29,6 +29,6 @@ class ShowUserHistoryUseCase @Inject constructor(
             }
             .onErrorReturn { emptyList() }
             .subscribeOn(executorThread)
-            .observeOn(uiThread)
+            .observeOn(postExecutionThread)
     }
 }
