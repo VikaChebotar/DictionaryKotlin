@@ -15,8 +15,7 @@ import javax.inject.Singleton
 class UserWordsRepositoryImpl @Inject constructor(
     val dataSource: UserWordsDataSource,
     val mapper: UserWordMapper
-) :
-    UserWordRepository {
+) : UserWordRepository {
 
     override fun getUserWords(
         offset: Int, pageSize: Int,

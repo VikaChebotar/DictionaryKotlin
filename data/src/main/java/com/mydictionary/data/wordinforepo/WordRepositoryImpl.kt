@@ -1,10 +1,13 @@
 package com.mydictionary.data.wordinforepo
 
 import android.content.Context
+import com.mydictionary.data.R
 import com.mydictionary.data.await
 import com.mydictionary.data.wordinforepo.datasource.cache.WordInfoCache
 import com.mydictionary.data.wordinforepo.datasource.remote.RemoteWordsDataSource
 import com.mydictionary.data.wordinforepo.datasource.remote.WordInfoMapper
+import com.mydictionary.data.wordinforepo.pojo.RelatedWordsResponse
+import com.mydictionary.data.wordinforepo.pojo.WordDetailsResponse
 import com.mydictionary.domain.entity.DetailWordInfo
 import com.mydictionary.domain.entity.Result
 import com.mydictionary.domain.entity.ShortWordInfo
@@ -30,67 +33,63 @@ class WordRepositoryImpl @Inject constructor(
         }
     }
 
-    override suspend fun getWordInfo(wordName: String): Result<DetailWordInfo> {
-        TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
-    }
-
     override suspend fun getShortWordInfo(wordName: String): Result<ShortWordInfo> {
-        TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
+        val wordDetails = wordsCache.get(wordName)
+        val wordDetailResponse: WordDetailsResponse = if (wordDetails == null) {
+            try {
+                val response = dataSource.getWordInfo(wordName).await()
+                wordsCache.put(
+                    wordName,
+                    Pair<WordDetailsResponse, RelatedWordsResponse?>(response, null)
+                )
+                response
+            } catch (e: Exception) {
+                return Result.Error(e)
+            }
+        } else wordDetails.first
+        return Result.Success(mapper.mapToShortWordInfo(wordDetailResponse))
     }
 
-//    override fun searchWord(searchPhrase: String, searchLimit: Int) =
-//        dataSource.searchTheWord(searchPhrase, searchLimit).map { it.searchResults }
-//
-//    override fun getWordInfo(word: String): Single<DetailWordInfo> =
-//        Single.just(word)
-//            .flatMap {
-//                val wordDetails = wordsCache.get(word)
-//                val needToLoadDetails = wordDetails == null
-//                val needToLoadRelatedWords = needToLoadDetails && wordDetails?.second == null
-//                if (!needToLoadDetails) {
-//                    Single.just(wordDetails)
-//                } else if (needToLoadDetails && needToLoadRelatedWords) {
-//                    Single.zip(
-//                        dataSource.getWordInfo(word),
-//                        dataSource.getRelatedWords(word)
-//                            .onErrorReturn { RelatedWordsResponse() },
-//                        mapper.zipTwoResponseResults()
-//                    )
-//                } else Single.zip(
-//                    Single.just(wordDetails!!.first),
-//                    dataSource.getRelatedWords(word).onErrorReturn { RelatedWordsResponse() },
-//                    mapper.zipTwoResponseResults()
-//                )
-//            }
-//            .doOnSuccess { it?.let { wordsCache.put(word, it) } }
-//            .map { it ->
-//                mapper.map(it.first, it.second)
-//            }
-//            .flatMap {
-//                if (it.meanings.isEmpty()
-//                    && it.notes?.isEmpty() == true
-//                    && it.synonyms?.isEmpty() == true
-//                    && it.antonyms?.isEmpty() == true
-//                )
-//                    Single.error(Exception(context.getString(R.string.word_not_found_error)))
-//                else Single.just(it)
-//            }
-//
-//    override fun getShortWordInfo(word: String): Single<ShortWordInfo> =
-//        Single.just(word)
-//            .flatMap {
-//                val wordDetails = wordsCache.get(word)
-//                if (wordDetails == null) {
-//                    dataSource.getWordInfo(word)
-//                } else Single.just(wordDetails.first)
-//            }
-//            .doOnSuccess {
-//                wordsCache.put(
-//                    word,
-//                    Pair<WordDetailsResponse, RelatedWordsResponse?>(it, null)
-//                )
-//            }
-//            .map { mapper.map(it) }
+    override suspend fun getWordInfo(wordName: String): Result<DetailWordInfo> {
+        val errorResult = Result.Error(Exception(context.getString(R.string.word_not_found_error)))
+        val wordDetails = wordsCache.get(wordName)
+        val needToLoadDetails = wordDetails == null
+        val needToLoadRelatedWords = needToLoadDetails && wordDetails?.second == null
+        val pair = if (!needToLoadDetails) {
+            wordDetails!!
+        } else if (needToLoadDetails && needToLoadRelatedWords) {
+            try {
+                Pair<WordDetailsResponse, RelatedWordsResponse?>(
+                    dataSource.getWordInfo(wordName).await(),
+                    awaitForRelatedWordsCall(wordName)
+                )
+            } catch (e: Exception) {
+                return errorResult
+            }
+        } else {
+            Pair<WordDetailsResponse, RelatedWordsResponse?>(
+                wordDetails!!.first,
+                awaitForRelatedWordsCall(wordName)
+            )
+        }
+        wordsCache.put(wordName, pair)
+        val detailWordInfo = mapper.mapToDetailWordInfo(pair.first, pair.second)
+        return if (detailWordInfo.isEmpty())
+            errorResult
+        else Result.Success(detailWordInfo)
+    }
 
+    private suspend fun awaitForRelatedWordsCall(wordName: String): RelatedWordsResponse {
+        return try {
+            dataSource.getRelatedWords(wordName).await()
+        } catch (e: Exception) {
+            RelatedWordsResponse()
+        }
+    }
+
+    private fun DetailWordInfo.isEmpty() = meanings.isEmpty()
+            && notes?.isEmpty() == true
+            && synonyms?.isEmpty() == true
+            && antonyms?.isEmpty() == true
 
 }

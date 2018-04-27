@@ -1,6 +1,5 @@
 package com.mydictionary.domain.repository
 
-import com.mydictionary.domain.DEFAULT_PAGE_SIZE
 import com.mydictionary.domain.entity.*
 import io.reactivex.Completable
 import io.reactivex.Observable
@@ -19,8 +18,7 @@ interface WordRepository {
 }
 
 interface UserWordRepository {
-    fun getUserWords(
-    ): Single<PagedResult<UserWord>>
+    fun getUserWords(): Single<PagedResult<UserWord>>
 
     fun getUserWord(wordName: String): Observable<UserWord> //each time object updates onNext will be called
 
@@ -28,6 +26,6 @@ interface UserWordRepository {
 }
 
 interface WordListRepository {
-    fun getAllWordLists(): Single<List<WordList>>
-    fun getWordList(wordListName: String): Single<WordList>
+    suspend fun getAllWordLists(): Result<List<WordList>>
+    suspend fun getWordList(wordListName: String): Result<WordList>
 }

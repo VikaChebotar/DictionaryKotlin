@@ -2,6 +2,10 @@ package com.mydictionary.data
 
 import com.google.android.gms.tasks.OnCompleteListener
 import com.google.android.gms.tasks.Task
+import com.google.firebase.database.DataSnapshot
+import com.google.firebase.database.DatabaseError
+import com.google.firebase.database.Query
+import com.google.firebase.database.ValueEventListener
 import kotlinx.coroutines.experimental.suspendCancellableCoroutine
 import retrofit2.Call
 import retrofit2.Callback
@@ -21,6 +25,27 @@ suspend fun <T> Task<T>.await(): T = suspendCancellableCoroutine { continuation 
     }
     addOnCompleteListener(callback)
 }
+
+
+suspend fun Query.await(): DataSnapshot =
+    suspendCancellableCoroutine { continuation ->
+        val listener = object : ValueEventListener {
+            override fun onCancelled(e: DatabaseError?) {
+                continuation.resumeWithException(e?.toException() ?: Exception("cancelled"))
+            }
+
+            override fun onDataChange(snapshot: DataSnapshot) {
+                try {
+                    continuation.resume(snapshot)
+                } catch (e: Exception) {
+                    continuation.resumeWithException(e)
+                }
+            }
+        }
+        addListenerForSingleValueEvent(listener)
+        continuation.invokeOnCompletion { if (continuation.isCancelled) removeEventListener(listener) }
+    }
+
 
 suspend fun <T> Call<T>.await(): T = suspendCancellableCoroutine { continuation ->
     continuation.invokeOnCompletion { if (continuation.isCancelled) cancel() }
