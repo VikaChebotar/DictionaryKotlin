@@ -1,10 +1,10 @@
-package com.mydictionary.presentation.viewmodel.home
+package com.mydictionary.presentation.views.home
 
 import android.arch.lifecycle.MutableLiveData
 import android.arch.lifecycle.ViewModel
 import com.mydictionary.domain.usecases.ShowWordListsUseCase
-import com.mydictionary.presentation.viewmodel.Data
-import com.mydictionary.presentation.viewmodel.DataState
+import com.mydictionary.presentation.views.Data
+import com.mydictionary.presentation.views.DataState
 import io.reactivex.Single
 import io.reactivex.disposables.CompositeDisposable
 import javax.inject.Inject
@@ -23,14 +23,32 @@ class HomeViewModel @Inject constructor(private val showWordListsUseCase: ShowWo
 
     private fun loadWordLists() {
         compositeDisposable.add(showWordListsUseCase.execute()
-                .doOnSubscribe { wordList.postValue(Data(DataState.LOADING, wordList.value?.data, null)) }
+                .doOnSubscribe { wordList.postValue(
+                    Data(
+                        DataState.LOADING,
+                        wordList.value?.data,
+                        null
+                    )
+                ) }
                 .flatMap { Single.just(mapToPresentation(it)) }
                 .subscribe(
                         {
-                            wordList.postValue(Data(DataState.SUCCESS, it, null))
+                            wordList.postValue(
+                                Data(
+                                    DataState.SUCCESS,
+                                    it,
+                                    null
+                                )
+                            )
                         },
                         {
-                            wordList.postValue(Data(DataState.ERROR, wordList.value?.data, it.message))
+                            wordList.postValue(
+                                Data(
+                                    DataState.ERROR,
+                                    wordList.value?.data,
+                                    it.message
+                                )
+                            )
                         }))
     }
 

@@ -18,7 +18,6 @@ import android.view.View
 import android.view.ViewGroup
 import com.mydictionary.R
 import com.mydictionary.presentation.utils.SELCTED_WORD_INFO_EXTRA
-import com.mydictionary.presentation.viewmodel.learn.UserWordInfoPresentation
 import com.mydictionary.presentation.views.word.MeaningSpaceItemDecorator
 import com.mydictionary.presentation.views.word.MeaningsAdapter
 import kotlinx.android.synthetic.main.learn_card_item.*

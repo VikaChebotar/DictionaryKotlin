@@ -1,4 +1,4 @@
-package com.mydictionary.presentation.viewmodel.search
+package com.mydictionary.presentation.views.search
 
 import android.arch.lifecycle.MutableLiveData
 import android.arch.lifecycle.ViewModel
@@ -6,11 +6,11 @@ import android.util.Log
 import com.mydictionary.domain.MIN_WORD_LENGTH_TO_SEARCH
 import com.mydictionary.domain.usecases.SearchWordUseCase
 import com.mydictionary.domain.usecases.ShowUserHistoryUseCase
-import com.mydictionary.presentation.viewmodel.Data
-import com.mydictionary.presentation.viewmodel.DataState
+import com.mydictionary.presentation.views.Data
+import com.mydictionary.presentation.views.DataState
 import io.reactivex.Single
 import io.reactivex.disposables.CompositeDisposable
-import io.reactivex.processors.PublishProcessor
+import io.reactivex.subjects.PublishSubject
 import javax.inject.Inject
 
 class SearchViewModel @Inject constructor(
@@ -20,7 +20,7 @@ class SearchViewModel @Inject constructor(
     val searchResultList = MutableLiveData<Data<SearchResult>>()
 
     private val compositeDisposable = CompositeDisposable()
-    private val searchPublisher = PublishProcessor.create<String>()
+    private val searchPublisher = PublishSubject.create<String>()
     private var historyListResult = listOf<String>()
 
     init {
@@ -40,8 +40,17 @@ class SearchViewModel @Inject constructor(
     private fun subscribeToSearchResult() {
         compositeDisposable.add(
             searchUseCase.execute(searchPublisher).subscribe(
-                { searchResultList.value = Data(DataState.SUCCESS, SearchResult(it), null) },
-                { searchResultList.value = Data(DataState.ERROR, null, it.message) })
+                { searchResultList.value = Data(
+                    DataState.SUCCESS,
+                    SearchResult(it), null
+                )
+                },
+                { searchResultList.value = Data(
+                    DataState.ERROR,
+                    null,
+                    it.message
+                )
+                })
         )
     }
 
@@ -59,8 +68,16 @@ class SearchViewModel @Inject constructor(
             .subscribe({ list ->
                 historyListResult = list
                 searchResultList.value =
-                        Data(DataState.SUCCESS, SearchResult(list, true), null)
-            }, { searchResultList.value = Data(DataState.ERROR, null, it.message) })
+                        Data(
+                            DataState.SUCCESS,
+                            SearchResult(list, true), null
+                        )
+            }, { searchResultList.value = Data(
+                DataState.ERROR,
+                null,
+                it.message
+            )
+            })
         compositeDisposable.add(disposable)
     }
 

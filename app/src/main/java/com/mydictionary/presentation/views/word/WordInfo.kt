@@ -1,4 +1,4 @@
-package com.mydictionary.presentation.viewmodel.word
+package com.mydictionary.presentation.views.word
 
 import android.annotation.SuppressLint
 import android.os.Parcelable

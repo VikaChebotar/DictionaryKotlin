@@ -4,7 +4,7 @@ import com.mydictionary.data.userwordrepo.pojo.UserWordDto
 import com.mydictionary.domain.entity.PagedResult
 import com.mydictionary.domain.entity.SortingOption
 import io.reactivex.Completable
-import io.reactivex.Flowable
+import io.reactivex.Observable
 import io.reactivex.Single
 
 interface UserWordsDataSource {
@@ -15,7 +15,7 @@ interface UserWordsDataSource {
         isFavorite: Boolean = false //when isFavorite==true returns only words with not empty fav meanings
     ): Single<PagedResult<UserWordDto>>
 
-    fun getUserWord(wordName: String): Flowable<UserWordDto> //each time object updates onNext will be called
+    fun getUserWord(wordName: String): Observable<UserWordDto> //each time object updates onNext will be called
 
     fun addOrUpdateUserWord(userWord: UserWordDto): Completable
 }

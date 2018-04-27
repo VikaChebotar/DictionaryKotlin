@@ -6,7 +6,7 @@ import com.mydictionary.domain.entity.PagedResult
 import com.mydictionary.domain.entity.SortingOption
 import com.mydictionary.domain.entity.UserWord
 import com.mydictionary.domain.repository.UserWordRepository
-import io.reactivex.Flowable
+import io.reactivex.Observable
 import io.reactivex.Single
 import javax.inject.Inject
 import javax.inject.Singleton
@@ -28,7 +28,7 @@ class UserWordsRepositoryImpl @Inject constructor(
             PagedResult(mappedList, it.totalSize)
         }
 
-    override fun getUserWord(word: String): Flowable<UserWord> =
+    override fun getUserWord(word: String): Observable<UserWord> =
         dataSource
             .getUserWord(word)
             .map { mapper.mapUserWord(it) }

@@ -1,12 +1,12 @@
-package com.mydictionary.presentation.viewmodel.wordlist
+package com.mydictionary.presentation.views.wordlist
 
 import android.arch.lifecycle.MutableLiveData
 import android.arch.lifecycle.ViewModel
 import android.arch.lifecycle.ViewModelProvider
 import android.util.Log
 import com.mydictionary.domain.usecases.ShowWordListUseCase
-import com.mydictionary.presentation.viewmodel.Data
-import com.mydictionary.presentation.viewmodel.DataState
+import com.mydictionary.presentation.views.Data
+import com.mydictionary.presentation.views.DataState
 import com.mydictionary.presentation.DictionaryApp
 import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.disposables.CompositeDisposable
@@ -31,14 +31,28 @@ class WordListViewModel(
         compositeDisposable.add(showWordListUseCase
             .execute(ShowWordListUseCase.Parameter(wordListName, isReverseOrder))
             .doOnSubscribe {
-                wordList.postValue(Data(DataState.LOADING, wordList.value?.data, null))
+                wordList.postValue(
+                    Data(
+                        DataState.LOADING,
+                        wordList.value?.data,
+                        null
+                    )
+                )
             }
             .subscribeOn(Schedulers.io())
             .observeOn(AndroidSchedulers.mainThread())
             .subscribe({
-                wordList.value = Data(DataState.SUCCESS, it.list, null)
+                wordList.value = Data(
+                    DataState.SUCCESS,
+                    it.list,
+                    null
+                )
             }, { throwable ->
-                wordList.value = Data(DataState.ERROR, null, throwable.message)
+                wordList.value = Data(
+                    DataState.ERROR,
+                    null,
+                    throwable.message
+                )
             })
         )
     }
@@ -65,7 +79,10 @@ class WordListViewModelFactory(val wordListName: String) :
 
     override fun <T : ViewModel> create(modelClass: Class<T>): T {
         return when (modelClass) {
-            WordListViewModel::class.java -> WordListViewModel(showWordListUseCase, wordListName) as T
+            WordListViewModel::class.java -> WordListViewModel(
+                showWordListUseCase,
+                wordListName
+            ) as T
             else -> throw IllegalArgumentException("Unknown ViewModel class");
         }
     }

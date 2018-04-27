@@ -14,12 +14,8 @@ import android.view.View
 import com.mydictionary.R
 import com.mydictionary.presentation.utils.SELECTED_WORD_NAME_EXTRA
 import com.mydictionary.presentation.utils.getViewModel
-import com.mydictionary.presentation.viewmodel.Data
-import com.mydictionary.presentation.viewmodel.DataState
-import com.mydictionary.presentation.viewmodel.word.WordInfoViewModel
-import com.mydictionary.presentation.viewmodel.word.WordInfoViewModelFactory
-import com.mydictionary.presentation.viewmodel.word.WordMeaning
-import com.mydictionary.presentation.viewmodel.word.WordPresentationDetails
+import com.mydictionary.presentation.views.Data
+import com.mydictionary.presentation.views.DataState
 import com.mydictionary.presentation.views.SpaceItemDecorator
 import kotlinx.android.synthetic.main.word_content_scrolling.*
 import kotlinx.android.synthetic.main.word_info_activity.*
@@ -33,9 +29,9 @@ class WordInfoActivity : AppCompatActivity(), WordCardsAdapter.ViewClickListener
     private lateinit var textToSpeechHelper: TextToSpeechHelper
     private val viewModel by lazy {
         getViewModel<WordInfoViewModel>(
-                WordInfoViewModelFactory(
-                        wordName
-                )
+            WordInfoViewModelFactory(
+                wordName
+            )
         )
     }
 

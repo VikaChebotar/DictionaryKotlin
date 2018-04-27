@@ -16,9 +16,8 @@ import com.google.android.gms.common.api.ApiException
 import com.mydictionary.R
 import com.mydictionary.presentation.DictionaryApp
 import com.mydictionary.presentation.utils.getViewModel
-import com.mydictionary.presentation.viewmodel.Data
-import com.mydictionary.presentation.viewmodel.DataState
-import com.mydictionary.presentation.viewmodel.account.AccountViewModel
+import com.mydictionary.presentation.views.Data
+import com.mydictionary.presentation.views.DataState
 import kotlinx.android.synthetic.main.account_activity.*
 import javax.inject.Inject
 

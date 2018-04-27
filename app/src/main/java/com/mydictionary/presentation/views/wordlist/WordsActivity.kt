@@ -14,9 +14,7 @@ import android.view.View
 import com.mydictionary.R
 import com.mydictionary.presentation.utils.WORD_LIST_NAME
 import com.mydictionary.presentation.utils.getViewModel
-import com.mydictionary.presentation.viewmodel.DataState
-import com.mydictionary.presentation.viewmodel.wordlist.WordListViewModel
-import com.mydictionary.presentation.viewmodel.wordlist.WordListViewModelFactory
+import com.mydictionary.presentation.views.DataState
 import com.mydictionary.presentation.views.word.WordInfoActivity
 import kotlinx.android.synthetic.main.words_activity.*
 

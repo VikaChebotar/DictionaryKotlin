@@ -2,11 +2,11 @@ package com.mydictionary.di.modules
 
 import android.arch.lifecycle.ViewModel
 import android.arch.lifecycle.ViewModelProvider
-import com.mydictionary.presentation.viewmodel.ViewModelFactory
-import com.mydictionary.presentation.viewmodel.account.AccountViewModel
-import com.mydictionary.presentation.viewmodel.home.HomeViewModel
-import com.mydictionary.presentation.viewmodel.learn.LearnWordsViewModel
-import com.mydictionary.presentation.viewmodel.search.SearchViewModel
+import com.mydictionary.presentation.views.ViewModelFactory
+import com.mydictionary.presentation.views.account.AccountViewModel
+import com.mydictionary.presentation.views.home.HomeViewModel
+import com.mydictionary.presentation.views.learn.LearnWordsViewModel
+import com.mydictionary.presentation.views.search.SearchViewModel
 import dagger.Binds
 import dagger.Module
 import dagger.multibindings.IntoMap

@@ -17,6 +17,7 @@ const val MAX_HISTORY_LIMIT = 5
 const val FAV_WORD_PAGE_SIZE = 10
 const val FAV_WORD_PAGE_THRESHOLD = 5
 const val SHUFFLE_DOWNLOAD_PAGE_SIZE = 30
+const val DEFAULT_PAGE_SIZE = 100
 
 class NoConnectivityException : Exception("No connectivity exception")
 
