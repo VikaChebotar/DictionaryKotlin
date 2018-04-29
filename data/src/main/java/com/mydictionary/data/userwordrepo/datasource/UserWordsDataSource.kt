@@ -1,21 +1,20 @@
 package com.mydictionary.data.userwordrepo.datasource
 
 import com.mydictionary.data.userwordrepo.pojo.UserWordDto
+import com.mydictionary.domain.DEFAULT_PAGE_SIZE
 import com.mydictionary.domain.entity.PagedResult
 import com.mydictionary.domain.entity.SortingOption
-import io.reactivex.Completable
-import io.reactivex.Observable
-import io.reactivex.Single
+import kotlinx.coroutines.experimental.channels.ReceiveChannel
 
 interface UserWordsDataSource {
-    fun getUserWords(
+    suspend fun getUserWords(
         offset: Int = 0,
-        pageSize: Int = Int.MAX_VALUE, //default value - get all
+        pageSize: Int = DEFAULT_PAGE_SIZE,
         sortingOption: SortingOption = SortingOption.BY_DATE,
         isFavorite: Boolean = false //when isFavorite==true returns only words with not empty fav meanings
-    ): Single<PagedResult<UserWordDto>>
+    ): PagedResult<UserWordDto>
 
-    fun getUserWord(wordName: String): Observable<UserWordDto> //each time object updates onNext will be called
+    suspend fun getUserWord(wordName: String): ReceiveChannel<UserWordDto?> //each time object updates onNext will be called
 
-    fun addOrUpdateUserWord(userWord: UserWordDto): Completable
+    suspend fun addOrUpdateUserWord(userWord: UserWordDto)
 }

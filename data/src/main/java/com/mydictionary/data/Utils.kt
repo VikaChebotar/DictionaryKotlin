@@ -28,37 +28,55 @@ suspend fun <T> Task<T>.await(): T = suspendCancellableCoroutine { continuation 
 
 
 suspend fun Query.await(): DataSnapshot =
-    suspendCancellableCoroutine { continuation ->
-        val listener = object : ValueEventListener {
-            override fun onCancelled(e: DatabaseError?) {
-                continuation.resumeWithException(e?.toException() ?: Exception("cancelled"))
-            }
+        suspendCancellableCoroutine { continuation ->
+            val listener = object : ValueEventListener {
+                override fun onCancelled(e: DatabaseError?) {
+                    continuation.resumeWithException(e?.toException() ?: Exception("cancelled"))
+                }
 
-            override fun onDataChange(snapshot: DataSnapshot) {
-                try {
-                    continuation.resume(snapshot)
-                } catch (e: Exception) {
-                    continuation.resumeWithException(e)
+                override fun onDataChange(snapshot: DataSnapshot) {
+                    try {
+                        continuation.resume(snapshot)
+                    } catch (e: Exception) {
+                        continuation.resumeWithException(e)
+                    }
                 }
             }
+            addListenerForSingleValueEvent(listener)
+            continuation.invokeOnCompletion { if (continuation.isCancelled) removeEventListener(listener) }
         }
-        addListenerForSingleValueEvent(listener)
-        continuation.invokeOnCompletion { if (continuation.isCancelled) removeEventListener(listener) }
-    }
 
+suspend fun Query.listenAsyncForAllChanges(): DataSnapshot =
+        suspendCancellableCoroutine { continuation ->
+            val listener = object : ValueEventListener {
+                override fun onCancelled(e: DatabaseError?) {
+                    continuation.resumeWithException(e?.toException() ?: Exception("cancelled"))
+                }
+
+                override fun onDataChange(snapshot: DataSnapshot) {
+                    try {
+                        continuation.resume(snapshot)
+                    } catch (e: Exception) {
+                        continuation.resumeWithException(e)
+                    }
+                }
+            }
+            addValueEventListener(listener)
+            continuation.invokeOnCompletion { if (continuation.isCancelled) removeEventListener(listener) }
+        }
 
 suspend fun <T> Call<T>.await(): T = suspendCancellableCoroutine { continuation ->
     continuation.invokeOnCompletion { if (continuation.isCancelled) cancel() }
     val callback = object : Callback<T> {
         override fun onFailure(call: Call<T>, t: Throwable) = continuation.resumeWithException(t)
         override fun onResponse(call: Call<T>, response: Response<T>) =
-            continuation.resumeNormallyOrWithException {
-                response.isSuccessful || throw IllegalStateException("Http error ${response.code()}")
-                response.body() ?: throw IllegalStateException("Response body is null")
-            }
+                continuation.resumeNormallyOrWithException {
+                    response.isSuccessful || throw IllegalStateException("Http error ${response.code()}")
+                    response.body() ?: throw IllegalStateException("Response body is null")
+                }
     }
 
-    enqueue(callback) // TODO: cancellation (invoke Call.cancel() when coroutine is cancelled)
+    enqueue(callback)
 }
 
 private inline fun <T> Continuation<T>.resumeNormallyOrWithException(getter: () -> T) = try {

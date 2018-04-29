@@ -1,9 +1,8 @@
 package com.mydictionary.domain.repository
 
+import com.mydictionary.domain.DEFAULT_PAGE_SIZE
 import com.mydictionary.domain.entity.*
-import io.reactivex.Completable
-import io.reactivex.Observable
-import io.reactivex.Single
+import kotlinx.coroutines.experimental.channels.ReceiveChannel
 
 interface UserRepository {
     suspend fun getUser(): Result<User>
@@ -18,11 +17,15 @@ interface WordRepository {
 }
 
 interface UserWordRepository {
-    fun getUserWords(): Single<PagedResult<UserWord>>
+    suspend fun getUserWords(offset: Int = 0,
+                             pageSize: Int = DEFAULT_PAGE_SIZE,
+                             sortingOption: SortingOption = SortingOption.BY_DATE,
+                             isFavorite: Boolean = false //when isFavorite==true returns only words with not empty fav meanings
+    ): Result<PagedResult<UserWord>>
 
-    fun getUserWord(wordName: String): Observable<UserWord> //each time object updates onNext will be called
+    suspend fun getUserWord(wordName: String): ReceiveChannel<Result<WordInfo>> //each time object updates onNext will be called
 
-    fun addOrUpdateUserWord(userWord: UserWord): Completable
+    suspend fun addOrUpdateUserWord(userWord: UserWord): Result<Nothing?>
 }
 
 interface WordListRepository {

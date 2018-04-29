@@ -1,103 +1,90 @@
 package com.mydictionary.data.userwordrepo.datasource
 
 import android.content.Context
-import com.google.android.gms.tasks.OnCompleteListener
 import com.google.firebase.auth.FirebaseAuth
-import com.google.firebase.database.*
-import com.mydictionary.data.R
+import com.google.firebase.database.FirebaseDatabase
+import com.google.firebase.database.Query
+import com.mydictionary.data.await
+import com.mydictionary.data.listenAsyncForAllChanges
 import com.mydictionary.data.userwordrepo.pojo.UserWordDto
 import com.mydictionary.domain.entity.PagedResult
 import com.mydictionary.domain.entity.SortingOption
-import io.reactivex.Completable
-import io.reactivex.Observable
-import io.reactivex.Single
-import io.reactivex.SingleEmitter
-import io.reactivex.schedulers.Schedulers
+import kotlinx.coroutines.experimental.channels.produce
 
 
 class RemoteUserWordsDataSourceImpl(
-    val firebaseDatabase: FirebaseDatabase,
-    val firebaseAuth: FirebaseAuth,
-    val context: Context
+        val firebaseDatabase: FirebaseDatabase,
+        val firebaseAuth: FirebaseAuth,
+        val context: Context
 ) : UserWordsDataSource {
 
-    override fun getUserWords(
-        offset: Int,
-        pageSize: Int,
-        sortingOption: SortingOption,
-        isFavorite: Boolean
-    ): Single<PagedResult<UserWordDto>> = Single
-        .create({ emitter: SingleEmitter<PagedResult<UserWordDto>> ->
-            val query = getUserReferenceQuery(sortingOption)
-            query.keepSynced(true)
-            query.addListenerForSingleValueEvent(object : ValueEventListener {
-                override fun onCancelled(p0: DatabaseError?) {
-                    emitter.onError(
-                        p0?.toException()
-                                ?: Exception(context.getString(R.string.default_error))
-                    )
-                }
-
-                override fun onDataChange(p0: DataSnapshot?) {
-                    var list = mutableListOf<UserWordDto>()
-                    p0?.children?.mapNotNullTo(list) { it.getValue<UserWordDto>(UserWordDto::class.java) }
-                    when (sortingOption) {
-                        SortingOption.BY_DATE -> list.reverse()
-                        SortingOption.BY_NAME -> {
-                        }
-                        SortingOption.RANDOMLY -> list.shuffle()
-                    }
-                    list = list.toMutableList()
-                        .filter { if (isFavorite) it.favSenses.isNotEmpty() else true }
-                        .toMutableList()
-                    val modifiedList = list
-                        .drop(offset)
-                        .take(pageSize)
-                    emitter.onSuccess(PagedResult(modifiedList, list.size))
-                }
-            })
-        })
-        //hack to return to background thread, because onDataChange is always called in UI thread
-        .observeOn(Schedulers.io())
-
-    override fun getUserWord(wordName: String): Observable<UserWordDto> =
-        Observable.create<UserWordDto>({ emitter ->
-            val reference = getUserReferenceQuery().equalTo(wordName).limitToFirst(1)
-            var userWordDto: UserWordDto? = null
-            val valueListener = object : ValueEventListener {
-                override fun onCancelled(p0: DatabaseError?) {
-                    emitter.onError(p0?.toException() ?: Exception())
-                }
-
-                override fun onDataChange(p0: DataSnapshot?) {
-                    val list = mutableListOf<UserWordDto>()
-                    p0?.children?.mapNotNullTo(list) { it.getValue<UserWordDto>(UserWordDto::class.java) }
-                    if (list.isNotEmpty()) {
-                        if (list[0] != userWordDto) { //can happen when accessdate was
-                            userWordDto = list[0]
-                            emitter.onNext(userWordDto!!)
-                        }
-                    } else emitter.onError(Exception("User don't have stored word " + wordName))
-                }
+    override suspend fun getUserWords(offset: Int, pageSize: Int, sortingOption: SortingOption,
+                                      isFavorite: Boolean): PagedResult<UserWordDto> {
+        val query = getUserReferenceQuery(sortingOption)
+        query.keepSynced(true)
+        val snapshot = query.await()
+        var list = mutableListOf<UserWordDto>()
+        snapshot.children?.mapNotNullTo(list) { it.getValue<UserWordDto>(UserWordDto::class.java) }
+        when (sortingOption) {
+            SortingOption.BY_DATE -> list.reverse()
+            SortingOption.BY_NAME -> {
             }
-            reference.addValueEventListener(valueListener)
-            emitter.setCancellable { reference.removeEventListener(valueListener) }
-        })
-
-    override fun addOrUpdateUserWord(userWord: UserWordDto) = Completable.create { emitter ->
-        val saveCompleteListener = OnCompleteListener<Void> { it ->
-            if (it.isSuccessful) {
-                emitter.onComplete()
-            } else {
-                emitter.onError(
-                    it.exception
-                            ?: Exception("error in addingWordToHistory")
-                )
-            }
+            SortingOption.RANDOMLY -> list.shuffle()
         }
-        getUserReference().child(userWord.word).setValue(userWord)
-            .addOnCompleteListener(saveCompleteListener)
+        list = list.toMutableList()
+                .filter { if (isFavorite) it.favSenses.isNotEmpty() else true }
+                .toMutableList()
+        val modifiedList = list
+                .drop(offset)
+                .take(pageSize)
+        return PagedResult(modifiedList, list.size)
     }
+
+    override suspend fun getUserWord(wordName: String) = produce<UserWordDto?> {
+        val reference = getUserReferenceQuery().equalTo(wordName).limitToFirst(1)
+        var userWordDto: UserWordDto? = null
+        val snapshot = reference.listenAsyncForAllChanges()
+        val list = mutableListOf<UserWordDto>()
+        snapshot.children?.mapNotNullTo(list) { it.getValue<UserWordDto>(UserWordDto::class.java) }
+        if (list.isNotEmpty()) {
+            if (list[0] != userWordDto) { //can happen when accessdate was
+                userWordDto = list[0]
+                send(userWordDto)
+            }
+        } else
+        //"User don't have stored word "+ wordName
+            send(null)
+    }
+
+    override suspend fun addOrUpdateUserWord(userWord: UserWordDto) {
+        getUserReference().child(userWord.word).setValue(userWord).await()
+    }
+
+//
+//    override fun getUserWord(wordName: String): Observable<UserWordDto> =
+//        Observable.create<UserWordDto>({ emitter ->
+//            val reference = getUserReferenceQuery().equalTo(wordName).limitToFirst(1)
+//            var userWordDto: UserWordDto? = null
+//            val valueListener = object : ValueEventListener {
+//                override fun onCancelled(p0: DatabaseError?) {
+//                    emitter.onError(p0?.toException() ?: Exception())
+//                }
+//
+//                override fun onDataChange(p0: DataSnapshot?) {
+//                    val list = mutableListOf<UserWordDto>()
+//                    p0?.children?.mapNotNullTo(list) { it.getValue<UserWordDto>(UserWordDto::class.java) }
+//                    if (list.isNotEmpty()) {
+//                        if (list[0] != userWordDto) { //can happen when accessdate was
+//                            userWordDto = list[0]
+//                            emitter.onNext(userWordDto!!)
+//                        }
+//                    } else emitter.onError(Exception("User don't have stored word " + wordName))
+//                }
+//            }
+//            reference.addValueEventListener(valueListener)
+//            emitter.setCancellable { reference.removeEventListener(valueListener) }
+//        })
+//
 
     private fun getUserReferenceQuery(sortingOption: SortingOption = SortingOption.BY_NAME): Query {
         var query: Query = getUserReference()
@@ -111,5 +98,5 @@ class RemoteUserWordsDataSourceImpl(
     }
 
     private fun getUserReference() =
-        firebaseDatabase.reference.child("users").child(firebaseAuth.currentUser?.uid)
+            firebaseDatabase.reference.child("users").child(firebaseAuth.currentUser?.uid)
 }
