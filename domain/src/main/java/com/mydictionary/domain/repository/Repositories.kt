@@ -23,7 +23,7 @@ interface UserWordRepository {
                              isFavorite: Boolean = false //when isFavorite==true returns only words with not empty fav meanings
     ): Result<PagedResult<UserWord>>
 
-    suspend fun getUserWord(wordName: String): ReceiveChannel<Result<UserWord>> //each time object updates onNext will be called
+    suspend fun getUserWord(wordName: String): ReceiveChannel<Result<UserWord?>> //each time object updates onNext will be called
 
     suspend fun addOrUpdateUserWord(userWord: UserWord): Result<Nothing?>
 }

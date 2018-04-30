@@ -4,13 +4,14 @@ import android.arch.lifecycle.MutableLiveData
 import android.arch.lifecycle.ViewModel
 import android.arch.lifecycle.ViewModelProvider
 import android.util.Log
+import com.mydictionary.domain.entity.Result
 import com.mydictionary.domain.usecases.ShowWordListUseCase
+import com.mydictionary.presentation.DictionaryApp
 import com.mydictionary.presentation.views.Data
 import com.mydictionary.presentation.views.DataState
-import com.mydictionary.presentation.DictionaryApp
-import io.reactivex.android.schedulers.AndroidSchedulers
-import io.reactivex.disposables.CompositeDisposable
-import io.reactivex.schedulers.Schedulers
+import kotlinx.coroutines.experimental.Job
+import kotlinx.coroutines.experimental.android.UI
+import kotlinx.coroutines.experimental.launch
 import javax.inject.Inject
 
 class WordListViewModel(
@@ -18,7 +19,7 @@ class WordListViewModel(
     val wordListName: String
 ) :
     ViewModel() {
-    private val compositeDisposable = CompositeDisposable()
+    private var job: Job? = null
     val wordList = MutableLiveData<Data<List<String>>>()
     private var isReverseOrder = false
 
@@ -28,33 +29,21 @@ class WordListViewModel(
     }
 
     private fun loadList() {
-        compositeDisposable.add(showWordListUseCase
-            .execute(ShowWordListUseCase.Parameter(wordListName, isReverseOrder))
-            .doOnSubscribe {
-                wordList.postValue(
-                    Data(
-                        DataState.LOADING,
-                        wordList.value?.data,
-                        null
-                    )
+        job = launch(UI) {
+            wordList.value = Data(DataState.LOADING, wordList.value?.data, null)
+            val result = showWordListUseCase.execute(
+                ShowWordListUseCase.Parameter(
+                    wordListName,
+                    isReverseOrder
                 )
+            )
+            when (result) {
+                is Result.Success -> wordList.value =
+                        Data(DataState.SUCCESS, result.data.list, null)
+                is Result.Error -> wordList.value =
+                        Data(DataState.ERROR, null, result.exception.message)
             }
-            .subscribeOn(Schedulers.io())
-            .observeOn(AndroidSchedulers.mainThread())
-            .subscribe({
-                wordList.value = Data(
-                    DataState.SUCCESS,
-                    it.list,
-                    null
-                )
-            }, { throwable ->
-                wordList.value = Data(
-                    DataState.ERROR,
-                    null,
-                    throwable.message
-                )
-            })
-        )
+        }
     }
 
     fun sortMenu() {
@@ -63,7 +52,7 @@ class WordListViewModel(
     }
 
     override fun onCleared() {
-        compositeDisposable.dispose()
+        job?.cancel()
         super.onCleared()
     }
 }

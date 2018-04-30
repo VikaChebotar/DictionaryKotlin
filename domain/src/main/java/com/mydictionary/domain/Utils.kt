@@ -1,5 +1,14 @@
 package com.mydictionary.domain
 
+import kotlinx.coroutines.experimental.DefaultDispatcher
+import kotlinx.coroutines.experimental.Job
+import kotlinx.coroutines.experimental.channels.ReceiveChannel
+import kotlinx.coroutines.experimental.channels.consumeEach
+import kotlinx.coroutines.experimental.channels.produce
+import kotlinx.coroutines.experimental.delay
+import kotlinx.coroutines.experimental.launch
+import kotlin.coroutines.experimental.CoroutineContext
+
 /**
  * Created by Viktoria Chebotar on 22.04.18.
  */
@@ -22,3 +31,18 @@ const val DEFAULT_PAGE_SIZE = 100
 class NoConnectivityException : Exception("No connectivity exception")
 
 class AuthorizationException(message: String = "User is not signed in") : Exception(message)
+
+fun <T> ReceiveChannel<T>.debounce(
+    settleTime: Long,
+    context: CoroutineContext = DefaultDispatcher
+): ReceiveChannel<T> = produce(context) {
+    var job: Job? = null
+    consumeEach {
+        job?.cancel()
+        job = launch {
+            delay(settleTime)
+            send(it)
+        }
+    }
+    job?.join() //waiting for the last debouncing to end
+}

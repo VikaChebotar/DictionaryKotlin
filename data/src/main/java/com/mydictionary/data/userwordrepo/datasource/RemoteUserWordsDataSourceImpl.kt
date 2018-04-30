@@ -5,11 +5,10 @@ import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.database.FirebaseDatabase
 import com.google.firebase.database.Query
 import com.mydictionary.data.await
-import com.mydictionary.data.listenAsyncForAllChanges
+import com.mydictionary.data.listenAsync
 import com.mydictionary.data.userwordrepo.pojo.UserWordDto
 import com.mydictionary.domain.entity.PagedResult
 import com.mydictionary.domain.entity.SortingOption
-import kotlinx.coroutines.experimental.CommonPool
 import kotlinx.coroutines.experimental.channels.consumeEach
 import kotlinx.coroutines.experimental.channels.produce
 
@@ -45,7 +44,7 @@ class RemoteUserWordsDataSourceImpl(
     override suspend fun getUserWord(wordName: String) = produce {
         val reference = getUserReferenceQuery().equalTo(wordName).limitToFirst(1)
         var userWordDto: UserWordDto? = null
-        val snapshotChannel = reference.listenAsyncForAllChanges(CommonPool)
+        val snapshotChannel = reference.listenAsync()
         snapshotChannel.consumeEach {
             val list = mutableListOf<UserWordDto>()
             it.children?.mapNotNullTo(list) { it.getValue<UserWordDto>(UserWordDto::class.java) }

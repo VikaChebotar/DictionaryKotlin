@@ -1,5 +1,6 @@
 package com.mydictionary.data.userwordrepo
 
+import android.util.Log
 import com.mydictionary.data.userwordrepo.datasource.UserWordsDataSource
 import com.mydictionary.data.userwordrepo.pojo.UserWordDto
 import com.mydictionary.domain.entity.PagedResult
@@ -32,12 +33,13 @@ class UserWordsRepositoryImpl @Inject constructor(
         }
     }
 
-    override suspend fun getUserWord(wordName: String) = produce<Result<UserWord>> {
+    override suspend fun getUserWord(wordName: String) = produce<Result<UserWord?>> {
         val userWordChannel = dataSource.getUserWord(wordName)
         userWordChannel.consumeEach {
             it?.let {
                 val userWord = mapper.mapUserWord(it)
                 send(Result.Success(userWord))
+                Log.e("TAG", "send in repo")
             } ?: send(Result.Success(null))
         }
     }
@@ -51,16 +53,5 @@ class UserWordsRepositoryImpl @Inject constructor(
             Result.Error(e)
         }
     }
-
-//    override fun getUserWord(word: String): Observable<UserWord> =
-//        dataSource
-//            .getUserWord(word)
-//            .map { mapper.mapUserWord(it) }
-//
-//
-//    override fun addOrUpdateUserWord(userWord: UserWord) =
-//        Single.just(userWord)
-//            .map { UserWordDto(userWord.word, userWord.favMeanings) }
-//            .flatMapCompletable { dataSource.addOrUpdateUserWord(it) }
 
 }

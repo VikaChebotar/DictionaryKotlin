@@ -107,7 +107,7 @@ class AccountActivity : AppCompatActivity() {
             val task = GoogleSignIn.getSignedInAccountFromIntent(data)
             try {
                 val googleAccount = task.getResult(ApiException::class.java)
-                viewModel.signIn(googleAccount.idToken)
+                viewModel.signIn(googleAccount.idToken!!)
             } catch (e: Exception) {
                 showError(getString(R.string.login_error))
             }

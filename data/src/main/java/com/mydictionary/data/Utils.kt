@@ -1,5 +1,6 @@
 package com.mydictionary.data
 
+import android.util.Log
 import com.google.android.gms.tasks.OnCompleteListener
 import com.google.android.gms.tasks.Task
 import com.google.firebase.database.DataSnapshot
@@ -7,14 +8,11 @@ import com.google.firebase.database.DatabaseError
 import com.google.firebase.database.Query
 import com.google.firebase.database.ValueEventListener
 import kotlinx.coroutines.experimental.channels.Channel
-import kotlinx.coroutines.experimental.channels.ReceiveChannel
-import kotlinx.coroutines.experimental.channels.produce
 import kotlinx.coroutines.experimental.suspendCancellableCoroutine
 import retrofit2.Call
 import retrofit2.Callback
 import retrofit2.Response
 import kotlin.coroutines.experimental.Continuation
-import kotlin.coroutines.experimental.CoroutineContext
 
 /**
  * @throws IllegalStateException
@@ -51,24 +49,25 @@ suspend fun Query.await(): DataSnapshot =
     }
 
 
-fun Query.listenAsyncForAllChanges(context: CoroutineContext): ReceiveChannel<DataSnapshot> =
-    produce(context, capacity = Channel.CONFLATED) {
-        // or Channel.UNLIMITED, -- depends on use-case
-        val listener = object : ValueEventListener {
-            override fun onCancelled(e: DatabaseError?) {
-                // continuation.resumeWithException(e?.toException() ?: Exception("cancelled"))
-            }
+fun Query.listenAsync() = Channel<DataSnapshot>(Channel.UNLIMITED).apply {
+    val listener = object : ValueEventListener {
+        override fun onCancelled(e: DatabaseError?) {
+            // continuation.resumeWithException(e?.toException() ?: Exception("cancelled"))
+            Log.e("TAG", e?.message)
+            //todo need to handle exceptions
+        }
 
-            override fun onDataChange(snapshot: DataSnapshot) {
-                try {
-                    offer(snapshot)
-                } catch (e: Exception) {
-                    // continuation.resumeWithException(e)
-                }
+        override fun onDataChange(snapshot: DataSnapshot) {
+            try {
+                offer(snapshot)
+            } catch (e: Exception) {
+                Log.e("TAG", e.message)
             }
         }
-        addValueEventListener(listener)
     }
+    addValueEventListener(listener)
+    //todo need to unregister
+}
 
 suspend fun <T> Call<T>.await(): T = suspendCancellableCoroutine { continuation ->
     continuation.invokeOnCompletion { if (continuation.isCancelled) cancel() }
