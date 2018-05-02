@@ -5,6 +5,8 @@ import com.mydictionary.domain.entity.*
 import com.mydictionary.domain.repository.UserRepository
 import com.mydictionary.domain.repository.UserWordRepository
 import com.mydictionary.domain.repository.WordRepository
+import kotlinx.coroutines.experimental.Deferred
+import kotlinx.coroutines.experimental.async
 import kotlinx.coroutines.experimental.channels.ReceiveChannel
 import kotlinx.coroutines.experimental.channels.consumeEach
 import kotlinx.coroutines.experimental.channels.produce
@@ -38,38 +40,36 @@ class ShowFavoriteWordsUseCase @Inject constructor(
                 when (result) {
                     is Result.Error -> send(result)
                     is Result.Success -> {
-                        getWordInfos(result.data)
+                        val pagedResult = getWordInfos(result.data)
+                        send(Result.Success(pagedResult))
                     }
                 }
             }
         }
 
-    private suspend fun getWordInfos(pagedResult: PagedResult<UserWord>) {
-        
+    private suspend fun getWordInfos(userWordPagedResult: PagedResult<UserWord>): PagedResult<Response> {
+        val list = mutableListOf<Response>()
+        val jobList = mutableListOf<Deferred<Result<ShortWordInfo>>>()
+        val resultList = mutableListOf<Result<ShortWordInfo>>()
+        userWordPagedResult.list.forEach { userWord ->
+            jobList += async { wordRepository.getShortWordInfo(userWord.word) }
+        }
+        //execute in parallel
+        jobList.forEach { resultList += it.await() }
+        resultList.forEach { wordInfoResult ->
+            when (wordInfoResult) {
+                is Result.Error -> {
+                }
+                is Result.Success -> {
+                    val userWord =
+                        userWordPagedResult.list.find { it.word == wordInfoResult.data.word }
+                    userWord?.let { list.add(Response(wordInfoResult.data, it)) }
+                }
+            }
+        }
+        return PagedResult(list, userWordPagedResult.totalSize)
     }
 
-    //        return userRepository.getUser()
-//            .flatMap {
-//                userWordRepository.getUserWords(
-//                    parameter.offset,
-//                    FAV_WORD_PAGE_SIZE,
-//                    parameter.sortingOption,
-//                    true
-//                )
-//            }
-//            .flatMap { pagedResult ->
-//                Observable.just(pagedResult.list)
-//                    .flatMapIterable { it -> it }
-//                    .concatMap { userWord ->
-//                        wordRepository.getShortWordInfo(userWord.word)
-//                            .map { wordInfo ->
-//                                Result(wordInfo, userWord)
-//                            }
-//                            .toObservable()
-//                    }
-//                    .toList()
-//                    .map { PagedResult<Result>(it, pagedResult.totalSize) }
-//            }
     data class Parameter(val offset: Int, val sortingOption: SortingOption)
 
     data class Response(val wordInfo: ShortWordInfo, val userWord: UserWord)
