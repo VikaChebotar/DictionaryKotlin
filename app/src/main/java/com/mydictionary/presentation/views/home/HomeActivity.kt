@@ -90,22 +90,6 @@ class HomeActivity : AppCompatActivity() {
         wordList.addItemDecoration(divider)
     }
 
-    private fun startSearchActivity(isVoiceSearchClicked: Boolean = false) {
-        val intent = Intent(this@HomeActivity, SearchActivity::class.java);
-        intent.putExtra(VOICE_SEARCH_EXTRA, isVoiceSearchClicked)
-        val p1 = android.support.v4.util.Pair<View, String>(
-                searchField,
-                getString(R.string.search_field_transition_name)
-        )
-        val p2 = android.support.v4.util.Pair<View, String>(
-                appBarLayout,
-                getString(R.string.search_appbar_transition_name)
-        )
-        val statusBar = findViewById<View>(android.R.id.statusBarBackground)
-        val p3 = Pair(statusBar, Window.STATUS_BAR_BACKGROUND_TRANSITION_NAME)
-        val options = ActivityOptionsCompat.makeSceneTransitionAnimation(this, p1, p2, p3)
-        startActivity(intent, options.toBundle())
-    }
 
     private val searchTouchListener = View.OnTouchListener { _, event ->
         with(searchField) {
@@ -121,4 +105,22 @@ class HomeActivity : AppCompatActivity() {
     private fun onWordListClick(wordListName: String) {
         WordsActivity.startActivity(this, wordListName)
     }
+
+    private fun startSearchActivity(isVoiceSearchClicked: Boolean = false) {
+        val intent = Intent(this@HomeActivity, SearchActivity::class.java);
+        intent.putExtra(VOICE_SEARCH_EXTRA, isVoiceSearchClicked)
+        val p1 = android.support.v4.util.Pair<View, String>(
+            searchField,
+            getString(R.string.search_field_transition_name)
+        )
+        val p2 = android.support.v4.util.Pair<View, String>(
+            appBarLayout,
+            getString(R.string.search_appbar_transition_name)
+        )
+        val statusBar = findViewById<View>(android.R.id.statusBarBackground)
+        val p3 = Pair(statusBar, Window.STATUS_BAR_BACKGROUND_TRANSITION_NAME)
+        val options = ActivityOptionsCompat.makeSceneTransitionAnimation(this, p1, p2, p3)
+        startActivity(intent, options.toBundle())
+    }
+
 }
