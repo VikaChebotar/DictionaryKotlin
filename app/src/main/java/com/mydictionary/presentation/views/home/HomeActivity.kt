@@ -102,8 +102,7 @@ class HomeActivity : AppCompatActivity() {
                 getString(R.string.search_appbar_transition_name)
         )
         val statusBar = findViewById<View>(android.R.id.statusBarBackground)
-        val p3 =
-                android.support.v4.util.Pair(statusBar, Window.STATUS_BAR_BACKGROUND_TRANSITION_NAME)
+        val p3 = Pair(statusBar, Window.STATUS_BAR_BACKGROUND_TRANSITION_NAME)
         val options = ActivityOptionsCompat.makeSceneTransitionAnimation(this, p1, p2, p3)
         startActivity(intent, options.toBundle())
     }
